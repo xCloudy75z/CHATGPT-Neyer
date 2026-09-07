@@ -99,7 +99,118 @@ classdef TestPreTestPlanner < matlab.unittest.TestCase
             testCase.verifyError(@() validate_plan_inputs(input), ...
                 'validate_plan_inputs:badAccuracy');
         end
+
+        function tighterGapAccuracyNeverReducesArticleQuantity(testCase)
+            broad = validatedPlanInput();
+            tight = broad;
+            broad.accuracy_mm = 0.20;
+            tight.accuracy_mm = 0.05;
+            model = reachable_gap_model(broad.physical_setup, 0, 10);
+
+            broadPlan = estimate_study_plan(broad, model);
+            tightPlan = estimate_study_plan(tight, model);
+
+            testCase.verifyGreaterThanOrEqual(tightPlan.main_articles, ...
+                broadPlan.main_articles);
+            testCase.verifyGreaterThanOrEqual(tightPlan.total_articles, ...
+                broadPlan.total_articles);
+        end
+
+        function higherCautiousConfidenceNeverReducesQuantity(testCase)
+            lower = validatedPlanInput();
+            higher = lower;
+            lower.confidence = 0.80;
+            higher.confidence = 0.95;
+            model = reachable_gap_model(lower.physical_setup, 0, 10);
+
+            lowerPlan = estimate_study_plan(lower, model);
+            higherPlan = estimate_study_plan(higher, model);
+
+            testCase.verifyGreaterThanOrEqual(higherPlan.main_articles, ...
+                lowerPlan.main_articles);
+        end
+
+        function moreDemandingReliabilityNeverReducesQuantity(testCase)
+            lower = validatedPlanInput();
+            higher = lower;
+            lower.reliability = 0.90;
+            higher.reliability = 0.999;
+            model = reachable_gap_model(lower.physical_setup, 0, 10);
+
+            lowerPlan = estimate_study_plan(lower, model);
+            higherPlan = estimate_study_plan(higher, model);
+
+            testCase.verifyGreaterThanOrEqual(higherPlan.main_articles, ...
+                lowerPlan.main_articles);
+        end
+
+        function physicalCapabilityCanMakeRequestUnsupported(testCase)
+            input = validatedPlanInput();
+            input.accuracy_mm = 0.05;
+            coarseModel = reachable_gap_model(struct('mode', 'regular', ...
+                'increment_mm', 0.50), 0, 10);
+
+            plan = estimate_study_plan(input, coarseModel);
+
+            testCase.verifyFalse(plan.feasible);
+            testCase.verifyTrue(any(contains(lower(plan.suggestions), ...
+                'physical')));
+        end
+
+        function firstStudyExplainsNinetyFivePercentAssumption(testCase)
+            input = validatedPlanInput();
+            model = reachable_gap_model(input.physical_setup, 0, 10);
+
+            plan = estimate_study_plan(input, model);
+
+            testCase.verifyTrue(any(contains(plan.assumptions, '95%')));
+            testCase.verifyTrue(any(contains(lower(plan.assumptions), ...
+                'first study')));
+        end
+
+        function veryBroadUnknownStudySuggestsDiscovery(testCase)
+            input = validatedPlanInput();
+            input.accuracy_mm = 0.01;
+            model = reachable_gap_model(struct('mode', 'regular', ...
+                'increment_mm', 0.01), 0, 10);
+
+            plan = estimate_study_plan(input, model);
+
+            testCase.verifyFalse(plan.feasible);
+            testCase.verifyEqual(plan.plan_kind, 'discovery');
+            testCase.verifyTrue(any(contains(lower(plan.suggestions), ...
+                'discovery')));
+        end
+
+        function explanationDoesNotHideHalfSigmaRule(testCase)
+            input = validatedPlanInput();
+            model = reachable_gap_model(input.physical_setup, 0, 10);
+            plan = estimate_study_plan(input, model);
+            combinedText = lower(strjoin([plan.assumptions; ...
+                plan.suggestions; string(plan.validation_basis)], ' '));
+            testCase.verifyFalse(contains(combinedText, '0.5 x sigma'));
+            testCase.verifyFalse(contains(combinedText, '0.5 × sigma'));
+        end
+
+        function plannerSummarySeparatesMainAndReserveGroups(testCase)
+            input = validatedPlanInput();
+            model = reachable_gap_model(input.physical_setup, 0, 10);
+            plan = plan_prep_numbers(input, model);
+            message = plan_prep_message(plan, 'mm');
+
+            testCase.verifySubstring(message, 'Main study');
+            testCase.verifySubstring(message, 'Reserve group 1');
+            testCase.verifySubstring(message, 'Reserve group 2');
+            testCase.verifySubstring(message, 'Total to prepare');
+            testCase.verifySubstring(lower(message), 'estimate');
+            testCase.verifySubstring(message, sprintf('%.2f mm', ...
+                plan.starting_gap_mm));
+        end
     end
+end
+
+function input = validatedPlanInput()
+    input = validate_plan_inputs(validPlanInput());
 end
 
 function input = validPlanInput()

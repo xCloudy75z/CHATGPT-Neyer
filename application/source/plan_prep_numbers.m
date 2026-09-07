@@ -3,10 +3,15 @@ function res = plan_prep_numbers(params, R, C, cfg)
 %   res = PLAN_PREP_NUMBERS(params, R, C, cfg) returns how many parts to prepare
 %   for reliability R at confidence C, and the height of the first drop -- with NO
 %   printing. Reuses plan_samples (the verified engine) so the sample-size math has
-%   a single home. The count is spread-independent (the target precision is a
-%   fraction of sigma, so sigma cancels -- see settings.m / the spec), so a sigma=1
-%   placeholder is passed. The first drop is the midpoint of the guess (Stage 1
-%   starts at the centre of the bounds). [addendum PREP]
+%   a single home. The V1.10 planner call is PLAN_PREP_NUMBERS(clean, model),
+%   where clean is validated planner input and model is a reachable-gap model.
+%   The older four-argument call remains available only for compatibility with
+%   recorded V1.9 tests while the user interface moves to the guided planner.
+    if nargin >= 2 && isstruct(params) && isfield(params, 'mode') && ...
+            isstruct(R) && isfield(R, 'gaps_mm')
+        res = estimate_study_plan(params, R);
+        return;
+    end
     if nargin < 4 || isempty(cfg), cfg = neyer_settings(); end
     if ~(isfield(params, 'avg_low') && isfield(params, 'avg_high'))
         error('plan_prep_numbers:missingField', 'params needs avg_low and avg_high.');

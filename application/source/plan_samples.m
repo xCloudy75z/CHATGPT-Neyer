@@ -3,7 +3,8 @@ function res = plan_samples(tail, R, C, cfg, basis)
 %   res = PLAN_SAMPLES(tail, R, C, cfg, basis)
 %     tail  : 'break' or 'survive' (affects only wording; the count is symmetric)
 %     R, C  : reliability and confidence, each in (0,1)
-%     basis : struct('sigma', s)                 -> up-front, Banerjee asymptotics
+%     basis : struct('sigma',s,'accuracy_mm',a)  -> absolute gap accuracy
+%             struct('sigma', s)                 -> legacy fraction-of-sigma route
 %             struct('n',N,'level',L,'se',SE)    -> refined, exact 1/sqrt(N) scaling
 %   Returns struct:
 %     .n_recommended  max(floor, raw), rounded up
@@ -39,7 +40,28 @@ function res = plan_samples(tail, R, C, cfg, basis)
         '(Silvapulle); and the average/spread estimates keep settling until ~18-20 tests.'], nfloor);
     caveat = 'This is an estimate; the true number depends on the real spread, known only after testing.';
 
-    if isfield(basis, 'sigma')
+    if isfield(basis, 'sigma') && isfield(basis, 'accuracy_mm')
+        sg = basis.sigma;
+        accuracy_mm = basis.accuracy_mm;
+        if ~(isscalar(sg) && isreal(sg) && isfinite(sg) && sg > 0)
+            error('plan_samples:badSigma', 'basis.sigma must be a positive number.');
+        end
+        if ~(isscalar(accuracy_mm) && isreal(accuracy_mm) && ...
+                isfinite(accuracy_mm) && accuracy_mm > 0)
+            error('plan_samples:badAccuracy', ...
+                'basis.accuracy_mm must be a positive number.');
+        end
+        % Published large-sample starting relationships:
+        %   sd(mu)    ~= sigma / sqrt(0.392*N)
+        %   sd(sigma) ~= sigma / sqrt(0.507*(N-15))
+        % The sum is the conservative no-covariance-information limit for
+        % q = mu +/- k*sigma. It is a planning estimate until simulation.
+        protection_z = max(zc, 0);
+        n_raw = required_count_for_accuracy(sg, abs(k), protection_z, ...
+            accuracy_mm, nfloor);
+        target = accuracy_mm;
+        basisname = 'absolute_gap_accuracy_n_minus_15';
+    elseif isfield(basis, 'sigma')
         sg = basis.sigma;
         if ~(isscalar(sg) && isreal(sg) && sg > 0)
             error('plan_samples:badSigma', 'basis.sigma must be a positive number.');
@@ -67,4 +89,40 @@ function res = plan_samples(tail, R, C, cfg, basis)
     res = struct('n_recommended', max(nfloor, n_raw), 'n_needed_raw', n_raw, ...
                  'n_floor', nfloor, 'floor_reason', reason, 'n_bogey', n_bogey, ...
                  'basis', basisname, 'caveat', caveat);
+end
+
+function required_count = required_count_for_accuracy(sigma, absolute_k, ...
+        protection_z, accuracy_mm, sample_floor)
+    first_count = max(sample_floor, 16);
+    if protection_z == 0
+        required_count = first_count;
+        return;
+    end
+    margin = @(count) protection_z * sigma * ( ...
+        sqrt(1 ./ (0.392 .* count)) + ...
+        absolute_k ./ sqrt(0.507 .* (count - 15)));
+    if margin(first_count) <= accuracy_mm
+        required_count = first_count;
+        return;
+    end
+    lower_count = first_count;
+    upper_count = first_count;
+    while margin(upper_count) > accuracy_mm
+        lower_count = upper_count;
+        upper_count = upper_count * 2;
+        if upper_count > 1e8
+            error('plan_samples:quantityTooLarge', ...
+                ['The requested accuracy would require more than 100 million ' ...
+                 'articles under the planning approximation.']);
+        end
+    end
+    while upper_count - lower_count > 1
+        middle_count = floor((lower_count + upper_count) / 2);
+        if margin(middle_count) <= accuracy_mm
+            upper_count = middle_count;
+        else
+            lower_count = middle_count;
+        end
+    end
+    required_count = upper_count;
 end

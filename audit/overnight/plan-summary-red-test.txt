@@ -1,0 +1,4 @@
+Plan summary test before new summary implementation
+Passed: 18
+Failed: 1
+Incomplete: 1
