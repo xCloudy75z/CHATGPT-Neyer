@@ -1,0 +1,19 @@
+Full test suite after result redesign
+Passed: 169
+Failed: 0
+Incomplete: 0
+
+  1x169 <a href="matlab:helpPopup matlab.unittest.TestResult" style="font-weight:bold">TestResult</a> array with properties:
+
+    Name
+    Passed
+    Failed
+    Incomplete
+    Duration
+    Details
+
+Totals:
+   169 Passed, 0 Failed, 0 Incomplete.
+   17.5158 seconds testing time.
+
+

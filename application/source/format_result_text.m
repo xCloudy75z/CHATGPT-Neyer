@@ -12,20 +12,30 @@ function s = format_result_text(result)
         return;
     end
     cc = 100 * result.confidence_level;
-    pc = 100 * result.tail_fraction;
-    lines = {
+    decision = result_decision_summary(result);
+    if decision.supported
+        decision_lines = { ...
+            'SUPPORTED OPERATING INSTRUCTION'
+            decision.operating_instruction
+            char(decision.physical_build_instruction)};
+    else
+        decision_lines = { ...
+            'SUPPORTED OPERATING INSTRUCTION: Not established'
+            decision.explanation};
+    end
+    result_lines = {
+        ''
         sprintf('Tests used: %d', result.n)
         ''
-        sprintf('MIDDLE GAP (about 50%% interaction): %.4f', result.mu)
-        sprintf('  %.4g%% confident it is between %.4f and %.4f', cc, result.mu_lo, result.mu_hi)
+        sprintf('MIDDLE GAP (about 50%% interaction): %.2f mm', result.mu)
+        sprintf('  %.4g%% confident it is between %.2f and %.2f mm', cc, result.mu_lo, result.mu_hi)
         ''
-        sprintf('TRANSITION WIDTH: %.4f', result.sigma)
-        sprintf('  %.4g%% confident it is between %.4f and %.4f', cc, result.sigma_lo, result.sigma_hi)
-        ''
-        sprintf('HIGH-INTERACTION GAP (about %.4g%% interaction): %.4f', pc, result.high_interaction_gap)
-        sprintf('NEGLIGIBLE-INTERACTION GAP (about %.4g%% no interaction): %.4f', pc, result.negligible_interaction_gap)
+        sprintf('OVERALL VARIATION: %.2f mm', result.sigma)
+        sprintf('  %.4g%% confident it is between %.2f and %.2f mm', cc, result.sigma_lo, result.sigma_hi)
+        '  This describes how much the entire tested process varies from article to article.'
         ''
         'Smaller gaps make interaction more likely; larger gaps make it less likely.'
     };
+    lines = [decision_lines(:); result_lines(:)];
     s = strjoin(lines, sprintf('\n'));
 end

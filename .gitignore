@@ -27,6 +27,8 @@ docs/
 .superpowers/
 FROM CLAUDE/
 .worktrees/
+.matlab-prefs/
+MathWorks/
 
 # MATLAB launch sentinels, UI scratch captures, and transient simulation shards
 *.sentinel

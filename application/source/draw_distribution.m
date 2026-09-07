@@ -5,11 +5,22 @@ function draw_distribution(ax, result, cfg)
     if nargin<3 || isempty(cfg), cfg=neyer_settings(); end
     u = 'mm'; if isfield(result,'unit') && ~isempty(result.unit), u = result.unit; end
     mu = result.mu; sigma = result.sigma;
+    confidencePercent = 95;
+    if isfield(result, 'confidence_level') && ...
+            ~isempty(result.confidence_level) && isfinite(result.confidence_level)
+        confidencePercent = 100 * result.confidence_level;
+    end
     % percentage attached to the high/negligible interaction edge gaps
     if isfield(result,'tail_fraction') && ~isempty(result.tail_fraction) && isfinite(result.tail_fraction)
         pc = 100 * result.tail_fraction;
     else
         pc = 99.9;
+    end
+    compact = isfield(cfg, 'compact') && logical(cfg.compact);
+    if compact
+        draw_compact_distribution(ax, result, cfg, u, mu, sigma, ...
+            confidencePercent);
+        return;
     end
     x   = linspace(mu - 4.5*sigma, mu + 4.5*sigma, 400);
     pdf = shape_model(x, mu, sigma).phi ./ sigma;
@@ -33,7 +44,8 @@ function draw_distribution(ax, result, cfg)
         'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom');
 
     % --- (2) label the +/-1 spread band, lifted clearly above the relocated CI bracket
-    text(ax, mu, 0.46*ymax, 'middle ~68% of transition gaps (\pm1 width)', ...
+    text(ax, mu, 0.46*ymax, ...
+        'middle ~68% of transition gaps (\pm1 overall variation)', ...
         'HorizontalAlignment', 'center', 'FontSize', 13, 'Color', [0.45 0.42 0.36]);
 
     highGap = result.high_interaction_gap;
@@ -81,7 +93,9 @@ function draw_distribution(ax, result, cfg)
         hCI = line(ax, [mu_lo mu_hi], [yCI yCI], 'Color', teal, 'LineWidth', 1.5);
         line(ax, [mu_lo mu_lo], [yCI-cap yCI+cap], 'Color', teal, 'LineWidth', 1.5);
         line(ax, [mu_hi mu_hi], [yCI-cap yCI+cap], 'Color', teal, 'LineWidth', 1.5);
-        text(ax, mu, 0.18*ymax, sprintf('95%% range for middle gap: %.2f-%.2f %s', mu_lo, mu_hi, u), ...
+        text(ax, mu, 0.18*ymax, sprintf( ...
+            '%.4g%% range for middle gap: %.2f-%.2f %s', ...
+            confidencePercent, mu_lo, mu_hi, u), ...
             'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom', ...
             'FontSize', 13, 'Color', teal);
     end
@@ -106,7 +120,8 @@ function draw_distribution(ax, result, cfg)
     % --- (7) axis labels + title (enlarged text)
     xlabel(ax, sprintf('gap (%s)', u), 'FontSize', 14);
     ylabel(ax, {'relative distribution', 'of transition gaps'}, 'FontSize', 14);
-    title(ax, sprintf('Fitted gap transition:  middle %.2f,  width %.2f', mu, sigma), ...
+    title(ax, sprintf( ...
+        'Fitted gap transition: middle %.2f, overall variation %.2f', mu, sigma), ...
         'FontSize', 15, 'FontWeight', 'bold');
 
     % ensure the y-lower-limit includes the strip and headroom for the raised average label
@@ -117,11 +132,14 @@ function draw_distribution(ax, result, cfg)
     try
         if isempty(hCI)
             legend(ax, [hCurve hMean hBand], ...
-                {'fitted transition distribution', 'middle gap', 'middle ~68% (\pm1 width)'}, ...
+                {'fitted transition distribution', 'middle gap', ...
+                 'middle ~68% (\pm1 overall variation)'}, ...
                 'Location', 'northeast', 'FontSize', 7, 'Box', 'off');
         else
             legend(ax, [hCurve hMean hBand hCI], ...
-                {'fitted transition distribution', 'middle gap', 'middle ~68% (\pm1 width)', '95% range for middle gap'}, ...
+                {'fitted transition distribution', 'middle gap', ...
+                 'middle ~68% (\pm1 overall variation)', ...
+                 sprintf('%.4g%% range for middle gap', confidencePercent)}, ...
                 'Location', 'northeast', 'FontSize', 7, 'Box', 'off');
         end
     catch
@@ -129,6 +147,62 @@ function draw_distribution(ax, result, cfg)
         % above already name each element, so failing here is non-fatal.
     end
 
+    hold(ax, 'off');
+end
+
+function draw_compact_distribution(ax, result, cfg, u, mu, sigma, confidencePercent)
+% One clear purpose in the combined result screen: explain overall variation.
+    x = linspace(mu - 4.5 * sigma, mu + 4.5 * sigma, 400);
+    density = shape_model(x, mu, sigma).phi ./ sigma;
+    bandX = x(x >= mu - sigma & x <= mu + sigma);
+    bandDensity = shape_model(bandX, mu, sigma).phi ./ sigma;
+    dark = [0.10 0.16 0.19];
+    gold = [0.66 0.51 0.23];
+    teal = [0.18 0.44 0.42];
+
+    curveHandle = plot(ax, x, density, '-', 'Color', dark, 'LineWidth', 2);
+    hold(ax, 'on');
+    bandHandle = area(ax, bandX, bandDensity, ...
+        'FaceColor', [0.945 0.914 0.847], 'EdgeColor', 'none');
+    plot(ax, x, density, '-', 'Color', dark, 'LineWidth', 2);
+    middleHandle = line(ax, [mu mu], [0 max(density)], ...
+        'Color', gold, 'LineWidth', 1.5);
+    maximumDensity = max(density);
+    text(ax, mu, 1.04 * maximumDensity, sprintf('middle %.2f %s', mu, u), ...
+        'Color', gold, 'FontWeight', 'bold', 'FontSize', 11, ...
+        'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom');
+    text(ax, mu, 0.42 * maximumDensity, ...
+        {'middle ~68% of transition gaps', '(within 1 overall variation)'}, ...
+        'HorizontalAlignment', 'center', 'FontSize', 10, ...
+        'Color', [0.40 0.38 0.33]);
+
+    if isfield(result, 'mu_lo') && isfield(result, 'mu_hi') && ...
+            isfinite(result.mu_lo) && isfinite(result.mu_hi)
+        confidenceY = 0.12 * maximumDensity;
+        cap = 0.025 * maximumDensity;
+        line(ax, [result.mu_lo result.mu_hi], [confidenceY confidenceY], ...
+            'Color', teal, 'LineWidth', 1.5);
+        line(ax, [result.mu_lo result.mu_lo], ...
+            [confidenceY - cap confidenceY + cap], 'Color', teal, 'LineWidth', 1.5);
+        line(ax, [result.mu_hi result.mu_hi], ...
+            [confidenceY - cap confidenceY + cap], 'Color', teal, 'LineWidth', 1.5);
+        text(ax, mu, 0.18 * maximumDensity, sprintf( ...
+            '%.4g%% middle-gap range: %.2f to %.2f %s', ...
+            confidencePercent, result.mu_lo, result.mu_hi, u), ...
+            'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom', ...
+            'FontSize', 9, 'Color', teal);
+    end
+
+    xlabel(ax, sprintf('gap (%s)', u));
+    ylabel(ax, {'relative spread', 'of transition gaps'});
+    title(ax, 'How transition gaps vary around the middle', ...
+        'FontSize', 12, 'FontWeight', 'bold');
+    set(ax, 'XLim', [cfg.min_level cfg.max_level]);
+    set(ax, 'YLim', [0 1.24 * maximumDensity]);
+    grid(ax, 'on');
+    legend(ax, [curveHandle middleHandle bandHandle], ...
+        {'fitted variation', 'middle gap', 'middle ~68%'}, ...
+        'Location', 'northeast', 'FontSize', 7, 'Box', 'off');
     hold(ax, 'off');
 end
 

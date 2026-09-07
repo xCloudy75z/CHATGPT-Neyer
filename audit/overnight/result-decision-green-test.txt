@@ -1,0 +1,19 @@
+Result decision tests after implementation
+Passed: 9
+Failed: 0
+Incomplete: 0
+
+  1x9 <a href="matlab:helpPopup matlab.unittest.TestResult" style="font-weight:bold">TestResult</a> array with properties:
+
+    Name
+    Passed
+    Failed
+    Incomplete
+    Duration
+    Details
+
+Totals:
+   9 Passed, 0 Failed, 0 Incomplete.
+   4.1259 seconds testing time.
+
+

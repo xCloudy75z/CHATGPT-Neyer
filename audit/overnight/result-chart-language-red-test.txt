@@ -1,0 +1,4 @@
+Result chart wording before correction
+Passed: 8
+Failed: 1
+Incomplete: 0

@@ -12,9 +12,8 @@ classdef TestGapPresentation < matlab.unittest.TestCase
             text=format_result_text(finished_result());
 
             testCase.verifySubstring(text,'MIDDLE GAP');
-            testCase.verifySubstring(text,'TRANSITION WIDTH');
-            testCase.verifySubstring(text,'HIGH-INTERACTION GAP');
-            testCase.verifySubstring(text,'NEGLIGIBLE-INTERACTION GAP');
+            testCase.verifySubstring(text,'OVERALL VARIATION');
+            testCase.verifySubstring(lower(text),'entire tested process varies');
             testCase.verifyFalse(contains(lower(text),'height'));
             testCase.verifyFalse(contains(lower(text),'fire'));
         end
