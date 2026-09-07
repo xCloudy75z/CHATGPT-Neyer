@@ -122,7 +122,7 @@ $($summaryRows -join "`n")
 <div class="card"><b>Simulation evidence</b><p><span class="code">audit/v19-reaudit/v19-reaudit-simulation.csv</span><br><span class="code">audit/v19-reaudit/v19-reaudit-simulation-summary.csv</span></p></div>
 <div class="card"><b>Final `.mlx` SHA-256</b><p class="code" style="overflow-wrap:anywhere">$hash</p></div>
 </div>
-<p>The application, delivery, and OneDrive `.mlx` copies are checked by SHA-256. MATLAB exports 71 embedded top-level local functions. The executable function region matches the readable source character-for-character after line-ending normalisation.</p></section>
+<p>The application, delivery, and OneDrive `.mlx` copies are checked by SHA-256. MATLAB exports 72 embedded top-level local functions. The executable function region matches the readable source character-for-character after line-ending normalisation.</p></section>
 
 <footer>Generated $(Get-Date -Format 'yyyy-MM-dd HH:mm') Asia/Dubai · Self-contained offline HTML · No external fonts, scripts, images, or network connection required.</footer>
 </main></body></html>
