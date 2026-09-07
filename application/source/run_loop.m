@@ -74,6 +74,17 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
             error('run_loop:badReachableModel', ...
                 'The reachable physical-gap list is empty or invalid.');
         end
+        tolerance = cfg.reachable_model.comparison_tolerance_mm;
+        inside_bounds = cfg.reachable_model.gaps_mm >= cfg.min_level - tolerance & ...
+            cfg.reachable_model.gaps_mm <= cfg.max_level + tolerance;
+        if ~any(inside_bounds)
+            error('run_loop:noReachableGapInsideBounds', ...
+                'No reachable physical gap remains inside the permitted range.');
+        end
+        cfg.reachable_model.gaps_mm = ...
+            cfg.reachable_model.gaps_mm(inside_bounds);
+        cfg.reachable_model.instructions = ...
+            cfg.reachable_model.instructions(inside_bounds);
         reachable_minimum = cfg.reachable_model.gaps_mm(1);
         reachable_maximum = cfg.reachable_model.gaps_mm(end);
     else
@@ -107,6 +118,15 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
             allow_repeat = ~isempty(boundary_confirmation);
             [x, reachable_status] = select_reachable_request(x, ...
                 cfg.reachable_model, requested_levels(1:k-1), allow_repeat);
+            if ~strcmp(reachable_status.code, 'ok')
+                status = 'paused';
+                stop_reason = 'no_different_reachable_gap';
+                last_k = k - 1;
+                fprintf([ ...
+                    '  PAUSED - REVIEW REQUIRED: no different reachable gap remains.\n' ...
+                    '  The completed study data are kept; this is not a failed physical test.\n']);
+                break;
+            end
             requested_instructions(k) = reachable_status.instruction;
         elseif isfield(cfg,'level_increment') && ~isempty(cfg.level_increment)
             x = round(x / cfg.level_increment) * cfg.level_increment;
@@ -119,16 +139,16 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
         % is set and the pick falls below it, test AT the floor (boundary test)
         % and say so; if the floor is off but a pick goes negative, nudge once.
         % [addendum MINLEVEL]
-        if x < cfg.min_level
+        if ~has_reachable_model && x < cfg.min_level
             x = cfg.min_level;
             clamped(k) = true;
             fprintf(['  (The method requested a gap below the permitted minimum of %.4g %s;\n' ...
                      '   this test will use the minimum gap instead.)\n'], ...
                     cfg.min_level,cfg.unit);
-        elseif x > cfg.max_level
+        elseif ~has_reachable_model && x > cfg.max_level
             x = cfg.max_level;
             clamped(k) = true;
-        elseif isinf(cfg.min_level) && x < 0
+        elseif ~has_reachable_model && isinf(cfg.min_level) && x < 0
             if ~nudged
                 fprintf(['  (Heads up: the method suggested a level below 0. If your rig has a\n' ...
                          '   minimum height, set cfg.min_level to it, e.g. 0.)\n']);

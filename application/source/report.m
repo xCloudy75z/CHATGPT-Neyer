@@ -1,5 +1,5 @@
 function result = report(record, cfg)
-%REPORT  Worker #9 — present the final middle gap, transition width, and confidence.
+%REPORT  Worker #9 — present the final middle gap, overall variation, and confidence.
 %
 %   result = REPORT(record, cfg) takes the finished run (from run_loop) and
 %   produces the headline answer: the best-fit middle gap and width over all
@@ -72,7 +72,7 @@ function result = report(record, cfg)
             fprintf('Reason: %s.\n\n',strrep(stop_reason,'_',' '));
         else
             fprintf('\n=== Neyer sensitivity test: NO RESULT ===\n');
-            fprintf('Results have not yet overlapped, so the middle gap and transition width\n');
+            fprintf('Results have not yet overlapped, so the middle gap and overall variation\n');
             fprintf('cannot be estimated yet. More test results are needed.\n\n');
         end
         return;
@@ -154,9 +154,9 @@ function result = report(record, cfg)
     fprintf('MIDDLE GAP (about 50%% interaction): %.4f %s\n', mu, u);
     fprintf('  %.4g%% confident the true middle is between %.4f and %.4f %s.\n\n', ...
             cc, result.mu_lo, result.mu_hi, u);
-    fprintf('TRANSITION WIDTH: %.4f %s\n', sigma, u);
+    fprintf('OVERALL VARIATION: %.4f %s\n', sigma, u);
     fprintf('  Smaller means a sharper change; larger means a more gradual change.\n');
-    fprintf('  %.4g%% confident the true width is between %.4f and %.4f %s.\n\n', ...
+    fprintf('  %.4g%% confident the true overall variation is between %.4f and %.4f %s.\n\n', ...
             cc, result.sigma_lo, result.sigma_hi, u);
     fprintf('HIGH-INTERACTION gap (about %.4g%% interaction): %.4f %s\n', ...
             pc, result.high_interaction_gap, u);

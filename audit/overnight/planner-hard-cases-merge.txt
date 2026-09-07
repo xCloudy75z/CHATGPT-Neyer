@@ -1,0 +1,4 @@
+Hard-case calibration merge complete
+Scenarios: 6
+Accepted: 4
+Not accepted: 2

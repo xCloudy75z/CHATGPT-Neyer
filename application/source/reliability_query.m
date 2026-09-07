@@ -1,5 +1,5 @@
 function q = reliability_query(result, tail, action, value, C)
-%RELIABILITY_QUERY  Plain-language reliability/height/confidence calculator.
+%RELIABILITY_QUERY  Plain-language gap, probability, and confidence calculator.
 %   Interactive:  reliability_query(result)         -- guided menu.
 %   Scriptable:   q = reliability_query(result, tail, action, value, C)
 %     tail   : 'break' or 'survive'
@@ -67,25 +67,23 @@ end
 % error, so a human running the menu cannot crash it or be silently mis-defaulted.
 function q = run_menu(result, cfg)
     fprintf('\n--- Reliability calculator ---\n');
-    fprintf('  [1] Safe height for a reliability   (I have a target)\n');
-    fprintf('  [2] Reliability at a height          (I am stuck with a height)\n');
-    fprintf('  [3] How many parts do I need?        (planner)\n');
-    mode = ask_int_in_set('Choose 1/2/3: ', [1 2 3]);
-    t    = ask_int_in_set('Break or survive? [1] break  [2] survive: ', [1 2]);
+    fprintf('  [1] Cautious gap for a target chance\n');
+    fprintf('  [2] Chance at a physical gap\n');
+    fprintf('For article planning, use the main Pre-Test Planner.\n');
+    mode = ask_int_in_set('Choose 1 or 2: ', [1 2]);
+    t = ask_int_in_set([ ...
+        'Which outcome should be likely? [1] Interaction  [2] No interaction: '], ...
+        [1 2]);
     tail = 'break'; if t == 2, tail = 'survive'; end
 
     if mode == 2
-        x = ask_num_in_range('Height (mm): ', -Inf, Inf);   % any finite height
+        x = ask_num_in_range('Physical gap (mm): ', -Inf, Inf);
         C = ask_confidence(cfg);
-        q = reliability_query(result, tail, 'reliability_at', x, C);
+        q = reliability_query(result, tail, 'probability_at', x, C);
     else
         R = ask_reliability(cfg);
         C = ask_confidence(cfg);
-        if mode == 3
-            q = reliability_query(result, tail, 'plan', R, C);
-        else
-            q = reliability_query(result, tail, 'height_for', R, C);
-        end
+        q = reliability_query(result, tail, 'gap_for', R, C);
     end
     print_answer(q, tail, cfg);
 end
@@ -151,16 +149,25 @@ function print_answer(q, tail, cfg)
     % Minimal plain-language echo; report.m carries the detailed phrasing.
     fprintf('\n');
     if isfield(q, 'height')
-        verb = 'break at >='; if strcmp(tail,'survive'), verb = 'survive below'; end
-        fprintf('%.4g%% confident that %.4g%% of parts %s %.2f mm.\n', ...
-                100*q.C, 100*q.R, verb, q.bound);
+        outcome = 'Interaction'; direction = 'at or below';
+        if strcmp(tail,'survive')
+            outcome = 'No interaction'; direction = 'at or above';
+        end
+        fprintf([ ...
+            'At %.4g%% confidence, the %.4g%% %s setting is %.2f mm %s.\n'], ...
+            100*q.C, 100*q.R, outcome, q.bound, direction);
     elseif isfield(q, 'reliability')
-        fprintf('At %.2f mm: %.4g%% confident at least %.4g%% of parts %s.\n', ...
-                q.x, 100*q.C, q.bound_percent, tail);
+        outcome = 'Interaction';
+        if strcmp(tail,'survive'), outcome = 'No interaction'; end
+        fprintf([ ...
+            'At %.2f mm and %.4g%% confidence, the supported chance of %s is at least %.4g%%.\n'], ...
+            q.x, 100*q.C, outcome, q.bound_percent);
     elseif isfield(q, 'n_recommended')
-        fprintf('Plan for about %d parts. %s\n', q.n_recommended, q.caveat);
+        fprintf('Formula-only starting estimate: %d articles. %s\n', ...
+            q.n_recommended, q.caveat);
         fprintf('(Why at least %d: %s)\n', q.n_floor, q.floor_reason);
-        fprintf('(Counting failures directly would need ~%d parts.)\n', q.n_bogey);
+        fprintf(['Use the main Pre-Test Planner before preparing articles; ' ...
+            'it applies the recorded safety rules.\n']);
     end
 end
 

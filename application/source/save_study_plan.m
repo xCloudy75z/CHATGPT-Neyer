@@ -5,11 +5,19 @@ function saved_path = save_study_plan(plan, selected_path)
 
     if ~isstruct(plan) || ~all(isfield(plan, {'schema_version', 'mode', ...
             'outcome', 'main_articles', 'reserve_1_articles', ...
-            'reserve_2_articles', 'total_articles', 'reachable_model'}))
+            'reserve_2_articles', 'total_articles', 'reachable_model', ...
+            'reliability_validation_floor_articles', ...
+            'reliability_instruction_supported', ...
+            'reliability_instruction_status'}))
         error('save_study_plan:badPlan', ...
             'The study plan is incomplete and cannot be saved.');
     end
-    saved_path = absolute_path(selected_path);
+    [safe_plan, safety_message] = validate_study_plan_safety(plan);
+    if ~safe_plan
+        error('save_study_plan:badPlan', ...
+            'The study plan cannot be saved safely: %s', safety_message);
+    end
+    saved_path = absolute_save_path(selected_path);
     [folder, ~, extension] = fileparts(saved_path);
     if ~strcmpi(extension, '.json')
         error('save_study_plan:badExtension', ...
@@ -65,7 +73,7 @@ function saved_path = save_study_plan(plan, selected_path)
     end
 end
 
-function path = absolute_path(selected_path)
+function path = absolute_save_path(selected_path)
     if isstring(selected_path) && isscalar(selected_path)
         path = char(selected_path);
     elseif ischar(selected_path) && isrow(selected_path)

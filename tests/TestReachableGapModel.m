@@ -23,6 +23,13 @@ classdef TestReachableGapModel < matlab.unittest.TestCase
             end
         end
 
+        function regularIncrementMustFitTwoDecimalRequest(testCase)
+            setup = struct('mode', 'regular', 'increment_mm', 0.015);
+
+            testCase.verifyError(@() reachable_gap_model(setup, 0, 1), ...
+                'reachable_gap_model:badIncrementPrecision');
+        end
+
         function confirmedListIsSortedDeduplicatedAndBounded(testCase)
             setup = struct('mode', 'list', ...
                 'gaps_mm', [2.5 0.5 1.1 2.5 3.67 -1 11]);
@@ -62,6 +69,49 @@ classdef TestReachableGapModel < matlab.unittest.TestCase
             testCase.verifyEqual(noInteractionStatus.display_gap, "2.50 mm");
         end
 
+        function finalOperatingGapIsJudgedAgainstTheTrueBoundary(testCase)
+            model = reachable_gap_model(struct('mode', 'regular', ...
+                'increment_mm', 0.10), 0, 10);
+            interaction = operating_gap_coverage(2.46, 2.45, ...
+                'interaction', model);
+            noInteraction = operating_gap_coverage(2.44, 2.45, ...
+                'no_interaction', model);
+            testCase.verifyTrue(interaction.conservative);
+            testCase.verifyEqual(interaction.safe_gap_mm, 2.30, 'AbsTol', 1e-12);
+            testCase.verifyTrue(noInteraction.conservative);
+            testCase.verifyEqual(noInteraction.safe_gap_mm, 2.60, 'AbsTol', 1e-12);
+        end
+
+        function operatingInstructionUsesOneExtraSafeSetting(testCase)
+            model = reachable_gap_model(struct('mode', 'regular', ...
+                'increment_mm', 0.10), 0, 10);
+
+            [interactionGap, interactionStatus] = select_operating_gap( ...
+                2.46, 'interaction', model);
+            [noInteractionGap, noInteractionStatus] = select_operating_gap( ...
+                2.44, 'no_interaction', model);
+
+            testCase.verifyEqual(interactionGap, 2.30, 'AbsTol', 1e-12);
+            testCase.verifyEqual(noInteractionGap, 2.60, 'AbsTol', 1e-12);
+            testCase.verifyEqual(interactionStatus.code, 'ok');
+            testCase.verifyEqual(noInteractionStatus.code, 'ok');
+            testCase.verifySubstring(lower(interactionStatus.message), ...
+                'extra reachable');
+        end
+
+        function operatingInstructionIsWithheldWithoutExtraSafeSetting(testCase)
+            model = reachable_gap_model(struct('mode', 'list', ...
+                'gaps_mm', 2.40), 0, 10);
+
+            [gap, status] = select_operating_gap(2.45, ...
+                'interaction', model);
+
+            testCase.verifyTrue(isnan(gap));
+            testCase.verifyEqual(status.code, 'no_buffered_setting');
+            testCase.verifySubstring(lower(status.message), ...
+                'extra reachable');
+        end
+
         function repeatedSettingMovesToNearestDifferentSafeGap(testCase)
             model = reachable_gap_model(struct('mode', 'regular', ...
                 'increment_mm', 0.10), 0, 10);
@@ -80,6 +130,40 @@ classdef TestReachableGapModel < matlab.unittest.TestCase
             testCase.verifyTrue(isnan(gap));
             testCase.verifyEqual(status.code, 'no_different_setting');
             testCase.verifySubstring(lower(status.message), 'different');
+        end
+
+        function sequentialSelectionReportsExhaustedCapability(testCase)
+            model = reachable_gap_model(struct('mode', 'list', ...
+                'gaps_mm', 0.5), 0, 1);
+            [gap, status] = select_reachable_request(0.75, model, 0.5, false);
+            testCase.verifyTrue(isnan(gap));
+            testCase.verifyEqual(status.code, 'no_different_gap');
+            testCase.verifySubstring(lower(status.message), 'review');
+        end
+
+        function sequentialSelectionCanRevisitAnOlderUsefulGap(testCase)
+            model = reachable_gap_model(struct('mode', 'list', ...
+                'gaps_mm', [0 0.5 1.0]), 0, 1);
+            [gap, status] = select_reachable_request(0.5, model, ...
+                [0.5 1.0], false);
+            testCase.verifyEqual(gap, 0.5, 'AbsTol', 1e-12);
+            testCase.verifyEqual(status.code, 'ok');
+        end
+
+        function finalBoundsCannotCreateAnUnreachableRequest(testCase)
+            cfg = neyer_settings();
+            cfg.min_level = 0.05;
+            cfg.max_level = 0.10;
+            cfg.reachable_model = reachable_gap_model(struct( ...
+                'mode', 'list', 'gaps_mm', [0 0.10]), 0, 0.10);
+            parameters = struct('mu_min', 0, 'mu_max', 0.10, ...
+                'sigma_guess', 0.10);
+
+            record = run_loop(parameters, 1, @(~, ~) true, cfg);
+
+            testCase.verifyEqual(record.requested_levels, 0.10, ...
+                'AbsTol', 1e-12);
+            testCase.verifySubstring(record.requested_instructions, '0.10');
         end
 
         function rejectsEmptyPhysicalCapability(testCase)

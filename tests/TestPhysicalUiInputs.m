@@ -41,6 +41,35 @@ classdef TestPhysicalUiInputs < matlab.unittest.TestCase
                 'parse_run_inputs:badUsableResolution');
         end
 
+        function combinationPlanDoesNotTreatFoilAsUsableStep(testCase)
+            plan = struct('physical_setup', struct( ...
+                'mode', 'combinations', ...
+                'component_names', {{'foil', '0.50 mm spacer'}}, ...
+                'component_mm', [0.015 0.50], ...
+                'maximum_counts', [10 2]));
+
+            step = usable_resolution_for_plan(plan, 0.05);
+
+            testCase.verifyEqual(step, 0.05, 'AbsTol', 1e-12);
+        end
+
+        function regularPlanCarriesItsConfirmedStep(testCase)
+            plan = struct('physical_setup', struct( ...
+                'mode', 'regular', 'increment_mm', 0.15));
+
+            step = usable_resolution_for_plan(plan, 0.05);
+
+            testCase.verifyEqual(step, 0.15, 'AbsTol', 1e-12);
+        end
+
+        function editedRegularPlanCannotSilentlyReplaceInvalidStep(testCase)
+            plan = struct('physical_setup', struct( ...
+                'mode', 'regular', 'increment_mm', 0.015));
+
+            testCase.verifyError(@() usable_resolution_for_plan( ...
+                plan, 0.05), 'usable_resolution_for_plan:badRegularStep');
+        end
+
         function requestedGapInstructionUsesTwoDecimalPlaces(testCase)
             message=format_requested_gap(3.645,'mm');
 

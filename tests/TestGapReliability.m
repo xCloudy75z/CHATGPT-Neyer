@@ -61,6 +61,24 @@ classdef TestGapReliability < matlab.unittest.TestCase
             testCase.verifyFalse(q.bound_established);
             testCase.verifyEqual(q.permitted_range,[0 10]);
         end
+
+        function lowerConfidenceNeverCreatesStrongerInteractionClaim(testCase)
+            result = reference_result();
+            low = reliability_query(result, 'interaction', 'gap_for', 0.90, 0.10);
+            middle = reliability_query(result, 'interaction', 'gap_for', 0.90, 0.50);
+            high = reliability_query(result, 'interaction', 'gap_for', 0.90, 0.95);
+            testCase.verifyGreaterThanOrEqual(low.raw_bound, middle.raw_bound);
+            testCase.verifyGreaterThanOrEqual(middle.raw_bound, high.raw_bound);
+        end
+
+        function lowerConfidenceNeverCreatesStrongerNoInteractionClaim(testCase)
+            result = reference_result();
+            low = reliability_query(result, 'no_interaction', 'gap_for', 0.90, 0.10);
+            middle = reliability_query(result, 'no_interaction', 'gap_for', 0.90, 0.50);
+            high = reliability_query(result, 'no_interaction', 'gap_for', 0.90, 0.95);
+            testCase.verifyLessThanOrEqual(low.raw_bound, middle.raw_bound);
+            testCase.verifyLessThanOrEqual(middle.raw_bound, high.raw_bound);
+        end
     end
 end
 

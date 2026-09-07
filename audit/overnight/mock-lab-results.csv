@@ -1,0 +1,8 @@
+route,purpose,test_methods,passed,failed,incomplete,status,matlab_release
+"Original algorithm and reference table","Preserves the recorded V1.8 reference behavior and checks the published equations.",8,8,0,0,passed,2022b
+"Stage logic and next-gap selection","Checks Stage 1, the 0.8 narrowing rule, overlap, fitted estimates, useful next gaps, bounds, rounding, and stopping.",16,16,0,0,passed,2022b
+"Pre-test planner and checkpoints","Checks both planner routes, confidence classes, article reserves, physical capability, and unsupported requests.",71,71,0,0,passed,2022b
+"Physical build and measurement entry","Checks 4 or 5 readings, measured-mean use, fresh builds, mismatched requested and measured gaps, and boundary pauses.",33,33,0,0,passed,2022b
+"Reliability results and safe rounding","Checks decreasing-gap direction, operating instructions, plots, confidence calculations, and out-of-range protection.",52,52,0,0,passed,2022b
+"Saving, reopening, and overwrite protection","Checks user-selected paths, plan reopening, full saved data, and refusal to replace existing files.",10,10,0,0,passed,2022b
+"Standalone v1.10 file","Checks that the Live Script contains every function and has no outside code dependency.",1,1,0,0,passed,2022b

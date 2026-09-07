@@ -63,7 +63,7 @@ function txt = results_to_csv_text(result)
     L{end+1} = '';
     L{end+1} = 'summary,value,unit';
     L{end+1} = sprintf('Middle gap,%.4f,%s', csv_field(result,'mu',NaN), u);
-    L{end+1} = sprintf('Transition width,%.4f,%s', csv_field(result,'sigma',NaN), u);
+    L{end+1} = sprintf('Overall variation,%.4f,%s', csv_field(result,'sigma',NaN), u);
     L{end+1} = sprintf('95%% middle-gap low,%.4f,%s', csv_field(result,'mu_lo',NaN), u);
     L{end+1} = sprintf('95%% middle-gap high,%.4f,%s', csv_field(result,'mu_hi',NaN), u);
     L{end+1} = sprintf('High-interaction gap (~%.4g%% interaction),%.4f,%s', ...
@@ -80,7 +80,7 @@ function txt = results_to_csv_text(result)
     end
     if isfield(result,'resolution_sigma_floor') && ...
             ~isempty(result.resolution_sigma_floor)
-        L{end+1}=sprintf('Stage-2 planning sigma floor,%.4f,%s', ...
+        L{end+1}=sprintf('Stage-2 planning variation floor,%.4f,%s', ...
             result.resolution_sigma_floor,u);
     end
 

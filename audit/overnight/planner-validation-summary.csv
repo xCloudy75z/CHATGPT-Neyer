@@ -1,0 +1,13 @@
+scenario_id,repetitions,outcome,reliability,confidence,accuracy_mm,planned_main,planned_total,required_rate,usable_fit_rate,middle_coverage_rate,boundary_coverage_rate,operating_gap_coverage_rate,reachable_safe_rate,checkpoint_correct_rate,conclusion
+c10-r10-regular-005-expected,40,interaction,0.1,0.1,1,20,400,0.95,0,0,0,0,0,0,withheld
+c499-r50-regular-010-sudden,40,no_interaction,0.5,0.499,0.5,20,400,0.95,0,0,0,0,0,0,withheld
+c50-r90-regular-015-gradual,40,interaction,0.9,0.5,1.5,20,400,0.95,0,0,0,0,0,0,withheld
+c95-r90-regular-005-expected,40,interaction,0.9,0.95,0.75,25,400,0.95,1,0.95,0.925,1,1,1,accepted
+c95-r99-regular-010-expected,40,no_interaction,0.99,0.95,1,28,400,0.95,1,0.95,0.925,1,1,1,accepted
+c95-r999-regular-050-sudden,40,interaction,0.999,0.95,1,20,400,0.95,1,0.975,0.875,1,1,1,accepted
+c999-r999-regular-010-expected,40,interaction,0.999,0.999,2,34,400,0.999,0,0,0,0,0,0,withheld
+c95-r90-regular-015-gradual-nointeraction,40,no_interaction,0.9,0.95,1.5,25,400,0.95,1,0.95,0.925,1,1,1,accepted
+c95-r99-irregular-expected-interaction,40,interaction,0.99,0.95,1.25,23,400,0.95,1,0.95,0.95,1,1,1,accepted
+c95-r99-irregular-expected-nointeraction,40,no_interaction,0.99,0.95,1.25,23,400,0.95,1,0.975,1,1,1,1,accepted
+c95-r90-regular-010-sudden-clean,40,interaction,0.9,0.95,0.5,20,400,0.95,1,0.95,0.95,1,1,1,accepted
+c95-r999-regular-005-gradual,40,no_interaction,0.999,0.95,3,24,400,0.95,1,0.975,0.9,0.95,1,1,accepted

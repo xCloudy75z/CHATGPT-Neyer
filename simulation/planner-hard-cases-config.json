@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "rule_version": "absolute-gap-n-minus-15-simulation-floor-calibration-v2",
+  "purpose": "Find a non-optimistic article floor for the two C95 cases that missed the 200-article full-grid check.",
+  "base_seed": 2026090800,
+  "max_simulated_articles": 400,
+  "grid_points": 401,
+  "fixed_validation_counts": [200, 300, 400],
+  "notes": [
+    "Each simulated article is a new build.",
+    "Repeated readings describe one unchanged build.",
+    "The pass thresholds are not relaxed after observing the results."
+  ],
+  "scenarios": [
+    {
+      "id": "c95-r999-regular-050-sudden-hard",
+      "true_middle_mm": 5.0,
+      "true_sigma_mm": 0.25,
+      "outcome": "interaction",
+      "reliability": 0.999,
+      "confidence": 0.95,
+      "accuracy_mm": 1.0,
+      "minimum_gap_mm": 0.0,
+      "maximum_gap_mm": 10.0,
+      "interaction_endpoint_mm": 4.59,
+      "no_interaction_endpoint_mm": 5.41,
+      "capability": "regular",
+      "increment_mm": 0.50,
+      "gaps_mm": [],
+      "measurement_sd_mm": 0.015,
+      "build_sd_mm": 0.03,
+      "reading_count": 5,
+      "repetitions": 160
+    },
+    {
+      "id": "c95-r99-irregular-nointeraction-hard",
+      "true_middle_mm": 5.0,
+      "true_sigma_mm": 0.5,
+      "outcome": "no_interaction",
+      "reliability": 0.99,
+      "confidence": 0.95,
+      "accuracy_mm": 1.25,
+      "minimum_gap_mm": 0.0,
+      "maximum_gap_mm": 10.0,
+      "interaction_endpoint_mm": 4.18,
+      "no_interaction_endpoint_mm": 5.82,
+      "capability": "irregular",
+      "increment_mm": 0.0,
+      "gaps_mm": [0.0, 0.5, 1.1, 2.09, 3.0, 3.67, 4.18, 4.5, 5.0, 5.5, 5.82, 6.5, 7.0, 8.0, 9.0, 10.0],
+      "measurement_sd_mm": 0.03,
+      "build_sd_mm": 0.06,
+      "reading_count": 4,
+      "repetitions": 160
+    }
+  ]
+}

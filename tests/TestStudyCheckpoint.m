@@ -81,6 +81,96 @@ classdef TestStudyCheckpoint < matlab.unittest.TestCase
             testCase.verifyEmpty(decision.missing_conditions);
         end
 
+        function reliabilityResultCannotCompleteBeforeValidatedFloor(testCase)
+            result = referenceResult();
+            result.n = 20;
+            plan = checkpointPlan();
+            plan.reliability_validation_floor_articles = 400;
+            plan.reserve_2_articles = 375;
+
+            decision = check_study_checkpoint(result, plan, 'main');
+
+            testCase.verifyEqual(decision.status, 'ask_for_reserve');
+            testCase.verifyTrue(any(contains(lower( ...
+                decision.missing_conditions), '400 independent')));
+        end
+
+        function validatedFloorCanCompleteAtFourHundred(testCase)
+            result = referenceResult();
+            result.n = 400;
+            plan = checkpointPlan();
+            plan.reliability_validation_floor_articles = 400;
+            plan.main_articles = 20;
+            plan.reserve_1_articles = 5;
+            plan.reserve_2_articles = 375;
+
+            decision = check_study_checkpoint(result, plan, 'reserve_2');
+
+            testCase.verifyEqual(decision.status, 'complete');
+            testCase.verifyEmpty(decision.missing_conditions);
+        end
+
+        function skipsAnEmptyFirstReserveAndOffersSecondReserve(testCase)
+            result = referenceResult();
+            result.n = 20;
+            plan = checkpointPlan();
+            plan.reliability_validation_floor_articles = 400;
+            plan.reserve_1_articles = 0;
+            plan.reserve_2_articles = 380;
+
+            decision = check_study_checkpoint(result, plan, 'main');
+
+            testCase.verifyEqual(decision.status, 'ask_for_reserve');
+            testCase.verifyEqual(decision.next_checkpoint, 'reserve_2');
+        end
+
+        function exploratoryConfidenceCannotIssueReliabilityInstruction(testCase)
+            result = referenceResult();
+            result.n = 400;
+            plan = checkpointPlan();
+            plan.reliability_validation_floor_articles = 400;
+            plan.reliability_instruction_supported = false;
+            plan.reliability_instruction_status = 'exploratory_confidence';
+            plan.confidence = 0.50;
+            plan.main_articles = 20;
+            plan.reserve_1_articles = 5;
+            plan.reserve_2_articles = 375;
+
+            decision = check_study_checkpoint(result, plan, 'reserve_2');
+
+            testCase.verifyEqual(decision.status, 'unsupported');
+            testCase.verifyTrue(any(contains(lower( ...
+                decision.missing_conditions), 'exploratory')));
+        end
+
+        function aboveValidatedConfidenceCannotIssueReliabilityInstruction(testCase)
+            result = referenceResult();
+            result.n = 400;
+            plan = checkpointPlan();
+            plan.reliability_validation_floor_articles = 400;
+            plan.reliability_instruction_supported = false;
+            plan.reliability_instruction_status = 'above_recorded_validation';
+            plan.confidence = 0.999;
+            plan.main_articles = 20;
+            plan.reserve_1_articles = 5;
+            plan.reserve_2_articles = 375;
+
+            decision = check_study_checkpoint(result, plan, 'reserve_2');
+
+            testCase.verifyEqual(decision.status, 'unsupported');
+            testCase.verifyTrue(any(contains(lower( ...
+                decision.missing_conditions), 'above 95%')));
+        end
+
+        function missingSafetyRulesAreRejected(testCase)
+            result = referenceResult();
+            plan = rmfield(checkpointPlan(), ...
+                'reliability_validation_floor_articles');
+
+            testCase.verifyError(@() check_study_checkpoint( ...
+                result, plan, 'main'), 'check_study_checkpoint:badPlan');
+        end
+
         function exhaustedReserveTwoReportsUnsupported(testCase)
             result = referenceResult();
             result.has_overlap = false;
@@ -147,6 +237,9 @@ plan = struct( ...
     'main_articles', 20, ...
     'reserve_1_articles', 5, ...
     'reserve_2_articles', 5, ...
+    'reliability_validation_floor_articles', 400, ...
+    'reliability_instruction_supported', true, ...
+    'reliability_instruction_status', 'supported_after_final_checkpoint', ...
     'reachable_model', reachable_gap_model( ...
         struct('mode', 'regular', 'increment_mm', 0.10), 0, 10));
 end
@@ -169,4 +262,5 @@ if isempty(savedResult)
     evalc('[savedResult,~]=run_test(parameters,20,@(~,testNumber)outcomes(testNumber));');
 end
 result = savedResult;
+result.n = 400;
 end

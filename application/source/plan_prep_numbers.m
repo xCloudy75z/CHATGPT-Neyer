@@ -6,7 +6,7 @@ function res = plan_prep_numbers(params, R, C, cfg)
 %   a single home. The V1.10 planner call is PLAN_PREP_NUMBERS(clean, model),
 %   where clean is validated planner input and model is a reachable-gap model.
 %   The older four-argument call remains available only for compatibility with
-%   recorded V1.9 tests while the user interface moves to the guided planner.
+%   recorded compatibility tests while the user interface uses the guided planner.
     if nargin >= 2 && isstruct(params) && isfield(params, 'mode') && ...
             isstruct(R) && isfield(R, 'gaps_mm')
         res = estimate_study_plan(params, R);

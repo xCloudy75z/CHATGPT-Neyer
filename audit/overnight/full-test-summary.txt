@@ -1,0 +1,9 @@
+Neyer v1.10 complete mock laboratory verification
+MATLAB release: 2022b
+Routes: 7
+Test methods: 191
+Passed: 191
+Failed: 0
+Incomplete: 0
+Every destructive-test route treats each article as a new build.
+Four or five readings describe one unchanged build; their mean is the fitted gap.

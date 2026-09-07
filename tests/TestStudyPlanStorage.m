@@ -17,7 +17,7 @@ classdef TestStudyPlanStorage < matlab.unittest.TestCase
             decoded = jsondecode(fileread(selectedPath));
 
             testCase.verifyEqual(savedPath, selectedPath);
-            testCase.verifyEqual(decoded.schema_version, '1.0');
+            testCase.verifyEqual(decoded.schema_version, '1.1');
             testCase.verifyEqual(decoded.mode, 'requirements_first');
             testCase.verifyEqual(decoded.outcome, 'interaction');
             testCase.verifyEqual(decoded.minimum_gap_mm, 0);
@@ -26,6 +26,10 @@ classdef TestStudyPlanStorage < matlab.unittest.TestCase
             testCase.verifyTrue(isfield(decoded, 'main_articles'));
             testCase.verifyTrue(isfield(decoded, 'validation_basis'));
             testCase.verifyTrue(isfield(decoded, 'checkpoint_status'));
+            testCase.verifyTrue(isfield(decoded, ...
+                'reliability_validation_floor_articles'));
+            testCase.verifyTrue(isfield(decoded, ...
+                'reliability_instruction_supported'));
         end
 
         function savedPlanRoundTripsImportantValues(testCase)
@@ -76,6 +80,50 @@ classdef TestStudyPlanStorage < matlab.unittest.TestCase
             writeText(selectedPath, '{"schema_version":"99.0"}');
             testCase.verifyError(@() load_study_plan(selectedPath), ...
                 'load_study_plan:unsupportedVersion');
+        end
+
+        function olderPlanWithoutSafetyFieldsIsRejected(testCase)
+            folder = testCase.createTemporaryFolder();
+            selectedPath = fullfile(folder, 'old-plan.json');
+            writeText(selectedPath, ['{"schema_version":"1.0",' ...
+                '"mode":"requirements_first"}']);
+
+            testCase.verifyError(@() load_study_plan(selectedPath), ...
+                'load_study_plan:unsupportedVersion');
+        end
+
+        function editedArticleFloorIsRejected(testCase)
+            folder = testCase.createTemporaryFolder();
+            selectedPath = fullfile(folder, 'edited-floor.json');
+            plan = completePlan();
+            plan.reliability_validation_floor_articles = 399;
+            writeText(selectedPath, jsonencode(plan));
+
+            testCase.verifyError(@() load_study_plan(selectedPath), ...
+                'load_study_plan:unsafePlan');
+        end
+
+        function confidenceAndSupportFlagMustAgree(testCase)
+            folder = testCase.createTemporaryFolder();
+            selectedPath = fullfile(folder, 'edited-confidence.json');
+            plan = completePlan();
+            plan.confidence = 0.499;
+            plan.reliability_instruction_supported = true;
+            writeText(selectedPath, jsonencode(plan));
+
+            testCase.verifyError(@() load_study_plan(selectedPath), ...
+                'load_study_plan:unsafePlan');
+        end
+
+        function editedReliabilityOutsidePlannerRangeIsRejected(testCase)
+            folder = testCase.createTemporaryFolder();
+            selectedPath = fullfile(folder, 'edited-reliability.json');
+            plan = completePlan();
+            plan.reliability = 0.9999;
+            writeText(selectedPath, jsonencode(plan));
+
+            testCase.verifyError(@() load_study_plan(selectedPath), ...
+                'load_study_plan:unsafePlan');
         end
     end
 end

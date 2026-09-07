@@ -1,0 +1,6 @@
+Neyer v1.10 final full MATLAB test suite
+MATLAB release: 2022b
+Passed: 211
+Failed: 0
+Incomplete: 0
+Elapsed seconds: 23.556

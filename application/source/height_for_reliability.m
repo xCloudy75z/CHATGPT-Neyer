@@ -28,7 +28,7 @@ function res = height_for_reliability(levels, successes, tail, R, C)
 
     [mu, sigma, Lmax] = best_fit(levels, successes, mean(levels), fit_sigma0(levels));
     k   = shape_model(R, 'quantile');
-    c1  = shape_model(C, 'quantile')^2;
+    c1  = one_sided_profile_threshold(C);
     cap = 5 * (max(levels) - min(levels));
 
     % In the gap application, interaction probability DECREASES with gap.

@@ -1,0 +1,5 @@
+Planner validation merge complete
+Scenarios: 12
+Accepted: 8
+Not accepted: 0
+Withheld: 4

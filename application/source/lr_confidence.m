@@ -27,7 +27,7 @@ function ci = lr_confidence(levels, successes, mu0, sigma0, cfg)
     [muhat, sighat, Lmax] = best_fit(levels, successes, mu0, sigma0);
 
     c2  = shape_model((1+C)/2, 'quantile')^2;    % two-sided threshold
-    c1  = shape_model(C,       'quantile')^2;    % one-sided threshold
+    c1  = one_sided_profile_threshold(C);         % one-sided threshold
     k   = shape_model(cfg.tail_fraction, 'quantile');
     rng = max(levels(:)) - min(levels(:));
     cap = 5 * rng;   % based on the tested range only, so a runaway sigma can't inflate the sanity cap

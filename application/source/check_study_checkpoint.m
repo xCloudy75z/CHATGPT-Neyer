@@ -6,10 +6,16 @@ function decision = check_study_checkpoint(result, plan, checkpoint_name)
     required_plan_fields = {'outcome', 'reliability', 'confidence', ...
         'accuracy_mm', 'minimum_gap_mm', 'maximum_gap_mm', ...
         'main_articles', 'reserve_1_articles', 'reserve_2_articles', ...
-        'reachable_model'};
+        'reachable_model', 'reliability_validation_floor_articles', ...
+        'reliability_instruction_supported', ...
+        'reliability_instruction_status'};
     if ~isstruct(plan) || ~all(isfield(plan, required_plan_fields))
         error('check_study_checkpoint:badPlan', ...
             'A complete saved study plan is required for the checkpoint.');
+    end
+    [safe_plan, safety_message] = validate_study_plan_safety(plan);
+    if ~safe_plan
+        error('check_study_checkpoint:badPlan', '%s', safety_message);
     end
     checkpoint_name = lower(strtrim(char(string(checkpoint_name))));
     if ~any(strcmp(checkpoint_name, {'main', 'reserve_1', 'reserve_2'}))
@@ -59,6 +65,28 @@ function decision = check_study_checkpoint(result, plan, checkpoint_name)
             strrep(checkpoint_name, '_', ' '), planned_count);
     end
 
+    if ~isfield(result, 'n') || ...
+            result.n < plan.reliability_validation_floor_articles
+        missing(end + 1, 1) = sprintf([ ...
+            'A supported reliability result requires %d independent articles ' ...
+            'under the recorded virtual-study safety rule.'], ...
+            plan.reliability_validation_floor_articles);
+    end
+
+    if ~plan.reliability_instruction_supported
+        if isfield(plan, 'reliability_instruction_status') && ...
+                strcmp(plan.reliability_instruction_status, ...
+                'exploratory_confidence')
+            missing(end + 1, 1) = [ ...
+                "This confidence is exploratory, so no safety-supported " + ...
+                "reliability operating instruction can be issued."];
+        else
+            missing(end + 1, 1) = [ ...
+                "Confidence above 95% is outside the recorded validation; " + ...
+                "no safety-supported reliability operating instruction can be issued."];
+        end
+    end
+
     boundary_established = false;
     safe_gap_mm = NaN;
     safe_gap_status = struct('code', 'not_checked', ...
@@ -74,8 +102,8 @@ function decision = check_study_checkpoint(result, plan, checkpoint_name)
             raw_boundary >= plan.minimum_gap_mm && ...
             raw_boundary <= plan.maximum_gap_mm;
         if boundary_established
-            [safe_gap_mm, safe_gap_status] = round_reachable_gap( ...
-                raw_boundary, plan.outcome, plan.reachable_model, []);
+            [safe_gap_mm, safe_gap_status] = select_operating_gap( ...
+                raw_boundary, plan.outcome, plan.reachable_model);
         end
     end
     if ~boundary_established
@@ -83,7 +111,7 @@ function decision = check_study_checkpoint(result, plan, checkpoint_name)
             "The requested reliability boundary is not established inside the permitted range."];
     elseif ~strcmp(safe_gap_status.code, 'ok')
         missing(end + 1, 1) = [ ...
-            "No safely rounded reachable gap is available for the requested result."];
+            "No reachable gap with the extra safe-direction build step is available for the requested result."];
     end
 
     if isempty(missing)
@@ -132,6 +160,9 @@ end
 function [name, available] = following_checkpoint(plan, checkpoint_name)
     if strcmp(checkpoint_name, 'main') && plan.reserve_1_articles > 0
         name = 'reserve_1';
+        available = true;
+    elseif strcmp(checkpoint_name, 'main') && plan.reserve_2_articles > 0
+        name = 'reserve_2';
         available = true;
     elseif strcmp(checkpoint_name, 'reserve_1') && plan.reserve_2_articles > 0
         name = 'reserve_2';

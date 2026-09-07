@@ -207,8 +207,88 @@ classdef TestPreTestPlanner < matlab.unittest.TestCase
                 plan.starting_gap_mm));
         end
 
+        function validatedReliabilityFloorExtendsOnlyTheReservePlan(testCase)
+            raw_input = validPlanInput();
+            raw_input.reliability = 0.90;
+            raw_input.confidence = 0.80;
+            raw_input.accuracy_mm = 10.00;
+            raw_input.interaction_gap_mm = 4.00;
+            raw_input.no_interaction_gap_mm = 6.00;
+            input = validate_plan_inputs(raw_input);
+            model = reachable_gap_model(input.physical_setup, 0, 10);
+
+            plan = estimate_study_plan(input, model);
+
+            testCase.verifyEqual( ...
+                plan.reliability_validation_floor_articles, 400);
+            testCase.verifyLessThan(plan.main_articles, ...
+                plan.reliability_validation_floor_articles);
+            testCase.verifyGreaterThanOrEqual(plan.total_articles, ...
+                plan.reliability_validation_floor_articles);
+            testCase.verifyEqual(plan.total_articles, ...
+                plan.main_articles + plan.reserve_1_articles + ...
+                plan.reserve_2_articles);
+            testCase.verifySubstring(lower(plan.validation_basis), ...
+                'recorded virtual');
+        end
+
+        function plannerSummaryExplainsReliabilitySafetyFloor(testCase)
+            input = validatedPlanInput();
+            model = reachable_gap_model(input.physical_setup, 0, 10);
+            plan = estimate_study_plan(input, model);
+
+            message = plan_prep_message(plan, 'mm');
+
+            testCase.verifySubstring(lower(message), ...
+                'reliability result');
+            testCase.verifySubstring(message, '400');
+            testCase.verifySubstring(lower(message), ...
+                'not used automatically');
+        end
+
+        function fiftyPercentConfidenceRemainsExploratory(testCase)
+            raw_input = validPlanInput();
+            raw_input.confidence = 0.50;
+            input = validate_plan_inputs(raw_input);
+            model = reachable_gap_model(input.physical_setup, 0, 10);
+
+            plan = estimate_study_plan(input, model);
+
+            testCase.verifyFalse(plan.reliability_instruction_supported);
+            testCase.verifyEqual(plan.reliability_instruction_status, ...
+                'exploratory_confidence');
+            testCase.verifyTrue(any(contains(lower(plan.suggestions), ...
+                'exploratory')));
+        end
+
+        function aboveNinetyFivePercentIsCalculatedButNotSafetySupported(testCase)
+            raw_input = validPlanInput();
+            raw_input.confidence = 0.999;
+            input = validate_plan_inputs(raw_input);
+            model = reachable_gap_model(input.physical_setup, 0, 10);
+
+            plan = estimate_study_plan(input, model);
+
+            testCase.verifyFalse(plan.reliability_instruction_supported);
+            testCase.verifyEqual(plan.reliability_instruction_status, ...
+                'above_recorded_validation');
+            testCase.verifyTrue(any(contains(lower(plan.suggestions), ...
+                '95%')));
+        end
+
+        function ninetyFivePercentIsInsideRecordedSupport(testCase)
+            input = validatedPlanInput();
+            model = reachable_gap_model(input.physical_setup, 0, 10);
+
+            plan = estimate_study_plan(input, model);
+
+            testCase.verifyTrue(plan.reliability_instruction_supported);
+            testCase.verifyEqual(plan.reliability_instruction_status, ...
+                'supported_after_final_checkpoint');
+        end
+
         function moreAvailableArticlesDoNotReduceExpectedConfidence(testCase)
-            smaller = inversePlanInput(300);
+            smaller = inversePlanInput(400);
             larger = inversePlanInput(1200);
             model = reachable_gap_model(smaller.physical_setup, 0, 10);
 
@@ -221,8 +301,17 @@ classdef TestPreTestPlanner < matlab.unittest.TestCase
                 smallerAnswer.best_confidence);
         end
 
+        function availableArticleAnswerNeverExceedsValidatedConfidence(testCase)
+            input = inversePlanInput(1200);
+            model = reachable_gap_model(input.physical_setup, 0, 10);
+
+            answer = estimate_supported_targets(input, model, 'reliability');
+
+            testCase.verifyLessThanOrEqual(answer.best_confidence, 0.95);
+        end
+
         function moreAvailableArticlesDoNotReduceExpectedReliability(testCase)
-            smaller = inversePlanInput(300);
+            smaller = inversePlanInput(400);
             larger = inversePlanInput(1200);
             smaller.confidence = 0.80;
             larger.confidence = 0.80;
@@ -250,6 +339,18 @@ classdef TestPreTestPlanner < matlab.unittest.TestCase
                 'pre-test expectation');
             testCase.verifySubstring(lower(answer.statement), ...
                 'not a final claim');
+        end
+
+        function articlesBelowSafetyFloorDoNotCreateReliabilityClaim(testCase)
+            input = inversePlanInput(399);
+            model = reachable_gap_model(input.physical_setup, 0, 10);
+
+            answer = estimate_supported_targets(input, model, 'reliability');
+
+            testCase.verifyTrue(isnan(answer.best_confidence));
+            testCase.verifyTrue(any(contains(answer.messages, '400')));
+            testCase.verifyTrue(any(contains(lower(answer.messages), ...
+                'independent articles')));
         end
 
         function inversePlannerReportsPhysicalLimitation(testCase)

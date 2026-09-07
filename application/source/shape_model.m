@@ -19,7 +19,7 @@ function s = shape_model(x, mu, sigma)
 %   Inputs
 %     x      physical gap(s); scalar or array of any shape.
 %     mu     middle gap, where interaction chance is 50%, scalar.
-%     sigma  transition width, scalar, must be > 0.
+%     sigma  overall variation, scalar, must be > 0.
 %
 %   Output struct s, every field the same size as x:
 %     s.z    standardised gap, z = (mu - x) / sigma

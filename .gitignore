@@ -28,12 +28,31 @@ docs/
 FROM CLAUDE/
 .worktrees/
 .matlab-prefs/
+.matlab-prefs-shard-*/
+.matlab-prefs-*/
 MathWorks/
 
 # MATLAB launch sentinels, UI scratch captures, and transient simulation shards
 *.sentinel
 assets/screenshots/*-scratch.png
 audit/overnight/shards/
+audit/overnight/*-shard-*-complete.txt
+audit/overnight/*-red-test.txt
+audit/overnight/*-green-test.txt
+simulation/*-shard-*.csv
+simulation/*-pilot.csv
+audit/overnight/planner-calibration-*
+audit/overnight/planner-convergence-*
+audit/overnight/planner-low-confidence-*
+audit/overnight/planner-group-diagnostic.txt
+audit/overnight/planner-simulation-unit-tests.txt
+audit/overnight/planner-validation-pilot*
+
+# One-off red/green launchers remain local; the real tests are in tests/
+tools/run_*_red.m
+tools/run_*_green.m
+tools/run_planner_group_diagnostic.m
+tools/run_planner_validation_pilot.m
 
 # Generated working copies; keep only named final deliverables
 delivery/*.m

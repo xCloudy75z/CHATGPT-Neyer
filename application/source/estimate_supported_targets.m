@@ -34,6 +34,7 @@ function answer = estimate_supported_targets(clean, reachable_model, fixed_kind)
     end
 
     required_articles = zeros(size(candidate_values));
+    candidate_is_validated = false(size(candidate_values));
     estimated_plans = cell(size(candidate_values));
     for candidate_number = 1:numel(candidate_values)
         if strcmp(fixed_kind, 'reliability')
@@ -47,8 +48,11 @@ function answer = estimate_supported_targets(clean, reachable_model, fixed_kind)
             candidate_input, reachable_model);
         required_articles(candidate_number) = ...
             estimated_plans{candidate_number}.total_articles;
+        candidate_is_validated(candidate_number) = ...
+            estimated_plans{candidate_number}.reliability_instruction_supported;
     end
-    supported = required_articles <= clean.available_articles;
+    supported = required_articles <= clean.available_articles & ...
+        candidate_is_validated;
     supported_rows = find(supported);
 
     best_reliability = NaN;
@@ -73,6 +77,13 @@ function answer = estimate_supported_targets(clean, reachable_model, fixed_kind)
     physically_achievable = 0.5 * physical_resolution_mm <= ...
         clean.accuracy_mm + reachable_model.comparison_tolerance_mm;
     messages = strings(0, 1);
+    validation_floor = estimated_plans{1}.reliability_validation_floor_articles;
+    if clean.available_articles < validation_floor
+        messages(end + 1, 1) = sprintf([ ...
+            'The recorded safety rule requires at least %d independent articles ' ...
+            'before a reliability operating instruction can be supported.'], ...
+            validation_floor);
+    end
     if ~physically_achievable
         messages(end + 1, 1) = [ ...
             "The physical reachable gaps are too coarse for the requested accuracy. " + ...

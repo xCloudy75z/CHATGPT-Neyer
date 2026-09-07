@@ -35,7 +35,7 @@ function res = reliability_at_height(levels, successes, tail, x, C)
 
     [mu, sigma, Lmax] = best_fit(levels, successes, mean(levels), fit_sigma0(levels));
     khat = (x - mu) / sigma;               % larger k means a larger physical gap
-    c1   = shape_model(C, 'quantile')^2;
+    c1   = one_sided_profile_threshold(C);
     kfl  = shape_model(1e-6, 'quantile');  % 1-in-a-million floor (~ -4.7534)
     Rk   = @(k) 2*(Lmax - prof_quantile(levels, successes, x, k, sigma));
 

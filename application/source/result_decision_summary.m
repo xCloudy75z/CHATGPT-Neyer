@@ -37,11 +37,21 @@ function summary = result_decision_summary(result)
 
     plan = result.study_plan;
     required = {'outcome', 'reliability', 'confidence', ...
-        'minimum_gap_mm', 'maximum_gap_mm', 'reachable_model'};
+        'minimum_gap_mm', 'maximum_gap_mm', 'reachable_model', ...
+        'reliability_validation_floor_articles', ...
+        'reliability_instruction_supported', ...
+        'reliability_instruction_status'};
     if ~isstruct(plan) || ~all(isfield(plan, required))
         summary.status = 'plan_incomplete';
         summary.explanation = [ ...
-            'The attached plan is incomplete, so no operating instruction can be supported.'];
+            'The attached plan is missing required safety information, so no ' ...
+            'operating instruction can be supported.'];
+        return;
+    end
+    [safe_plan, safety_message] = validate_study_plan_safety(plan);
+    if ~safe_plan
+        summary.status = 'plan_incomplete';
+        summary.explanation = safety_message;
         return;
     end
 
@@ -49,6 +59,24 @@ function summary = result_decision_summary(result)
     summary.outcome = outcome;
     summary.reliability = plan.reliability;
     summary.confidence = plan.confidence;
+
+    if ~plan.reliability_instruction_supported
+        summary.status = 'outside_validation_envelope';
+        summary.explanation = [ ...
+            'The fitted curve can still be reviewed, but this confidence is ' ...
+            'not safety-supported by the recorded validation. No operating ' ...
+            'instruction is shown.'];
+        return;
+    end
+    if ~isfield(result, 'n') || ...
+            result.n < plan.reliability_validation_floor_articles
+        summary.status = 'article_floor_not_reached';
+        summary.explanation = sprintf([ ...
+            'The fitted curve can still be reviewed, but the supported ' ...
+            'reliability instruction requires %d independent articles.'], ...
+            plan.reliability_validation_floor_articles);
+        return;
+    end
 
     try
         boundary = reliability_query(result, outcome, 'gap_for', ...
@@ -75,8 +103,8 @@ function summary = result_decision_summary(result)
         return;
     end
 
-    [reachable_gap_mm, reachable_status] = round_reachable_gap( ...
-        raw_gap_mm, outcome, plan.reachable_model, []);
+    [reachable_gap_mm, reachable_status] = select_operating_gap( ...
+        raw_gap_mm, outcome, plan.reachable_model);
     if ~strcmp(reachable_status.code, 'ok')
         summary.status = 'no_safe_reachable_gap';
         summary.explanation = reachable_status.message;
@@ -115,7 +143,8 @@ function summary = result_decision_summary(result)
         reachable_gap_mm, unit, direction_words, 100 * plan.reliability, ...
         outcome_words, 100 * plan.confidence);
     summary.explanation = [ ...
-        'The completed saved plan supports this direction-safe, physically reachable setting.'];
+        'The completed saved plan supports this physically reachable setting. ' ...
+        'It includes one extra reachable step in the safe direction for a new build.'];
 end
 
 function summary = empty_summary(unit)

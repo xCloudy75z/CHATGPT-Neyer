@@ -44,6 +44,60 @@ classdef TestResultDecision < matlab.unittest.TestCase
                 'not linked to a saved plan');
         end
 
+        function planSafetyRulesOverrideACompleteFlag(testCase)
+            result = resultWithPlan('interaction', 0.90);
+            result.study_plan.reliability_instruction_supported = false;
+            result.study_plan.reliability_instruction_status = ...
+                'exploratory_confidence';
+            result.study_plan.confidence = 0.50;
+            result.study_plan.reliability_validation_floor_articles = 400;
+            result.n = 400;
+
+            summary = result_decision_summary(result);
+
+            testCase.verifyFalse(summary.supported);
+            testCase.verifyEqual(summary.status, 'outside_validation_envelope');
+            testCase.verifySubstring(lower(summary.explanation), ...
+                'not safety-supported');
+        end
+
+        function articleFloorOverridesACompleteFlag(testCase)
+            result = resultWithPlan('interaction', 0.90);
+            result.study_plan.reliability_instruction_supported = true;
+            result.study_plan.reliability_instruction_status = ...
+                'supported_after_final_checkpoint';
+            result.study_plan.reliability_validation_floor_articles = 400;
+            result.n = 399;
+
+            summary = result_decision_summary(result);
+
+            testCase.verifyFalse(summary.supported);
+            testCase.verifyEqual(summary.status, 'article_floor_not_reached');
+            testCase.verifySubstring(summary.explanation, '400');
+        end
+
+        function missingSafetyFieldsCannotIssueInstruction(testCase)
+            result = resultWithPlan('interaction', 0.90);
+            result.study_plan = rmfield(result.study_plan, ...
+                'reliability_validation_floor_articles');
+
+            summary = result_decision_summary(result);
+
+            testCase.verifyFalse(summary.supported);
+            testCase.verifyEqual(summary.status, 'plan_incomplete');
+            testCase.verifySubstring(lower(summary.explanation), 'safety');
+        end
+
+        function editedSafetyRulesCannotIssueInstruction(testCase)
+            result = resultWithPlan('interaction', 0.90);
+            result.study_plan.reliability_validation_floor_articles = 399;
+
+            summary = result_decision_summary(result);
+
+            testCase.verifyFalse(summary.supported);
+            testCase.verifyEqual(summary.status, 'plan_incomplete');
+        end
+
         function textUsesOverallVariationAndSeparatesMiddleFromReliability(testCase)
             result = resultWithPlan('interaction', 0.90);
             text = format_result_text(result);
@@ -134,10 +188,14 @@ plan = struct( ...
     'outcome', outcome, 'reliability', reliability, 'confidence', 0.95, ...
     'accuracy_mm', 10, 'minimum_gap_mm', 0, 'maximum_gap_mm', 10, ...
     'main_articles', 20, 'reserve_1_articles', 0, 'reserve_2_articles', 0, ...
+    'reliability_validation_floor_articles', 400, ...
+    'reliability_instruction_supported', true, ...
+    'reliability_instruction_status', 'supported_after_final_checkpoint', ...
     'reachable_model', reachable_gap_model( ...
         struct('mode', 'regular', 'increment_mm', 0.10), 0, 10));
 result.study_plan = plan;
 result.checkpoint_decision = struct('status', 'complete');
+result.n = 400;
 end
 
 function result = referenceResult()

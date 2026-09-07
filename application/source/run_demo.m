@@ -2,7 +2,7 @@ function d = run_demo()
 %RUN_DEMO Replay Neyer's published example in decreasing-gap terminology.
 %   The paper's increasing-response outcomes are mirrored so true means
 %   interaction at a smaller gap. This preserves the published test levels and
-%   fitted gate (5.3922 / 1.0412) while exercising the V1.9 gap direction.
+%   fitted gate (5.3922 / 1.0412) while exercising the final gap direction.
 %   Returns a struct: .result (the run), .expected_mu, .expected_sigma,
 %   .got_mu, .got_sigma, .is_match, .tol. [compiled-app]
     paperOutcomes = logical([0 0 0 0 0 1 0 0 0 0 0 0 1 0 1 0 1 1 1 1]);

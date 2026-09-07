@@ -25,8 +25,10 @@ classdef TestGapPresentation < matlab.unittest.TestCase
             testCase.verifySubstring(text,'1,3.00,interaction');
             testCase.verifySubstring(text,'2,7.00,no interaction');
             testCase.verifySubstring(text,'Middle gap');
+            testCase.verifySubstring(text,'Overall variation');
             testCase.verifySubstring(text,'High-interaction gap');
             testCase.verifySubstring(text,'Negligible-interaction gap');
+            testCase.verifyFalse(contains(lower(text),'transition width'));
             testCase.verifyFalse(contains(lower(text),'height'));
             testCase.verifyFalse(contains(lower(text),'break'));
             testCase.verifyFalse(contains(lower(text),'survive'));
@@ -135,6 +137,48 @@ classdef TestGapPresentation < matlab.unittest.TestCase
                         sprintf('%s still contains "%s".',files{f},visibleOldPhrases{p}));
                 end
             end
+        end
+
+        function operatorWordingUsesOverallVariation(testCase)
+            root=fileparts(fileparts(mfilename('fullpath')));
+            testUi=fileread(fullfile(root,'application','source', ...
+                'run_test_ui.m'));
+            reportSource=fileread(fullfile(root,'application','source', ...
+                'report.m'));
+            manualSource=fileread(fullfile(root,'application','source', ...
+                'show_manual.m'));
+            menuSource=fileread(fullfile(root,'application','source', ...
+                'neyer_app.m'));
+            reliabilitySource=fileread(fullfile(root,'application','source', ...
+                'reliability_query.m'));
+
+            testCase.verifyFalse(contains(testUi, ...
+                '''Rough guess of the transition width'));
+            testCase.verifyFalse(contains(reportSource, ...
+                'TRANSITION WIDTH:'));
+            testCase.verifyFalse(contains(manualSource, ...
+                '''transition width'));
+            testCase.verifyFalse(contains(menuSource, ...
+                'average 5.3922, spread 1.0412'));
+            testCase.verifySubstring(testUi, 'overall variation');
+            testCase.verifySubstring(reportSource, 'OVERALL VARIATION:');
+            testCase.verifySubstring(manualSource, 'overall variation');
+            testCase.verifySubstring(manualSource, '400 independent articles');
+            testCase.verifySubstring(manualSource, '50% or less');
+            testCase.verifySubstring(manualSource, 'above 95%');
+            testCase.verifySubstring(menuSource, ...
+                'middle gap 5.3922, overall variation 1.0412');
+            oldCalculatorPhrases={'Safe height for a reliability', ...
+                'Reliability at a height','How many parts do I need?', ...
+                'Break or survive?','Height (mm):'};
+            for phraseNumber=1:numel(oldCalculatorPhrases)
+                testCase.verifyFalse(contains(reliabilitySource, ...
+                    oldCalculatorPhrases{phraseNumber}));
+            end
+            testCase.verifySubstring(reliabilitySource, ...
+                'Cautious gap for a target chance');
+            testCase.verifySubstring(reliabilitySource, ...
+                'Chance at a physical gap');
         end
 
         function mainMenuNamesTheNeyerGapTest(testCase)

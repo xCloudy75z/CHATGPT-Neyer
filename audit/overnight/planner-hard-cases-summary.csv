@@ -1,0 +1,7 @@
+scenario_id,repetitions,outcome,reliability,confidence,accuracy_mm,planned_main,planned_total,required_rate,usable_fit_rate,middle_coverage_rate,boundary_coverage_rate,operating_gap_coverage_rate,reachable_safe_rate,checkpoint_correct_rate,conclusion
+c95-r999-regular-050-sudden-hard-n200,160,interaction,0.999,0.95,1,200,200,0.95,1,0.96875,0.91875,1,1,1,accepted
+c95-r999-regular-050-sudden-hard-n300,160,interaction,0.999,0.95,1,300,300,0.95,1,0.9625,0.88125,1,1,1,accepted
+c95-r999-regular-050-sudden-hard-n400,160,interaction,0.999,0.95,1,400,400,0.95,1,0.96875,0.90625,1,1,1,accepted
+c95-r99-irregular-nointeraction-hard-n200,160,no_interaction,0.99,0.95,1.25,200,200,0.95,1,0.91875,0.88125,1,1,1,not accepted
+c95-r99-irregular-nointeraction-hard-n300,160,no_interaction,0.99,0.95,1.25,300,300,0.95,1,0.9375,0.9375,1,1,1,not accepted
+c95-r99-irregular-nointeraction-hard-n400,160,no_interaction,0.99,0.95,1.25,400,400,0.95,1,0.96875,0.9625,1,1,1,accepted
