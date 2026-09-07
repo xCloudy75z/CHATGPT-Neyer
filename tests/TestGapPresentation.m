@@ -33,6 +33,46 @@ classdef TestGapPresentation < matlab.unittest.TestCase
             testCase.verifyFalse(contains(lower(text),'survive'));
         end
 
+        function physicalCsvPreservesRequestsAndEveryReading(testCase)
+            result=finished_result();
+            result.levels=[3.668;7.004];
+            result.raw_requested_levels=[3.645;7.0049];
+            result.requested_levels=[3.65;7.00];
+            result.measurements={ [3.661 3.670 3.681 3.660], ...
+                                  [7.011 7.002 6.999 7.001 7.007] };
+            result.usable_resolution=0.05;
+            result.foil_thickness=0.015;
+            result.measurement_ranges=[0.021;0.012];
+            result.measurement_warnings=logical([false;false]);
+
+            text=results_to_csv_text(result);
+
+            testCase.verifySubstring(text, ...
+                ['test,internal target (mm),build request (mm),measured mean (mm),reading 1,' ...
+                 'reading 2,reading 3,reading 4,reading 5,reading range,' ...
+                 'measurement warning,outcome']);
+            testCase.verifySubstring(text, ...
+                '1,3.645,3.65,3.668,3.661,3.67,3.681,3.66,,0.021,no,interaction');
+            testCase.verifySubstring(text, ...
+                '2,7.0049,7.00,7.004,7.011,7.002,6.999,7.001,7.007,0.012,no,no interaction');
+            testCase.verifySubstring(text,'Usable resolution,0.0500,mm');
+            testCase.verifySubstring(text,'Foil thickness,0.0150,mm');
+        end
+
+        function physicalCsvUsesCleanRoundTripPrecision(testCase)
+            result=finished_result();
+            result.raw_requested_levels=[pi;7];
+            result.requested_levels=[3.14;7];
+            result.levels=[pi;7];
+            result.measurements={ [pi 3.14 3.15 3.16], [7 7 7 7] };
+
+            text=results_to_csv_text(result);
+
+            testCase.verifySubstring(text,'3.141592653589793');
+            testCase.verifyFalse(contains(text,'3.14159265358979,'));
+            testCase.verifyFalse(contains(text,'3.1415926535897931'));
+        end
+
         function htmlExplainsDecreasingGapDirection(testCase)
             text=results_to_html(finished_result(),'');
 

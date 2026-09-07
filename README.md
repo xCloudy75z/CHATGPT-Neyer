@@ -18,7 +18,16 @@ The `.mlx` is standalone. It contains the complete application and does not need
 
 For every destructive test, build a new spacer at the reachable gap shown by the app. Measure that unchanged spacer four or five times before testing. Enter all readings, then record **Interaction** or **No interaction**. The app uses the measured mean as the actual statistical gap.
 
-Confirm whether the real equipment increment is 0.05 mm or 0.10 mm before starting the study.
+The physical build instruction always uses two decimal places. Individual
+measurements retain the precision entered and their mean is used in the
+calculation.
+
+The current aluminium foil is approximately 0.015 mm thick. This is stored as
+construction information and does not control test-gap rounding or the Stage-2
+safety floor. The usable gap step is a separate study input. Based on the
+current 0.49--0.52 mm printed-spacer observations, 0.05 mm is the provisional
+choice to verify experimentally. With the retained two-step protection, that
+gives a 0.10 mm minimum Stage-2 planning width.
 
 ## Saving results
 
@@ -56,7 +65,7 @@ run('tools/run_full_test_suite.m')
 
 ## Important limits
 
-- The equipment increment still needs physical confirmation.
+- The provisional 0.05 mm usable resolution still needs repeated physical confirmation.
 - Repeated readings describe one spacer build; they cannot remove variation between separately built spacers.
 - Extremely separated artificial data deserve a deeper numerical study before using this tool for safety-critical qualification.
 - The supplied V1.8 `.mlx` remains preserved locally and is identified by its recorded SHA-256 fingerprint, but it is not redistributed in this public repository.

@@ -11,6 +11,7 @@ Thumbs.db
 __pycache__/
 *.pyc
 review-preview/
+tmp/
 .codex-finalizer*/
 .pptx-build*/
 audit/v19-reaudit/v19-reaudit-shard-*.csv

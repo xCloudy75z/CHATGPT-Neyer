@@ -9,7 +9,7 @@ if (!path.isAbsolute(SKILL_DIR ?? "") || !path.isAbsolute(RUNTIME_PYTHON ?? ""))
   throw new Error("SKILL_DIR and RUNTIME_PYTHON must be absolute paths.");
 }
 const TMP_DIR = path.join(workspaceDir, ".pptx-build-v19");
-const FINAL_PPTX = path.join(workspaceDir, "delivery", "Neyer_Gap_Test_v1_9_Presentation_r5.pptx");
+const FINAL_PPTX = path.join(workspaceDir, "delivery", "Neyer_Gap_Test_v1_9_Presentation_r9.pptx");
 await fs.mkdir(TMP_DIR, { recursive: true });
 await fs.mkdir(path.dirname(FINAL_PPTX), { recursive: true });
 
@@ -128,20 +128,20 @@ function styleTable(table, rows, cols, header=true, fontSize=17) {
 // 5 Physical workflow
 {
  const s=presentation.slides.add(); s.background.fill=C.paper; title(s,"Physical gap workflow",5);
- const values=[["Gap value","Plain meaning","Use in V1.9"],["Requested","Mathematical best next point","Kept in the audit record"],["Reachable","Nearest different buildable and useful setting","Shown to the operator"],["Measured mean","Average of 4 or 5 readings on this new build","Used as the statistical gap"]];
+ const values=[["Gap value","Plain meaning","Use in V1.9"],["Internal target","Mathematical best next point","Saved at full precision"],["Build request","Useful physical setting","Shown with exactly two decimals"],["Measured mean","Average of 4 or 5 readings on this new build","Used as the statistical gap"]];
  const t=s.tables.add({rows:4,columns:3,left:64,top:140,width:1152,height:270,columnTracks:[{mode:"fr",value:1.1},{mode:"fr",value:2.2},{mode:"fr",value:2.4}],values}); styleTable(t,4,3,true,18);
- textBox(s,"Each destructive test uses a new spacer build",64,458,680,40,{size:28,bold:true,color:C.navy});
- textBox(s,"Build the requested reachable setting. Measure the unchanged setup four or five times before testing. Enter all readings, then record Interaction or No interaction. Do not reuse the melted spacer.",64,512,1110,100,{size:22}); footer(s);
+ textBox(s,"Physical control and material thickness stay separate",64,458,820,40,{size:28,bold:true,color:C.navy});
+ textBox(s,"Foil is approximately 0.015 mm thick. Printed 0.50 mm spacers have measured about 0.49 to 0.52 mm. V1.9 therefore uses a provisional 0.05 mm usable resolution and a 0.10 mm Stage-2 planning floor. Every final assembly is measured before testing.",64,512,1110,105,{size:21}); footer(s);
 }
 
 // 6 Increment chart
 {
- const s=presentation.slides.add(); s.background.fill=C.paper; title(s,"Equipment resolution changes Stage 2 performance",6);
+ const s=presentation.slides.add(); s.background.fill=C.paper; title(s,"Usable resolution changes Stage 2 performance",6);
  const chart=s.charts.add("line",{position:{left:72,top:145,width:820,height:455},categories:["0.01","0.05","0.10","0.25"],series:[
   {name:"True width 0.10 mm",values:[0.835,0.655,0.460,0.035],line:{fill:C.amber,width:4},marker:{symbol:"circle",size:8}},
   {name:"True width 0.20 mm",values:[0.925,0.865,0.790,0.355],line:{fill:"#B9A047",width:3},marker:{symbol:"circle",size:7}},
   {name:"True width 0.50 mm",values:[1.000,0.985,0.980,0.840],line:{fill:C.blue,width:3},marker:{symbol:"circle",size:7}},
-  {name:"True width 1.00 mm",values:[0.995,0.990,0.990,0.925],line:{fill:C.teal,width:4},marker:{symbol:"circle",size:8}}],hasLegend:true,legend:{position:"bottom",overlay:false},xAxis:{title:"Physical increment (mm)",textStyle:{typeface:family,fontSize:14,color:C.muted}},yAxis:{title:"Overlap within 20 tests",min:0,max:1,majorUnit:.2,numberFormatCode:"0%",majorGridlines:{fill:C.line,width:1},textStyle:{typeface:family,fontSize:14,color:C.muted}},chartFill:C.paper,plotAreaFill:C.white});
+  {name:"True width 1.00 mm",values:[0.995,0.990,0.990,0.925],line:{fill:C.teal,width:4},marker:{symbol:"circle",size:8}}],hasLegend:true,legend:{position:"bottom",overlay:false},xAxis:{title:"Usable gap step (mm)",textStyle:{typeface:family,fontSize:14,color:C.muted}},yAxis:{title:"Overlap within 20 tests",min:0,max:1,majorUnit:.2,numberFormatCode:"0%",majorGridlines:{fill:C.line,width:1},textStyle:{typeface:family,fontSize:14,color:C.muted}},chartFill:C.paper,plotAreaFill:C.white});
  applyPresentationChartFont(chart,{fontFamily:family});
  textBox(s,"0.10 mm is workable when the true transition is broad. It becomes restrictive when the transition itself is near 0.10 mm.",930,188,285,210,{size:22,bold:true,color:C.navy});
  textBox(s,"32 settings × 200 paired repetitions",930,475,270,60,{size:17,color:C.muted}); footer(s,"Source: increment-study-results.csv");
@@ -150,11 +150,11 @@ function styleTable(table, rows, cols, header=true, fontSize=17) {
 // 7 final study chart
 {
  const s=presentation.slides.add(); s.background.fill=C.paper; title(s,"Corrected physical simulation: 129,600 runs",7);
- const chart=s.charts.add("bar",{position:{left:72,top:160,width:760,height:420},categories:["No floor","1 × increment","2 × increment"],series:[
+ const chart=s.charts.add("bar",{position:{left:72,top:160,width:760,height:420},categories:["No floor","1 × resolution","2 × resolution"],series:[
   {name:"20-test budget",values:overlap20,valuesFormatCode:"0.00%",fill:C.blue},
   {name:"50-test budget",values:overlap50,valuesFormatCode:"0.00%",fill:C.teal}],barOptions:{direction:"column",grouping:"clustered",gapWidth:65},hasLegend:true,legend:{position:"bottom",overlay:false},yAxis:{min:.88,max:1,majorUnit:.02,numberFormatCode:"0%",majorGridlines:{fill:C.line,width:1},textStyle:{typeface:family,fontSize:14,color:C.muted}},xAxis:{textStyle:{typeface:family,fontSize:14,color:C.muted}},dataLabels:{showValue:true,position:"outEnd",textStyle:{typeface:family,fontSize:14,bold:true,color:C.ink}},chartFill:C.paper,plotAreaFill:C.white});
  applyPresentationChartFont(chart,{fontFamily:family});
- textBox(s,"2 × increment",890,170,290,46,{size:33,bold:true,color:C.teal});
+ textBox(s,"2 × resolution",890,170,290,46,{size:33,bold:true,color:C.teal});
  textBox(s,"Chosen as the Stage-2 working-sigma floor.",890,224,280,68,{size:21});
  textBox(s,`At 50 tests: ${(100*overlap50[2]).toFixed(2)}% actual overlap, ${finalFalseOverlap50.toFixed(3)}% false overlap.`,890,326,280,104,{size:23,bold:true,color:C.navy});
  textBox(s,"These corrected values replace the earlier simulation, which used the requested gap—not the actual built gap—to decide the outcome.",890,460,280,118,{size:17,color:C.muted}); footer(s,"432 scenarios × 300 repetitions · outcome uses actual built gap");
@@ -189,7 +189,7 @@ function styleTable(table, rows, cols, header=true, fontSize=17) {
  const steps=[
   ["1","Open and run the Live Script","Neyer_Gap_Test_v1_9.mlx in MATLAB R2022b"],
   ["2","Verify the build","Run a Demo should return 5.3922 mm and 1.0412 mm"],
-  ["3","Enter the study setup","Use 0–10 mm, test budget, guessed width, and confirmed increment"],
+  ["3","Enter the study setup","Use 0–10 mm, a provisional 0.05 mm usable step, and 0.015 mm foil thickness"],
   ["4","Build and measure each new spacer","Enter four or five readings before the destructive test"],
   ["5","Record the outcome and continue","Choose Interaction or No interaction, then save the final results"]];
  const t=s.tables.add({rows:5,columns:3,left:70,top:145,width:1135,height:440,columnTracks:[{mode:"fixed",value:70},{mode:"fr",value:1.6},{mode:"fr",value:2.6}],values:steps}); styleTable(t,5,3,false,19);
@@ -201,7 +201,7 @@ function styleTable(table, rows, cols, header=true, fontSize=17) {
 {
  const s=presentation.slides.add(); s.background.fill=C.paper; title(s,"Saving result data",11);
  textBox(s,"The operator chooses the folder and base name",70,146,1110,42,{size:28,bold:true,color:C.navy});
- const values=[["Output","Complete path shown before saving","Contents"],["CSV data","<selected folder>\\<chosen name>.csv","Every requested, reachable, measured, and outcome value"],["HTML result report","<selected folder>\\<chosen name>.html","Self-contained summary, estimates, and chart"]];
+ const values=[["Output","Complete path shown before saving","Contents"],["CSV data","<selected folder>\\<chosen name>.csv","Internal target, build request, every reading, measured mean, warning, and outcome"],["HTML result report","<selected folder>\\<chosen name>.html","Self-contained summary, estimates, and chart"]];
  const t=s.tables.add({rows:3,columns:3,left:70,top:220,width:1135,height:230,columnTracks:[{mode:"fr",value:1.1},{mode:"fr",value:2.5},{mode:"fr",value:2.5}],values}); styleTable(t,3,3,true,18);
  textBox(s,"No silent overwrite",70,500,330,38,{size:27,bold:true,color:C.amber});
  textBox(s,"If either intended file already exists, the app writes neither file and asks for a different name.",70,550,1080,68,{size:23});
@@ -218,7 +218,7 @@ function styleTable(table, rows, cols, header=true, fontSize=17) {
  textBox(s,"V1.8 preserved",645,330,430,62,{size:40,bold:true,color:C.white}); textBox(s,"Original and audit copy hashes remain identical",645,398,500,60,{size:22,color:"#D8EAF2"});
  box(s,72,520,1130,7,C.amber);
  textBox(s,"Final package folder",72,555,300,30,{size:18,bold:true,color:"#D8EAF2"}); textBox(s,"OneDrive\\CHATGPT-Neyer\\",72,594,1050,38,{size:25,bold:true,color:C.white});
- textBox(s,"Operator decision still required: confirm whether the real increment is 0.05 mm or 0.10 mm.",72,650,1110,28,{size:16,color:"#F2D49D"});
+ textBox(s,"Physical confirmation still required: prove whether the provisional 0.05 mm usable resolution is repeatable on complete builds.",72,650,1110,28,{size:16,color:"#F2D49D"});
 }
 
 const stagingDir=path.join(workspaceDir,".codex-finalizer-v19");
@@ -241,7 +241,7 @@ const result=await finalizePresentation({
   layoutArgs:["--expected-slide-size-emu","12192000,6858000","--validate-heading-fit","--require-native-table-slide","3","--require-native-table-slide","4","--require-native-table-slide","5","--require-native-table-slide","10","--require-native-table-slide","11"],
   fontPolicy:{basis:"design",families:[family]},
   verifyArtifactToolImport:true,
-  receiptPath:path.join(stagingDir,"Neyer_Gap_Test_v1_9_Presentation_r5.validation.json")
+  receiptPath:path.join(stagingDir,"Neyer_Gap_Test_v1_9_Presentation_r9.validation.json")
 });
 
 for(let i=0;i<presentation.slides.items.length;i++){

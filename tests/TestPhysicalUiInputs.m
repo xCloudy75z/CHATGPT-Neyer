@@ -23,6 +23,30 @@ classdef TestPhysicalUiInputs < matlab.unittest.TestCase
             end
         end
 
+        function settingsSeparateFoilFromUsableResolution(testCase)
+            answers={'0','10','1','20','0','mm','0.05','0.015'};
+
+            parsed=parse_run_inputs(answers);
+
+            testCase.verifyEqual(parsed.cfg.usable_resolution,0.05, ...
+                'AbsTol',1e-12);
+            testCase.verifyEqual(parsed.cfg.foil_thickness,0.015, ...
+                'AbsTol',1e-12);
+        end
+
+        function usableResolutionMustSupportTwoDecimalRequests(testCase)
+            answers={'0','10','1','20','0','mm','0.015','0.015'};
+
+            testCase.verifyError(@()parse_run_inputs(answers), ...
+                'parse_run_inputs:badUsableResolution');
+        end
+
+        function requestedGapInstructionUsesTwoDecimalPlaces(testCase)
+            message=format_requested_gap(3.645,'mm');
+
+            testCase.verifyEqual(message,'Build a gap of 3.65 mm.');
+        end
+
         function responseParsesFourOrFiveMeasurements(testCase)
             four=parse_physical_response('2.50, 2.49, 2.52, 2.48',true);
             five=parse_physical_response('2.50 2.50 2.49 2.52 2.48',false);

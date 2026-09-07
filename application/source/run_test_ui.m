@@ -15,7 +15,8 @@ function result = run_test_ui(cfg0)
     end
     try
         result = run_physical_test(parsed.params, parsed.num_parts, ...
-            @(level,k)gap_popup(level,k,parsed.num_parts), parsed.cfg);
+            @(level,k)gap_popup(level,k,parsed.num_parts, ...
+                parsed.cfg.usable_resolution), parsed.cfg);
     catch e
         if strcmp(e.identifier, 'run_test_ui:aborted')
             fprintf('run_test_ui: cancelled during testing.\n'); result = []; return;
@@ -38,12 +39,13 @@ function parsed = ask_settings_ui()
               'Number of destructive tests:', ...
               'Minimum permitted gap (mm):', ...
               'Gap unit:', ...
-              'Confirmed physical increment (mm):'};
-    defs = {'0','10','1','20','0','mm',''};
+              'Usable gap step for this study (mm):', ...
+              'Approximate foil thickness (mm, information only):'};
+    defs = {'0','10','1','20','0','mm','0.05','0.015'};
 
-    fig = uifigure('Name', 'Neyer gap test - inputs', 'Position', [280 130 650 610]);
-    gl  = uigridlayout(fig, [9 2]);
-    gl.RowHeight     = {46, 46, 46, 46, 46, 46, 46, 46, 54};
+    fig = uifigure('Name', 'Neyer gap test - inputs', 'Position', [280 90 700 680]);
+    gl  = uigridlayout(fig, [10 2]);
+    gl.RowHeight     = {46, 46, 46, 46, 46, 46, 46, 46, 46, 54};
     gl.ColumnWidth   = {'1x', 190};
     gl.Padding       = [28 24 28 24];
     gl.RowSpacing    = 12;
@@ -52,8 +54,8 @@ function parsed = ask_settings_ui()
     ttl = uilabel(gl, 'Text', 'Enter your test settings', 'FontSize', 20, 'FontWeight', 'bold');
     ttl.Layout.Row = 1; ttl.Layout.Column = [1 2];
 
-    edits = gobjects(1, 7);
-    for i = 1:7
+    edits = gobjects(1, 8);
+    for i = 1:8
         lb = uilabel(gl, 'Text', labels{i}, 'FontSize', 15, 'WordWrap', 'on');
         lb.Layout.Row = i + 1; lb.Layout.Column = 1;
         edits(i) = uieditfield(gl, 'text', 'Value', defs{i}, 'FontSize', 16);
@@ -61,7 +63,7 @@ function parsed = ask_settings_ui()
     end
 
     bp = uigridlayout(gl, [1 2]);
-    bp.Layout.Row = 9; bp.Layout.Column = [1 2];
+    bp.Layout.Row = 10; bp.Layout.Column = [1 2];
     bp.ColumnWidth = {'1x', '1x'}; bp.Padding = [0 6 0 0]; bp.ColumnSpacing = 16;
     uibutton(bp, 'Text', 'Start test', 'FontSize', 16, 'FontWeight', 'bold', ...
              'BackgroundColor', [0.20 0.42 0.40], 'FontColor', [1 1 1], ...
@@ -75,8 +77,8 @@ function parsed = ask_settings_ui()
     if isvalid(fig), delete(fig); end
 
     function startTest()
-        answers = cell(1, 7);
-        for j = 1:7, answers{j} = edits(j).Value; end
+        answers = cell(1, 8);
+        for j = 1:8, answers{j} = edits(j).Value; end
         try
             store.parsed = parse_run_inputs(answers);
             uiresume(fig);
@@ -91,7 +93,7 @@ function parsed = ask_settings_ui()
 end
 
 % =================================================================================
-function response = gap_popup(level, k, N)
+function response = gap_popup(level, k, N, usable_resolution)
 %GAP_POPUP Show one reachable setting and collect its physical result.
     fig = uifigure('Name', 'Neyer gap test', 'Position', [300 170 650 440]);
     gl  = uigridlayout(fig, [5 2]);
@@ -104,7 +106,7 @@ function response = gap_popup(level, k, N)
     l1 = uilabel(gl, 'Text', sprintf('Test %d of %d', k, N), ...
                  'FontSize', 16, 'FontColor', [0.38 0.38 0.38], 'HorizontalAlignment', 'center');
     l1.Layout.Row = 1; l1.Layout.Column = [1 2];
-    l2 = uilabel(gl, 'Text', sprintf('Build a gap of %.4g mm.', level), ...
+    l2 = uilabel(gl, 'Text', format_requested_gap(level,'mm'), ...
                  'FontSize', 22, 'FontWeight', 'bold', 'WordWrap', 'on', 'HorizontalAlignment', 'center');
     l2.Layout.Row = 2; l2.Layout.Column = [1 2];
 
@@ -141,6 +143,21 @@ function response = gap_popup(level, k, N)
         catch e
             uialert(fig,e.message,'Please check the measurements');
             return;
+        end
+        reading_range=max(store.response.measurements)-min(store.response.measurements);
+        if reading_range > usable_resolution
+            choice=uiconfirm(fig,sprintf([ ...
+                'These readings span %.3f mm, which is greater than the ' ...
+                '%.2f mm usable gap step for this study. Check the setup ' ...
+                'and measurement method before continuing.'], ...
+                reading_range,usable_resolution), ...
+                'Measurement variation warning', ...
+                'Options',{'Check again','Use these readings'}, ...
+                'DefaultOption',1,'CancelOption',1);
+            if strcmp(choice,'Check again')
+                store.response=[];
+                return;
+            end
         end
         uiresume(fig);
     end

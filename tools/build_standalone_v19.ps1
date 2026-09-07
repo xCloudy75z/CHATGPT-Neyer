@@ -40,7 +40,8 @@ $header = @'
 %% What the user must know before starting
 % Enter the lowest and highest usable gap in millimetres. For the current
 % equipment, the intended physical study range is 0 to 10 mm. Also select
-% the smallest confirmed equipment increment: 0.10 mm or 0.05 mm.
+% the usable gap step for the study. The current provisional choice is
+% 0.05 mm, which must still be confirmed through repeated physical builds.
 %
 % The app uses three clearly separated gap values:
 %
@@ -49,6 +50,19 @@ $header = @'
 % * Measured mean: the average of 4 or 5 readings of the newly built spacer.
 %
 % The measured mean, not the requested gap, is used in the calculation.
+% Physical build instructions are shown with exactly two decimal places;
+% entered measurements retain their available precision.
+
+%% Physical resolution and aluminium foil
+% Aluminium foil is approximately 0.015 mm thick, but that material thickness
+% is not treated as the equipment's usable resolution. Printed 0.50 mm spacers
+% have so far varied from approximately 0.49 to 0.52 mm. The physical settings
+% therefore keep foil thickness separate from the usable gap step.
+%
+% The Stage-2 working transition width cannot shrink below two usable gap
+% steps. With a provisional 0.05 mm usable step, the planning floor is
+% 0.10 mm. This protects Stage-2 selection from false physical precision; it
+% does not impose a 0.10 mm lower limit on the final fitted transition width.
 
 %% What the method does
 % The early tests safely establish an interaction and a no-interaction
@@ -73,8 +87,8 @@ $header = @'
 % 4. Perform one test and select Interaction or No interaction.
 % 5. Do not reuse the spacer setup after the destructive test.
 %
-% Confirm the equipment increment before the real study. Select 0.10 mm or
-% 0.05 mm only after verifying what the equipment can repeatedly achieve.
+% Confirm the usable gap step before the real study. Do not enter 0.015 mm
+% merely because that is the approximate thickness of one foil sheet.
 
 %% Saving results
 % Select Save results in the result window and choose a folder and base

@@ -72,7 +72,7 @@ table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:11px 12p
 <section id="outcome"><h2>Outcome at a glance</h2><div class="grid">
 <div class="card"><div class="number">$passed</div><b>MATLAB tests passed</b><br><span class="pass">$failed failed · $incomplete incomplete</span></div>
 <div class="card"><div class="number">$totalRuns</div><b>corrected synthetic studies</b><br>432 physical scenarios</div>
-<div class="card"><div class="number">$(F $overlap50 2)%</div><b>mean actual strict overlap</b><br>50 tests, final 2× floor, averaged across both increments</div>
+<div class="card"><div class="number">$(F $overlap50 2)%</div><b>mean actual strict overlap</b><br>50 tests, final 2× floor, averaged across both tested usable steps</div>
 <div class="card"><div class="number">$(F $falseDefault 3)%</div><b>mean false-overlap rate</b><br>final 2× floor across 20/50-test summaries</div>
 </div>
 <p class="note issue"><b>Important correction:</b> the earlier combined simulation applied build variation to the measured gap but decided the outcome from the requested setting. The application was not affected. This re-audit corrected the simulation so the outcome is generated from the actual built gap, then reran all 129,600 studies. The results in this report replace the earlier physical-simulation percentages.</p>
@@ -86,20 +86,20 @@ table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:11px 12p
 <tr><td>MLE</td><td>Needed direction, positivity, and numerical review.</td><td>Probability falls with gap; the fit is finite with positive width; the known demo returns 5.3922 mm and 1.0412 mm.</td><td class="pass">PASS*</td></tr>
 <tr><td>D-optimal selection</td><td>Core determinant was plausible but needed independent checks and physical-grid handling.</td><td>A hand-checked information case matches, and Part 2 chooses a different reachable useful gap when alternatives exist.</td><td class="pass">PASS</td></tr>
 <tr><td>Bounds</td><td>Repeated clamping could look like an endless loop.</td><td>All requested gaps remain inside 0–10 mm. One contradictory boundary result is confirmed once; a second pauses with the record preserved.</td><td class="pass">PASS</td></tr>
-<tr><td>Rounding</td><td>Two decimals were tied to the reference table rather than the rig.</td><td>Both confirmed 0.05 mm and 0.10 mm increments produce reachable requested gaps.</td><td class="pass">PASS</td></tr>
+<tr><td>Rounding</td><td>Two decimals were tied to the reference table rather than the rig.</td><td>The build instruction always shows two decimals. A separate usable resolution controls selection; entered readings retain their precision.</td><td class="pass">PASS</td></tr>
 <tr><td>Stopping</td><td>Boundary contradictions were not a clear physical decision state.</td><td>The run pauses for review; it does not mark the study or specimen as failed and does not continue looping.</td><td class="pass">PASS</td></tr>
-<tr><td>Standalone delivery</td><td>The earlier packaging depended on outside functions.</td><td>The tested `.mlx` contains 70 local functions and has no addpath, machine path, executable, or companion-folder dependency.</td><td class="pass">PASS</td></tr>
+<tr><td>Standalone delivery</td><td>The earlier packaging depended on outside functions.</td><td>The tested `.mlx` contains 71 top-level local functions and has no addpath, machine path, executable, or companion-folder dependency.</td><td class="pass">PASS</td></tr>
 </tbody></table></div><p><small>*The previously disclosed limitation for extremely separated artificial data remains. It is not hidden by this pass result.</small></p></section>
 
 <section id="physical"><h2>The physical rule now being tested</h2><div class="flow">
 <div class="step"><b>Requested</b><br>ideal Neyer gap</div><div class="arrow">→</div>
-<div class="step"><b>Reachable</b><br>0.05 or 0.10 mm grid</div><div class="arrow">→</div>
+<div class="step"><b>Build request</b><br>two decimal places</div><div class="arrow">→</div>
 <div class="step"><b>Measured</b><br>mean of 4 or 5 readings</div><div class="arrow">→</div>
 <div class="step"><b>Outcome</b><br>Interaction / No interaction</div>
 </div>
-<div class="grid"><div class="card"><h3>Example</h3><p>The app requests 2.45 mm. If the confirmed increment is 0.10 mm, it asks for a useful reachable setting such as 2.50 mm. Readings of 2.50, 2.50, 2.49, 2.52 and 2.48 mm have a mean of <b>2.498 mm</b>. The calculation uses 2.498 mm while preserving 2.50 mm as the requested physical setting.</p></div>
+<div class="grid"><div class="card"><h3>Example</h3><p>The internal calculation may identify 3.645 mm, but the operator sees <b>Build a gap of 3.65 mm</b>. Readings keep their entered precision. Their mean is the actual gap used by the calculation.</p></div>
 <div class="card"><h3>Fresh spacer rule</h3><p>Every destructive test uses a new spacer build. Four or five readings describe that one unchanged build. They reduce reading noise, but they do not erase variation between separately built spacers. The corrected simulation models both effects separately.</p></div>
-<div class="card"><h3>Resolution floor</h3><p>The final Stage‑2 floor is two physical increments: <b>0.10 mm</b> when the confirmed increment is 0.05 mm, or <b>0.20 mm</b> when it is 0.10 mm.</p></div></div>
+<div class="card"><h3>Resolution floor</h3><p>Foil thickness and usable resolution are separate. Foil is approximately 0.015 mm, while 0.49–0.52 mm printed-spacer observations support testing a provisional <b>0.05 mm</b> usable resolution. The retained two-resolution Stage‑2 floor is therefore <b>0.10 mm</b>.</p></div></div>
 </section>
 
 <section id="simulation"><h2>Corrected physical simulation</h2><p>The same seeded virtual specimens were reused across the 0×, 1×, and 2× floor comparisons. Four independent MATLAB processes divided the scenario list without changing the generated trials. The table highlights the final 2× rule.</p>
@@ -110,7 +110,8 @@ $($summaryRows -join "`n")
 </section>
 
 <section id="limits"><h2>What is still not claimed</h2><ul>
-<li>The real equipment increment still must be confirmed as 0.05 mm or 0.10 mm before testing.</li>
+<li>The provisional 0.05 mm usable resolution still needs confirmation through repeated complete spacer builds.</li>
+<li>One 0.015 mm foil sheet does not prove that a complete assembly can reproduce a 0.015 mm gap change.</li>
 <li>Synthetic trials check the method under declared bell-curve and noise assumptions; they do not replace physical qualification.</li>
 <li>Four or five readings estimate one spacer's gap. They cannot make two separately built spacers identical.</li>
 <li>Extremely separated artificial datasets remain a recommended deeper numerical study for safety-critical use.</li>
@@ -121,7 +122,7 @@ $($summaryRows -join "`n")
 <div class="card"><b>Simulation evidence</b><p><span class="code">audit/v19-reaudit/v19-reaudit-simulation.csv</span><br><span class="code">audit/v19-reaudit/v19-reaudit-simulation-summary.csv</span></p></div>
 <div class="card"><b>Final `.mlx` SHA-256</b><p class="code" style="overflow-wrap:anywhere">$hash</p></div>
 </div>
-<p>The application, delivery, and OneDrive `.mlx` copies are checked by SHA-256. MATLAB exports 70 embedded local functions. The executable function region matches the readable source character-for-character after line-ending normalisation.</p></section>
+<p>The application, delivery, and OneDrive `.mlx` copies are checked by SHA-256. MATLAB exports 71 embedded top-level local functions. The executable function region matches the readable source character-for-character after line-ending normalisation.</p></section>
 
 <footer>Generated $(Get-Date -Format 'yyyy-MM-dd HH:mm') Asia/Dubai · Self-contained offline HTML · No external fonts, scripts, images, or network connection required.</footer>
 </main></body></html>

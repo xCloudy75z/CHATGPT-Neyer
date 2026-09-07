@@ -54,7 +54,7 @@ function capture_v19_ui()
             rows=arrayfun(@(x)x.Layout.Row,fields);
             [~,order]=sort(rows);
             fields=fields(order);
-            values={'0','10','1','20','0','mm','0.10'};
+            values={'0','10','1','20','0','mm','0.05','0.015'};
             for j=1:min(numel(fields),numel(values)), fields(j).Value=values{j}; end
             captureState.settings=true;
             invoke_button(find_button(fig,'Start test'));
