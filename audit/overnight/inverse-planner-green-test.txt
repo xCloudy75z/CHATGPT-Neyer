@@ -1,0 +1,4 @@
+Available-articles tests after implementation
+Passed: 23
+Failed: 0
+Incomplete: 0

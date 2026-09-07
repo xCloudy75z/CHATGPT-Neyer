@@ -1,0 +1,105 @@
+function answer = estimate_supported_targets(clean, reachable_model, fixed_kind)
+%ESTIMATE_SUPPORTED_TARGETS Estimate what a fixed article supply may support.
+% One user choice remains fixed. The other value is estimated from the same
+% provisional quantity rule as the requirements-first planner.
+
+    if ~isstruct(clean) || ~isfield(clean, 'mode') || ...
+            ~strcmp(clean.mode, 'available_articles_first')
+        error('estimate_supported_targets:badMode', ...
+            'Choose the available-articles-first planner mode for this calculation.');
+    end
+    if ~isfield(clean, 'available_articles') || ...
+            ~(isscalar(clean.available_articles) && ...
+            clean.available_articles >= 1 && ...
+            clean.available_articles == floor(clean.available_articles))
+        error('estimate_supported_targets:badArticleCount', ...
+            'Enter the positive whole number of articles available.');
+    end
+    fixed_kind = lower(strtrim(char(string(fixed_kind))));
+    if ~any(strcmp(fixed_kind, {'reliability', 'confidence'}))
+        error('estimate_supported_targets:badFixedChoice', ...
+            'Choose whether reliability or confidence must remain fixed.');
+    end
+
+    candidate_input = clean;
+    candidate_input.mode = 'requirements_first';
+    if strcmp(fixed_kind, 'reliability')
+        candidate_values = (100:999)' / 1000;
+        fixed_value = clean.reliability;
+        estimated_kind = 'confidence';
+    else
+        candidate_values = (500:999)' / 1000;
+        fixed_value = clean.confidence;
+        estimated_kind = 'reliability';
+    end
+
+    required_articles = zeros(size(candidate_values));
+    estimated_plans = cell(size(candidate_values));
+    for candidate_number = 1:numel(candidate_values)
+        if strcmp(fixed_kind, 'reliability')
+            candidate_input.reliability = fixed_value;
+            candidate_input.confidence = candidate_values(candidate_number);
+        else
+            candidate_input.confidence = fixed_value;
+            candidate_input.reliability = candidate_values(candidate_number);
+        end
+        estimated_plans{candidate_number} = estimate_study_plan( ...
+            candidate_input, reachable_model);
+        required_articles(candidate_number) = ...
+            estimated_plans{candidate_number}.total_articles;
+    end
+    supported = required_articles <= clean.available_articles;
+    supported_rows = find(supported);
+
+    best_reliability = NaN;
+    best_confidence = NaN;
+    if ~isempty(supported_rows)
+        best_row = supported_rows(end);
+        if strcmp(fixed_kind, 'reliability')
+            best_reliability = fixed_value;
+            best_confidence = candidate_values(best_row);
+        else
+            best_reliability = candidate_values(best_row);
+            best_confidence = fixed_value;
+        end
+    end
+
+    gaps = reachable_model.gaps_mm(:);
+    if numel(gaps) < 2
+        physical_resolution_mm = Inf;
+    else
+        physical_resolution_mm = min(diff(gaps));
+    end
+    physically_achievable = 0.5 * physical_resolution_mm <= ...
+        clean.accuracy_mm + reachable_model.comparison_tolerance_mm;
+    messages = strings(0, 1);
+    if ~physically_achievable
+        messages(end + 1, 1) = [ ...
+            "The physical reachable gaps are too coarse for the requested accuracy. " + ...
+            "Improve the physical capability or accept wider accuracy."];
+    end
+    if isempty(supported_rows)
+        messages(end + 1, 1) = [ ...
+            "This article quantity does not support even the lowest displayed " + ...
+            "candidate under the current planning estimate."];
+    end
+    messages(end + 1, 1) = [ ...
+        "Final confidence and reliability depend on the real gap locations and outcomes."];
+
+    answer = struct( ...
+        'fixed_kind', fixed_kind, ...
+        'fixed_value', fixed_value, ...
+        'estimated_kind', estimated_kind, ...
+        'available_articles', clean.available_articles, ...
+        'candidate_values', candidate_values, ...
+        'required_articles', required_articles, ...
+        'supported', supported, ...
+        'best_reliability', best_reliability, ...
+        'best_confidence', best_confidence, ...
+        'physically_achievable', physically_achievable, ...
+        'physical_resolution_mm', physical_resolution_mm, ...
+        'messages', messages, ...
+        'statement', [ ...
+            'This is a pre-test expectation, not a final claim. Real evidence ' ...
+            'must be checked after the study.']);
+end

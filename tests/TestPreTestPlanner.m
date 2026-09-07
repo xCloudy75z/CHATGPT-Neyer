@@ -206,11 +206,79 @@ classdef TestPreTestPlanner < matlab.unittest.TestCase
             testCase.verifySubstring(message, sprintf('%.2f mm', ...
                 plan.starting_gap_mm));
         end
+
+        function moreAvailableArticlesDoNotReduceExpectedConfidence(testCase)
+            smaller = inversePlanInput(300);
+            larger = inversePlanInput(1200);
+            model = reachable_gap_model(smaller.physical_setup, 0, 10);
+
+            smallerAnswer = estimate_supported_targets(smaller, model, ...
+                'reliability');
+            largerAnswer = estimate_supported_targets(larger, model, ...
+                'reliability');
+
+            testCase.verifyGreaterThanOrEqual(largerAnswer.best_confidence, ...
+                smallerAnswer.best_confidence);
+        end
+
+        function moreAvailableArticlesDoNotReduceExpectedReliability(testCase)
+            smaller = inversePlanInput(300);
+            larger = inversePlanInput(1200);
+            smaller.confidence = 0.80;
+            larger.confidence = 0.80;
+            model = reachable_gap_model(smaller.physical_setup, 0, 10);
+
+            smallerAnswer = estimate_supported_targets(smaller, model, ...
+                'confidence');
+            largerAnswer = estimate_supported_targets(larger, model, ...
+                'confidence');
+
+            testCase.verifyGreaterThanOrEqual(largerAnswer.best_reliability, ...
+                smallerAnswer.best_reliability);
+        end
+
+        function availableArticleAnswerKeepsOneUserChoiceFixed(testCase)
+            input = inversePlanInput(600);
+            model = reachable_gap_model(input.physical_setup, 0, 10);
+            answer = estimate_supported_targets(input, model, 'reliability');
+
+            testCase.verifyEqual(answer.fixed_kind, 'reliability');
+            testCase.verifyEqual(answer.fixed_value, input.reliability, ...
+                'AbsTol', 1e-12);
+            testCase.verifyEqual(answer.estimated_kind, 'confidence');
+            testCase.verifySubstring(lower(answer.statement), ...
+                'pre-test expectation');
+            testCase.verifySubstring(lower(answer.statement), ...
+                'not a final claim');
+        end
+
+        function inversePlannerReportsPhysicalLimitation(testCase)
+            input = inversePlanInput(1000);
+            input.accuracy_mm = 0.01;
+            model = reachable_gap_model(struct('mode', 'regular', ...
+                'increment_mm', 0.50), 0, 10);
+            answer = estimate_supported_targets(input, model, 'reliability');
+
+            testCase.verifyFalse(answer.physically_achievable);
+            testCase.verifyTrue(any(contains(lower(answer.messages), 'physical')));
+        end
     end
 end
 
 function input = validatedPlanInput()
     input = validate_plan_inputs(validPlanInput());
+end
+
+function input = inversePlanInput(articleCount)
+    input = validPlanInput();
+    input.mode = 'available_articles_first';
+    input.available_articles = articleCount;
+    input.reliability = 0.90;
+    input.confidence = 0.80;
+    input.accuracy_mm = 0.20;
+    input.interaction_gap_mm = 4.00;
+    input.no_interaction_gap_mm = 6.00;
+    input = validate_plan_inputs(input);
 end
 
 function input = validPlanInput()
