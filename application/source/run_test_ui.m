@@ -1,4 +1,4 @@
-function result = run_test_ui(cfg0)
+function result = run_test_ui(cfg0, loaded_plan)
 %RUN_TEST_UI  Run a Neyer test through large, readable pop-up windows (MATLAB
 %   desktop only): settings, then the reachable gap, measured readings, and
 %   interaction outcome for each test. Physical validation lives in
@@ -7,7 +7,8 @@ function result = run_test_ui(cfg0)
         error('run_test_ui:noDisplay', ...
               'run_test_ui needs the MATLAB desktop; in a script use run_test instead.');
     end
-    parsed = ask_settings_ui();
+    if nargin < 2, loaded_plan = []; end
+    parsed = ask_settings_ui(loaded_plan);
     if isempty(parsed), fprintf('run_test_ui: cancelled.\n'); result = []; return; end
     if nargin >= 1 && ~isempty(cfg0)
         f = fieldnames(cfg0);
@@ -16,7 +17,8 @@ function result = run_test_ui(cfg0)
     try
         result = run_physical_test(parsed.params, parsed.num_parts, ...
             @(level,k)gap_popup(level,k,parsed.num_parts, ...
-                parsed.cfg.usable_resolution), parsed.cfg);
+                parsed.cfg.usable_resolution, reachable_model_or_empty(parsed.cfg)), ...
+                parsed.cfg);
     catch e
         if strcmp(e.identifier, 'run_test_ui:aborted')
             fprintf('run_test_ui: cancelled during testing.\n'); result = []; return;
@@ -24,6 +26,16 @@ function result = run_test_ui(cfg0)
         rethrow(e);
     end
     try
+        if ~isempty(loaded_plan)
+            result.study_plan = loaded_plan;
+            if isfield(result, 'checkpoint_decisions') && ...
+                    ~isempty(result.checkpoint_decisions)
+                result.checkpoint_decision = result.checkpoint_decisions{end};
+            else
+                result.checkpoint_decision = check_study_checkpoint( ...
+                    result, loaded_plan, 'main');
+            end
+        end
         show_result(result);
     catch
     end
@@ -31,7 +43,7 @@ function result = run_test_ui(cfg0)
 end
 
 % =================================================================================
-function parsed = ask_settings_ui()
+function parsed = ask_settings_ui(loaded_plan)
 %ASK_SETTINGS_UI  Large, readable settings window. Returns a parsed struct or [].
     labels = {'Low guess for the middle gap (mm):', ...
               'High guess for the middle gap (mm):', ...
@@ -42,6 +54,25 @@ function parsed = ask_settings_ui()
               'Usable gap step for this study (mm):', ...
               'Approximate foil thickness (mm, information only):'};
     defs = {'0','10','1','20','0','mm','0.05','0.015'};
+    planned_message = 'Planned checkpoint: No saved plan loaded';
+    if nargin >= 1 && ~isempty(loaded_plan)
+        if all(isfield(loaded_plan, {'interaction_gap_mm', ...
+                'no_interaction_gap_mm', 'estimated_sigma_mm', ...
+                'main_articles', 'minimum_gap_mm'}))
+            defs{1} = sprintf('%.6g', loaded_plan.interaction_gap_mm);
+            defs{2} = sprintf('%.6g', loaded_plan.no_interaction_gap_mm);
+            defs{3} = sprintf('%.6g', loaded_plan.estimated_sigma_mm);
+            defs{4} = sprintf('%d', loaded_plan.main_articles);
+            defs{5} = sprintf('%.6g', loaded_plan.minimum_gap_mm);
+            planned_message = sprintf('Planned checkpoint: Main study - %d articles', ...
+                loaded_plan.main_articles);
+            if isfield(loaded_plan, 'reachable_model') && ...
+                    numel(loaded_plan.reachable_model.gaps_mm) >= 2
+                defs{7} = sprintf('%.6g', min(diff( ...
+                    loaded_plan.reachable_model.gaps_mm(:))));
+            end
+        end
+    end
 
     fig = uifigure('Name', 'Neyer gap test - inputs', 'Position', [280 90 700 680]);
     gl  = uigridlayout(fig, [10 2]);
@@ -51,7 +82,8 @@ function parsed = ask_settings_ui()
     gl.RowSpacing    = 12;
     gl.ColumnSpacing = 16;
 
-    ttl = uilabel(gl, 'Text', 'Enter your test settings', 'FontSize', 20, 'FontWeight', 'bold');
+    ttl = uilabel(gl, 'Text', ['Enter your test settings  |  ' planned_message], ...
+        'FontSize', 18, 'FontWeight', 'bold', 'WordWrap', 'on');
     ttl.Layout.Row = 1; ttl.Layout.Column = [1 2];
 
     edits = gobjects(1, 8);
@@ -81,6 +113,18 @@ function parsed = ask_settings_ui()
         for j = 1:8, answers{j} = edits(j).Value; end
         try
             store.parsed = parse_run_inputs(answers);
+            if ~isempty(loaded_plan)
+                store.parsed.loaded_plan = loaded_plan;
+                store.parsed.num_parts = loaded_plan.total_articles;
+                store.parsed.cfg.study_plan = loaded_plan;
+                store.parsed.cfg.reserve_decision_fn = @ask_reserve_ui;
+                if isfield(loaded_plan, 'maximum_gap_mm')
+                    store.parsed.cfg.max_level = loaded_plan.maximum_gap_mm;
+                end
+                if isfield(loaded_plan, 'reachable_model')
+                    store.parsed.cfg.reachable_model = loaded_plan.reachable_model;
+                end
+            end
             uiresume(fig);
         catch e
             uialert(fig, e.message, 'Please fix your inputs');
@@ -92,9 +136,31 @@ function parsed = ask_settings_ui()
     end
 end
 
+function approved = ask_reserve_ui(decision)
+%ASK_RESERVE_UI Obtain explicit permission before consuming a reserve group.
+    prompt_figure = uifigure('Name', 'Study checkpoint', ...
+        'Position', [420 260 520 230], 'Visible', 'on');
+    cleanup_figure = onCleanup(@() delete_if_valid(prompt_figure));
+    missing_text = strjoin(cellstr(decision.missing_conditions), newline);
+    choice = uiconfirm(prompt_figure, sprintf([ ...
+        '%s\n\nWhat is still missing:\n%s\n\nUse %s now?'], ...
+        decision.plain_explanation, missing_text, ...
+        strrep(decision.next_checkpoint, '_', ' ')), ...
+        'Planned checkpoint', ...
+        'Options', {'Use this reserve group', 'Stop and review'}, ...
+        'DefaultOption', 2, 'CancelOption', 2, 'Icon', 'warning');
+    approved = strcmp(choice, 'Use this reserve group');
+    clear cleanup_figure;
+end
+
+function delete_if_valid(figure_handle)
+    if isvalid(figure_handle), delete(figure_handle); end
+end
+
 % =================================================================================
-function response = gap_popup(level, k, N, usable_resolution)
+function response = gap_popup(level, k, N, usable_resolution, reachable_model)
 %GAP_POPUP Show one reachable setting and collect its physical result.
+    if nargin < 5, reachable_model = []; end
     fig = uifigure('Name', 'Neyer gap test', 'Position', [300 170 650 440]);
     gl  = uigridlayout(fig, [5 2]);
     gl.RowHeight     = {'fit', 90, 54, 54, 64};
@@ -106,7 +172,15 @@ function response = gap_popup(level, k, N, usable_resolution)
     l1 = uilabel(gl, 'Text', sprintf('Test %d of %d', k, N), ...
                  'FontSize', 16, 'FontColor', [0.38 0.38 0.38], 'HorizontalAlignment', 'center');
     l1.Layout.Row = 1; l1.Layout.Column = [1 2];
-    l2 = uilabel(gl, 'Text', format_requested_gap(level,'mm'), ...
+    requested_text = format_requested_gap(level,'mm');
+    if ~isempty(reachable_model)
+        [distance, recipe_row] = min(abs(reachable_model.gaps_mm(:) - level));
+        if distance <= reachable_model.comparison_tolerance_mm
+            requested_text = sprintf('%s\n%s', requested_text, ...
+                char(reachable_model.instructions(recipe_row)));
+        end
+    end
+    l2 = uilabel(gl, 'Text', requested_text, ...
                  'FontSize', 22, 'FontWeight', 'bold', 'WordWrap', 'on', 'HorizontalAlignment', 'center');
     l2.Layout.Row = 2; l2.Layout.Column = [1 2];
 
@@ -164,5 +238,13 @@ function response = gap_popup(level, k, N, usable_resolution)
     function cancelResult()
         store.response=[];
         uiresume(fig);
+    end
+end
+
+function model = reachable_model_or_empty(cfg)
+    if isfield(cfg, 'reachable_model')
+        model = cfg.reachable_model;
+    else
+        model = [];
     end
 end

@@ -28,7 +28,10 @@ function [result, record] = run_physical_test(params, num_parts, outcome_fn, cfg
             ['Physical testing requires a positive usable gap step ' ...
              '(for example 0.05 or 0.10 mm).']);
     end
-    if abs(usable_resolution*100-round(usable_resolution*100)) > 1e-10
+    has_reachable_model = isfield(cfg, 'reachable_model') && ...
+        ~isempty(cfg.reachable_model);
+    if ~has_reachable_model && ...
+            abs(usable_resolution*100-round(usable_resolution*100)) > 1e-10
         error('run_physical_test:badUsableResolution', ...
             ['The usable gap step must support two-decimal build requests. ' ...
              'Foil thickness is separate construction information.']);
@@ -59,6 +62,7 @@ function [result, record] = run_physical_test(params, num_parts, outcome_fn, cfg
     record.measurement_warnings=record.measurement_ranges > usable_resolution;
     result.raw_requested_levels=record.raw_requested_levels;
     result.requested_levels=record.requested_levels;
+    result.requested_instructions=record.requested_instructions;
     result.measurements=record.measurements;
     result.usable_resolution=record.usable_resolution;
     result.foil_thickness=record.foil_thickness;
@@ -66,6 +70,7 @@ function [result, record] = run_physical_test(params, num_parts, outcome_fn, cfg
     result.resolution_sigma_floor=record.resolution_sigma_floor;
     result.measurement_ranges=record.measurement_ranges;
     result.measurement_warnings=record.measurement_warnings;
+    result.checkpoint_decisions=record.checkpoint_decisions;
 
     function response = physical_response(gap, k)
         response = outcome_fn(gap, k);

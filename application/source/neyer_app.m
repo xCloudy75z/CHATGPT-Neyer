@@ -5,28 +5,46 @@ function neyer_app()
     end
 
     state.result = [];      % most recent run, for the Reliability button
+    state.plan = [];        % current pre-test plan, if one has been prepared or loaded
 
-    fig = uifigure('Name', 'Neyer Gap Test', 'Position', [300 250 400 360]);
-    gl = uigridlayout(fig, [7 1]);
-    gl.RowHeight  = {36, 42, 42, 42, 10, 42, 42};
-    gl.Padding    = [22 16 22 16];
-    gl.RowSpacing = 8;
+    fig = uifigure('Name', 'Neyer Gap Test', 'Position', [300 160 480 560], ...
+        'Color', [247 249 250] / 255);
+    gl = uigridlayout(fig, [10 1]);
+    gl.RowHeight  = {44, 42, 58, 48, 48, 48, 12, 48, 48, 48};
+    gl.Padding    = [26 20 26 20];
+    gl.RowSpacing = 10;
 
-    title = uilabel(gl, 'Text', 'Neyer Gap Test', 'FontSize', 16, ...
-                    'FontWeight', 'bold', 'HorizontalAlignment', 'center');
+    title = uilabel(gl, 'Text', 'Neyer Gap Test', 'FontSize', 20, ...
+                    'FontWeight', 'bold', 'HorizontalAlignment', 'left', ...
+                    'FontColor', [33 49 58] / 255);
     title.Layout.Row = 1;
 
-    uibutton(gl, 'Text', 'Pre-Test Planner',      'ButtonPushedFcn', @onPlanner);
-    uibutton(gl, 'Text', 'Run a Test',            'ButtonPushedFcn', @onRunTest);
-    uibutton(gl, 'Text', 'Reliability Calculator','ButtonPushedFcn', @onReliability);
-    uilabel(gl,  'Text', '');   % row 5: separator gap
-    uibutton(gl, 'Text', 'Run a Demo (verify)',   'ButtonPushedFcn', @onDemo);
-    uibutton(gl, 'Text', 'Help',                  'ButtonPushedFcn', @onHelp);
+    guide = uilabel(gl, 'Text', ...
+        'Plan  >  Prepare  >  Test  >  Check  >  Finish', ...
+        'FontSize', 13, 'FontWeight', 'bold', ...
+        'FontColor', [35 108 142] / 255);
+    guide.Layout.Row = 2;
+
+    uibutton(gl, 'Text', 'Pre-Test Planner', 'FontSize', 16, ...
+        'FontWeight', 'bold', 'BackgroundColor', [35 108 142] / 255, ...
+        'FontColor', [1 1 1], 'ButtonPushedFcn', @onPlanner);
+    uibutton(gl, 'Text', 'Load a saved plan', 'FontSize', 15, ...
+        'ButtonPushedFcn', @onLoadPlan);
+    uibutton(gl, 'Text', 'Run a Test', 'FontSize', 16, ...
+        'FontWeight', 'bold', 'BackgroundColor', [47 125 109] / 255, ...
+        'FontColor', [1 1 1], 'ButtonPushedFcn', @onRunTest);
+    uibutton(gl, 'Text', 'Review latest results', 'FontSize', 15, ...
+        'ButtonPushedFcn', @onReliability);
+    uilabel(gl,  'Text', '');
+    uibutton(gl, 'Text', 'Run the published example', 'FontSize', 15, ...
+        'ButtonPushedFcn', @onDemo);
+    uibutton(gl, 'Text', 'Help and definitions', 'FontSize', 15, ...
+        'ButtonPushedFcn', @onHelp);
 
     % ---- callbacks (nested: share `state` and `fig`) ------------------------
     function onRunTest(~, ~)
         try
-            res = run_test_ui();
+            res = run_test_ui([], state.plan);
             if ~isempty(res), state.result = res; end
         catch err
             uialert(fig, err.message, 'Something went wrong');
@@ -54,15 +72,30 @@ function neyer_app()
 
     function onPlanner(~, ~)
         try
-            a = inputdlg({'Low guess for the middle gap:', 'High guess for the middle gap:', ...
-                          'Reliability you want (e.g. 0.999):', 'Confidence (e.g. 0.95):', 'Unit:'}, ...
-                         'Pre-Test Planner', 1, {'0.6','1.4','0.999','0.95','mm'});
-            if isempty(a), return; end
-            params = struct('avg_low', str2double(a{1}), 'avg_high', str2double(a{2}));
-            pr = plan_prep_numbers(params, str2double(a{3}), str2double(a{4}));
-            uialert(fig, plan_prep_message(pr, a{5}), 'Pre-Test Plan', 'Icon', 'info');
+            plan = pretest_planner_ui();
+            if ~isempty(plan)
+                state.plan = plan;
+                uialert(fig, sprintf([ ...
+                    'The current plan contains %d main-study articles.\n\n' ...
+                    'Select Run a Test when the physical setup is ready.'], ...
+                    plan.main_articles), 'Plan ready', 'Icon', 'success');
+            end
         catch err
             uialert(fig, err.message, 'Please check your inputs');
+        end
+    end
+
+    function onLoadPlan(~, ~)
+        [filename, folder] = uigetfile('*.json', 'Load a saved study plan');
+        if isequal(filename, 0), return; end
+        try
+            [state.plan, loaded_path] = load_study_plan(fullfile(folder, filename));
+            uialert(fig, sprintf([ ...
+                'Plan loaded from:\n%s\n\nPlanned checkpoint: Main study (%d articles).'], ...
+                loaded_path, state.plan.main_articles), ...
+                'Plan loaded', 'Icon', 'success');
+        catch err
+            uialert(fig, err.message, 'Plan could not be loaded', 'Icon', 'warning');
         end
     end
 

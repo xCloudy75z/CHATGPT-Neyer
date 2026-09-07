@@ -1,0 +1,5 @@
+Complete integration regression suite after planner UI
+MATLAB: 9.13.0.2049777 (R2022b)
+Passed: 160
+Failed: 0
+Incomplete: 0

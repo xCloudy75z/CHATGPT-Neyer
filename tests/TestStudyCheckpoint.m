@@ -91,6 +91,48 @@ classdef TestStudyCheckpoint < matlab.unittest.TestCase
             testCase.verifySubstring(lower(decision.plain_explanation), ...
                 'not supported');
         end
+
+        function runStopsAtMainWhenReserveIsNotApproved(testCase)
+            plan = shortCheckpointPlan();
+            cfg = neyer_settings();
+            cfg.min_level = 0;
+            cfg.max_level = 10;
+            cfg.level_increment = 0.10;
+            cfg.study_plan = plan;
+            cfg.reserve_decision_fn = @(~) false;
+            parameters = struct('mu_min', 0, 'mu_max', 10, 'sigma_guess', 1);
+            outcomes = logical([true false true false true false]);
+
+            record = run_loop(parameters, plan.total_articles, ...
+                @(~, testNumber) outcomes(testNumber), cfg);
+
+            testCase.verifyEqual(record.N, plan.main_articles);
+            testCase.verifyEqual(record.status, 'paused');
+            testCase.verifyEqual(record.stop_reason, 'reserve_not_authorized');
+            testCase.verifyNumElements(record.checkpoint_decisions, 1);
+        end
+
+        function runUsesOnlyExplicitlyApprovedReserveGroup(testCase)
+            plan = shortCheckpointPlan();
+            cfg = neyer_settings();
+            cfg.min_level = 0;
+            cfg.max_level = 10;
+            cfg.level_increment = 0.10;
+            cfg.study_plan = plan;
+            cfg.reserve_decision_fn = @(decision) ...
+                strcmp(decision.next_checkpoint, 'reserve_1');
+            parameters = struct('mu_min', 0, 'mu_max', 10, 'sigma_guess', 1);
+            outcomes = logical([true false true false true false]);
+
+            record = run_loop(parameters, plan.total_articles, ...
+                @(~, testNumber) outcomes(testNumber), cfg);
+
+            testCase.verifyEqual(record.N, ...
+                plan.main_articles + plan.reserve_1_articles);
+            testCase.verifyEqual(record.status, 'paused');
+            testCase.verifyEqual(record.stop_reason, 'reserve_not_authorized');
+            testCase.verifyNumElements(record.checkpoint_decisions, 2);
+        end
     end
 end
 
@@ -107,6 +149,15 @@ plan = struct( ...
     'reserve_2_articles', 5, ...
     'reachable_model', reachable_gap_model( ...
         struct('mode', 'regular', 'increment_mm', 0.10), 0, 10));
+end
+
+function plan = shortCheckpointPlan()
+plan = checkpointPlan();
+plan.main_articles = 3;
+plan.reserve_1_articles = 2;
+plan.reserve_2_articles = 1;
+plan.total_articles = 6;
+plan.accuracy_mm = 1e-6;
 end
 
 function result = referenceResult()

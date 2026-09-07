@@ -1,0 +1,4 @@
+Run-loop checkpoint tests before integration
+Passed: 8
+Failed: 2
+Incomplete: 2

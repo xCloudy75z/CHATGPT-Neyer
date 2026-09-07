@@ -54,6 +54,7 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
     clamped   = false(num_parts, 1);
     raw_requested_levels = zeros(num_parts,1);
     requested_levels = zeros(num_parts,1);
+    requested_instructions = strings(num_parts,1);
     measurements = cell(num_parts,1);
     nudged    = false;
     working_sigma = params.sigma_guess;
@@ -61,7 +62,24 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
     boundary_confirmation = '';
     status = 'complete';
     stop_reason = '';
+    checkpoint_decisions = cell(0, 1);
     last_k = num_parts;
+
+    has_reachable_model = isfield(cfg, 'reachable_model') && ...
+        ~isempty(cfg.reachable_model);
+    if has_reachable_model
+        if ~isstruct(cfg.reachable_model) || ...
+                ~isfield(cfg.reachable_model, 'gaps_mm') || ...
+                isempty(cfg.reachable_model.gaps_mm)
+            error('run_loop:badReachableModel', ...
+                'The reachable physical-gap list is empty or invalid.');
+        end
+        reachable_minimum = cfg.reachable_model.gaps_mm(1);
+        reachable_maximum = cfg.reachable_model.gaps_mm(end);
+    else
+        reachable_minimum = cfg.min_level;
+        reachable_maximum = cfg.max_level;
+    end
 
     for k = 1:num_parts
         % Estimate held going in, and the level it implies.
@@ -76,16 +94,21 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
         % once as a confirmation instead of allowing the search to wander or
         % repeatedly clamp there without a decision.
         if strcmp(boundary_confirmation,'min')
-            x = cfg.min_level;
+            x = reachable_minimum;
             clamped(k) = true;
         elseif strcmp(boundary_confirmation,'max')
-            x = cfg.max_level;
+            x = reachable_maximum;
             clamped(k) = true;
         end
 
         % Round to the resolution a physical test can actually be set to, so
         % the recorded history matches what was tested (no full-precision drift).
-        if isfield(cfg,'level_increment') && ~isempty(cfg.level_increment)
+        if has_reachable_model
+            allow_repeat = ~isempty(boundary_confirmation);
+            [x, reachable_status] = select_reachable_request(x, ...
+                cfg.reachable_model, requested_levels(1:k-1), allow_repeat);
+            requested_instructions(k) = reachable_status.instruction;
+        elseif isfield(cfg,'level_increment') && ~isempty(cfg.level_increment)
             x = round(x / cfg.level_increment) * cfg.level_increment;
         else
             x = round(x * 10^cfg.level_decimals) / 10^cfg.level_decimals;
@@ -152,10 +175,10 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
         est_sigma(k) = est.sigma;
         stage(k)     = est.stage;
 
-        boundary_tol = 10 * eps(max([abs(cfg.min_level),abs(cfg.max_level),1]));
-        unexpected_at_min = abs(requested_x-cfg.min_level) <= boundary_tol && ...
+        boundary_tol = 10 * eps(max([abs(reachable_minimum),abs(reachable_maximum),1]));
+        unexpected_at_min = abs(requested_x-reachable_minimum) <= boundary_tol && ...
                             ~result && ~any(successes(1:k));
-        unexpected_at_max = abs(requested_x-cfg.max_level) <= boundary_tol && ...
+        unexpected_at_max = abs(requested_x-reachable_maximum) <= boundary_tol && ...
                             result && all(successes(1:k));
 
         if unexpected_at_min
@@ -165,13 +188,13 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
                 last_k = k;
                 fprintf(['  PAUSED - REVIEW REQUIRED: two tests at the minimum gap (%.4g %s)\n' ...
                          '  both gave no interaction. The study data are saved; the test has not failed.\n'], ...
-                        cfg.min_level,cfg.unit);
+                        reachable_minimum,cfg.unit);
                 break;
             end
             boundary_confirmation = 'min';
             fprintf(['  Unexpected no-interaction result at the minimum gap (%.4g %s).\n' ...
                      '  Confirm once at the same gap before deciding whether to pause.\n'], ...
-                    cfg.min_level,cfg.unit);
+                    reachable_minimum,cfg.unit);
         elseif unexpected_at_max
             if strcmp(boundary_confirmation,'max')
                 status = 'paused';
@@ -179,13 +202,13 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
                 last_k = k;
                 fprintf(['  PAUSED - REVIEW REQUIRED: two tests at the maximum gap (%.4g %s)\n' ...
                          '  both gave interaction. The study data are saved; the test has not failed.\n'], ...
-                        cfg.max_level,cfg.unit);
+                        reachable_maximum,cfg.unit);
                 break;
             end
             boundary_confirmation = 'max';
             fprintf(['  Unexpected interaction result at the maximum gap (%.4g %s).\n' ...
                      '  Confirm once at the same gap before deciding whether to pause.\n'], ...
-                    cfg.max_level,cfg.unit);
+                    reachable_maximum,cfg.unit);
         else
             boundary_confirmation = '';
         end
@@ -202,6 +225,45 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
                 working_sigma = max(working_sigma,sigma_floor);
             end
         end
+
+        % A saved plan declares exactly when the evidence is checked. The
+        % remaining articles are reserves, not an automatic continuation.
+        if isfield(cfg, 'study_plan') && ~isempty(cfg.study_plan)
+            checkpoint_name = checkpoint_at_test(k, cfg.study_plan);
+            if ~isempty(checkpoint_name)
+                snapshot = make_snapshot(levels, successes, est_mu, est_sigma, ...
+                    stage, clamped, raw_requested_levels, requested_levels, ...
+                    requested_instructions, measurements, params, k, status, ...
+                    stop_reason);
+                interim_result = report(snapshot, cfg);
+                checkpoint_decision = check_study_checkpoint(interim_result, ...
+                    cfg.study_plan, checkpoint_name);
+                checkpoint_decisions{end + 1, 1} = checkpoint_decision; %#ok<AGROW>
+                if strcmp(checkpoint_decision.status, 'complete')
+                    status = 'complete';
+                    stop_reason = 'planned_requirements_met';
+                    last_k = k;
+                    break;
+                elseif strcmp(checkpoint_decision.status, 'ask_for_reserve')
+                    approved = false;
+                    if isfield(cfg, 'reserve_decision_fn') && ...
+                            isa(cfg.reserve_decision_fn, 'function_handle')
+                        approved = logical(cfg.reserve_decision_fn(checkpoint_decision));
+                    end
+                    if ~approved
+                        status = 'paused';
+                        stop_reason = 'reserve_not_authorized';
+                        last_k = k;
+                        break;
+                    end
+                else
+                    status = 'unsupported';
+                    stop_reason = 'planned_evidence_not_supported';
+                    last_k = k;
+                    break;
+                end
+            end
+        end
     end
 
     levels    = levels(1:last_k);
@@ -212,6 +274,7 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
     clamped   = clamped(1:last_k);
     raw_requested_levels=raw_requested_levels(1:last_k);
     requested_levels=requested_levels(1:last_k);
+    requested_instructions=requested_instructions(1:last_k);
     measurements=measurements(1:last_k);
 
     record = struct('levels', levels, 'successes', successes, ...
@@ -219,7 +282,39 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
                     'stage', stage, 'clamped', clamped, 'params', params, ...
                     'raw_requested_levels',raw_requested_levels, ...
                     'requested_levels',requested_levels, ...
+                    'requested_instructions',requested_instructions, ...
                     'measurements',{measurements}, ...
+                    'checkpoint_decisions',{checkpoint_decisions}, ...
                     'N', numel(levels), 'requested_N', num_parts, ...
                     'status', status, 'stop_reason', stop_reason);
+end
+
+function name = checkpoint_at_test(test_number, plan)
+    name = '';
+    main_end = plan.main_articles;
+    reserve_1_end = main_end + plan.reserve_1_articles;
+    reserve_2_end = reserve_1_end + plan.reserve_2_articles;
+    if test_number == main_end
+        name = 'main';
+    elseif plan.reserve_1_articles > 0 && test_number == reserve_1_end
+        name = 'reserve_1';
+    elseif plan.reserve_2_articles > 0 && test_number == reserve_2_end
+        name = 'reserve_2';
+    end
+end
+
+function snapshot = make_snapshot(levels, successes, est_mu, est_sigma, ...
+        stage, clamped, raw_requested_levels, requested_levels, ...
+        requested_instructions, measurements, params, count, status, stop_reason)
+    snapshot = struct('levels', levels(1:count), ...
+        'successes', successes(1:count), ...
+        'est_mu', est_mu(1:count), 'est_sigma', est_sigma(1:count), ...
+        'stage', stage(1:count), 'clamped', clamped(1:count), ...
+        'params', params, ...
+        'raw_requested_levels', raw_requested_levels(1:count), ...
+        'requested_levels', requested_levels(1:count), ...
+        'requested_instructions', requested_instructions(1:count), ...
+        'measurements', {measurements(1:count)}, ...
+        'N', count, 'requested_N', count, ...
+        'status', status, 'stop_reason', stop_reason);
 end
