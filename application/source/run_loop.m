@@ -4,7 +4,7 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
 %   record = RUN_LOOP(params, num_parts, outcome_fn, cfg) runs the sensitivity
 %   test for num_parts items: at each step it asks choose_stage (worker #6) for
 %   the next level,
-%   obtains the break/survive outcome, records it, and stops when the budget is
+%   obtains the interaction/no-interaction outcome, records it, and stops when the budget is
 %   spent.  [brief sec.4 worker #8]
 %
 %   Inputs
@@ -13,8 +13,8 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
 %     outcome_fn  function handle giving the result of testing at a level:
 %                     result = outcome_fn(level, k)
 %                 where level is the chosen stimulus, k is the 1-based test
-%                 index, and result is true for a break (success) / false for a
-%                 survive (failure). A real operator ignores k and tests the
+%                 index, and result is true for interaction / false for no
+%                 interaction. A real operator ignores k and tests the
 %                 item at `level`; the acceptance test uses k to replay Neyer's
 %                 fixed Table 1 outcomes (feeding fixed outcomes isolates the
 %                 logic from physical chance -- brief sec.7).
@@ -22,7 +22,7 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
 %
 %   Output: record struct with one row per test (column vectors of length num_parts):
 %     .levels      level tested at each step.
-%     .successes   logical outcome at each step (true = break).
+%     .successes   logical outcome at each step (true = interaction).
 %     .est_mu      average the method held going in to each step.
 %     .est_sigma   spread the method held going in to each step.
 %     .stage       which stage (1/2/3) chose each step.

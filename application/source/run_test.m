@@ -9,8 +9,8 @@ function [result, record] = run_test(params, num_parts, outcome_fn, cfg)
 %   Inputs
 %     params      starting guess: .avg_low, .avg_high, .spread_guess.
 %     num_parts   item budget (number of destructive tests).
-%     outcome_fn  (optional) result = outcome_fn(level, k): true for a break,
-%                 false for a survive. If omitted, the operator is prompted at
+%     outcome_fn  (optional) result = outcome_fn(level, k): true for interaction,
+%                 false for no interaction. If omitted, the operator is prompted at
 %                 the console for each item.
 %     cfg         (optional) settings struct; defaults to settings().
 %
@@ -39,7 +39,7 @@ end
 % -------------------------------------------------------------------------
 function r = ask_operator(level, k)
 %ASK_OPERATOR  Default interactive outcome source: prompt the operator.
-    prompt = sprintf('Test %d - set level to %.4f. Did it break? (1=break / 0=survive): ', ...
+    prompt = sprintf('Test %d - set gap to %.4f. Interaction? (1=yes / 0=no): ', ...
                      k, level);
     r = logical(input(prompt));
 end

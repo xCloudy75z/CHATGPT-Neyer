@@ -2,31 +2,31 @@ function s = shape_model(x, mu, sigma)
 %SHAPE_MODEL  Worker #1 — the bell curve (the ONLY place the shape lives).
 %
 %   s = SHAPE_MODEL(x, mu, sigma) evaluates the assumed response shape at one
-%   or more test levels x, for a population whose breaking points follow a
-%   bell curve (normal distribution) with mean mu and spread sigma.
+%   or more physical gaps x, for interaction thresholds that follow a bell
+%   curve (normal distribution) with middle gap mu and width sigma.
 %
-%   It returns "how likely a break is" at each level, plus the standard-normal
+%   It returns the interaction chance at each gap, plus the standard-normal
 %   building blocks every other worker needs (z, phi, Phi, Q). Because the
 %   shape assumption is quarantined here, swapping the bell curve for another
 %   shape (e.g. the logistic) is a single-file change.  [brief sec.4, worker #1]
 %
 %   Alternate call (inverse):  z = SHAPE_MODEL(p, 'quantile')  goes the other
 %   way -- given a probability p in (0,1), it returns how many spreads from the
-%   centre that break-chance sits at (the z with Phi(z) = p). report (#9) uses
+%   centre that interaction chance sits at (the z with Phi(z) = p). report (#9) uses
 %   this to turn a strictness like 99.9% into an all-fire / no-fire level. See
 %   the "Inverse (quantile) mode" block below.  [addendum B1]
 %
 %   Inputs
-%     x      test level(s); scalar or array of any shape.
-%     mu     assumed average breaking point (centre of the bell curve), scalar.
-%     sigma  assumed spread (standard deviation), scalar, must be > 0.
+%     x      physical gap(s); scalar or array of any shape.
+%     mu     middle gap, where interaction chance is 50%, scalar.
+%     sigma  transition width, scalar, must be > 0.
 %
 %   Output struct s, every field the same size as x:
-%     s.z    standardised level, z = (x - mu) / sigma          [brief App.A]
+%     s.z    standardised gap, z = (mu - x) / sigma
 %     s.phi  standard-normal pdf at z, phi(z)                   [brief App.A]
-%     s.Phi  standard-normal cdf at z, Phi(z) = P(break)        [brief App.A]
-%     s.Q    upper tail, Q(z) = 1 - Phi(z) = P(survive)         [brief App.A]
-%     s.p    probability of a break at this level = s.Phi (alias for clarity)
+%     s.Phi  standard-normal cdf at z = P(interaction)
+%     s.Q    upper tail, Q(z) = 1 - Phi(z) = P(no interaction)
+%     s.p    probability of interaction at this gap = s.Phi
 %
 %   Source: normal distribution is PAPER (Neyer 1994); the pdf/cdf are their
 %   standard mathematical definitions. Phi and Q are computed separately via

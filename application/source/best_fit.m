@@ -6,14 +6,15 @@ function [mu, sigma, ll] = best_fit(levels, successes, mu0, sigma0)
 %   log-likelihood of the normal sensitivity model.  [brief sec.4, worker #2;
 %   App.A Eq.1]
 %
-%       l(mu, sigma) = sum_{successes} ln Phi(z) + sum_{failures} ln Q(z),
-%       with z = (x - mu) / sigma.
+%       l(mu, sigma) = sum_{interactions} ln Phi(z)
+%                    + sum_{no interactions} ln Q(z),
+%       with z = (mu - gap) / sigma.
 %
 %   Inputs
 %     levels     vector of test levels x already run.
 %     successes  logical vector, same length as levels:
-%                  true  = break  (success), uses Phi(z)
-%                  false = survive (failure), uses Q(z)
+%                  true  = interaction, uses Phi(z)
+%                  false = no interaction, uses Q(z)
 %     mu0, sigma0  starting guess for the optimiser (e.g. the current
 %                  estimate). sigma0 must be > 0.
 %

@@ -40,7 +40,7 @@ The operator chooses the output folder and base name. The app shows the complete
 
 ## Verification record
 
-- 77 MATLAB tests passed; 0 failed and 0 remained incomplete.
+- 95 MATLAB tests passed; 0 failed and 0 remained incomplete.
 - The final `.mlx` ran alone in a newly created empty folder.
 - Its real Demo button displayed 5.39 mm and 1.04 mm.
 - Existing CSV and HTML result files remained unchanged in overwrite-protection tests.

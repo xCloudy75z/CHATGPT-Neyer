@@ -1,0 +1,37 @@
+V1.9 independent re-audit candidate freeze
+Date: 2026-09-07 (Asia/Dubai)
+
+Initial candidate before internal comment corrections
+SHA-256: D7F22620225735DADAEFB37BA7199CA69E8B3CD30488C772D04CAFB0EFF33F4A
+
+Final application/Neyer_Gap_Test_v1_9.mlx
+SHA-256: B98D8CC7D2CBA0AEC6312CBC9D2EE9999EFFD3A3CAA51C4A2644DFA0CA76242B
+
+Final delivery/Neyer_Gap_Test_v1_9.mlx
+SHA-256: B98D8CC7D2CBA0AEC6312CBC9D2EE9999EFFD3A3CAA51C4A2644DFA0CA76242B
+
+Final OneDrive/CHATGPT-Neyer/Neyer_Gap_Test_v1_9.mlx
+SHA-256: B98D8CC7D2CBA0AEC6312CBC9D2EE9999EFFD3A3CAA51C4A2644DFA0CA76242B
+
+OneDrive verification (2026-09-07 11:34 Asia/Dubai)
+- Client process running.
+- All four delivery-file hashes matched their OneDrive copies.
+- Windows shell reported all four files available on this device with no
+  pending/error status text.
+- Sync-engine logs updated after the copy and were idle during the final
+  12-second check. The latest detailed diagnostic snapshot reported zero
+  local changes, zero failed uploads, and no sync stall.
+
+MATLAB R2022b export inspection
+- Embedded local functions: 70
+- addpath calls: 0
+- machine-specific C:/Users paths: 0
+- .exe references: 0
+- companion function-folder references: 0
+- The complete 129,030-character normalised function region, beginning at the first
+  function, is character-for-character identical after line-ending
+  normalisation in all three representations: MATLAB's `.mlx` export,
+  `delivery/Neyer_Gap_Test_v1_9.m`, and the 41 readable files under
+  `application/source` concatenated in the build order.
+- The Live Editor reflowed introductory prose when exporting; this explains the
+  different whole-file text hash and does not alter any function code.

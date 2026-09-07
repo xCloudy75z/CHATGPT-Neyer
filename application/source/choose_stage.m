@@ -8,13 +8,14 @@ function [x_next, est] = choose_stage(levels, successes, params, cfg, reachable_
 %   [brief sec.3; sec.4 worker #6; Figure 2 flowchart]
 %
 %   Stages (find the zone -> close the gap -> refine):
-%     STAGE 1  no break-and-survive pair yet. Test the centre of the bounds,
+%     STAGE 1  both outcomes have not yet appeared. Test the centre of the bounds,
 %              then reach out with an offset that doubles each step (up if
-%              everything has survived, down if everything has broken) until
-%              both a break and a survive have appeared. [brief Stage 1]
+%              every result is no interaction, down if every result is
+%              interaction) until both outcomes have appeared. [brief Stage 1]
 %     STAGE 2  both seen, but results have not interleaved (no overlap, so no
-%              real best-fit). Close the gap between the highest survive and
-%              the lowest break by bisection while the bracket is wide; once it
+%              real best-fit). Close the gap between the highest interaction
+%              and lowest no-interaction result by bisection while the bracket
+%              is wide; once it
 %              narrows to ~sigma_guess, probe D-optimally to overshoot and
 %              force the first overlap. The estimate is a surrogate
 %              (bracket midpoint, sigma_guess). [brief Stage 2; sec.8 #2]
@@ -24,7 +25,7 @@ function [x_next, est] = choose_stage(levels, successes, params, cfg, reachable_
 %
 %   Inputs
 %     levels     levels tested so far (may be empty).
-%     successes  logical results so far (true = break, false = survive).
+%     successes  logical results (true = interaction, false = no interaction).
 %     params     struct with the starting guess:
 %                  params.mu_min, params.mu_max  bounds on the average
 %                  params.sigma_guess            guessed spread

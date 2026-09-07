@@ -24,6 +24,20 @@ if embeddedCount < 68
         'The Live Script exported only %d local functions; at least 68 are required.',embeddedCount);
 end
 
+buildSource=fullfile(root,'delivery','Neyer_Gap_Test_v1_9.m');
+if ~isfile(buildSource)
+    error('verify_standalone_v19:missingBuildSource', ...
+        'The generated standalone source is missing.');
+end
+builtText=fileread(buildSource);
+embeddedFunctions=regexp(exportedText,'(?ms)^function\s.*\z','match','once');
+builtFunctions=regexp(builtText,'(?ms)^function\s.*\z','match','once');
+normalise=@(text)strtrim(strrep(text,sprintf('\r\n'),sprintf('\n')));
+if ~strcmp(normalise(embeddedFunctions),normalise(builtFunctions))
+    error('verify_standalone_v19:embeddedSourceMismatch', ...
+        'The functions embedded in the Live Script do not match the reviewed build source.');
+end
+
 isolatedLiveScript = fullfile(temporaryFolder,'Neyer_Gap_Test_v1_9.mlx');
 copyfile(liveScript,isolatedLiveScript);
 delete(exportedSource);
@@ -66,6 +80,7 @@ end
 
 fprintf('Isolated Live Script verification passed.\n');
 fprintf('Embedded local functions: %d\n',embeddedCount);
+fprintf('Embedded functions match the reviewed build source exactly.\n');
 fprintf('Published demo display: middle gap 5.39, transition width 1.04.\n');
 
 marker = fullfile(root,'review-preview','standalone-mlx-passed.txt');

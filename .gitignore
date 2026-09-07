@@ -8,9 +8,12 @@ Thumbs.db
 
 # Logs and local review/build output
 *.log
+__pycache__/
+*.pyc
 review-preview/
 .codex-finalizer*/
 .pptx-build*/
+audit/v19-reaudit/v19-reaudit-shard-*.csv
 
 # Local dependency folders
 node_modules/

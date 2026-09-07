@@ -21,6 +21,6 @@ The original V1.8 file was preserved before any algorithm change. Its SHA-256 fi
 
 The published reference sequence was first locked in as a regression test. It could not reveal the missing repeated 0.8 shrink because its first Part-2 D-optimal test created overlap immediately.
 
-The final combined physical study contains 129,600 synthetic runs. At a 50-test budget, the two-increment sigma floor produced 99.64% actual strict overlap and 0.00% false overlap in the recorded aggregate, while displayed middle-gap and transition-width error stayed unchanged.
+The first combined physical study contained 129,600 synthetic runs, but the later independent re-audit found that its outcome was generated from the requested gap instead of the actual built gap. Those percentages are superseded. The corrected 129,600-run evidence, current test record, and plain-language explanation are stored in [`audit/v19-reaudit/`](v19-reaudit/).
 
 The complete evidence, detailed tables, operating instructions, and limitations are in [`delivery/Neyer_Gap_Test_v1_9_Report.html`](../delivery/Neyer_Gap_Test_v1_9_Report.html).

@@ -9,9 +9,33 @@ if (!path.isAbsolute(SKILL_DIR ?? "") || !path.isAbsolute(RUNTIME_PYTHON ?? ""))
   throw new Error("SKILL_DIR and RUNTIME_PYTHON must be absolute paths.");
 }
 const TMP_DIR = path.join(workspaceDir, ".pptx-build-v19");
-const FINAL_PPTX = path.join(workspaceDir, "delivery", "Neyer_Gap_Test_v1_9_Presentation_r4.pptx");
+const FINAL_PPTX = path.join(workspaceDir, "delivery", "Neyer_Gap_Test_v1_9_Presentation_r5.pptx");
 await fs.mkdir(TMP_DIR, { recursive: true });
 await fs.mkdir(path.dirname(FINAL_PPTX), { recursive: true });
+
+const simulationSummaryPath = path.join(workspaceDir, "audit", "v19-reaudit", "v19-reaudit-simulation-summary.csv");
+const testSummaryPath = path.join(workspaceDir, "audit", "v19-reaudit", "v19-reaudit-test-summary.txt");
+const parseCsv = (text) => {
+  const lines = text.trim().split(/\r?\n/);
+  const headings = lines.shift().split(",");
+  return lines.map((line) => Object.fromEntries(line.split(",").map((value, index) => [headings[index], value])));
+};
+const simulationSummary = parseCsv(await fs.readFile(simulationSummaryPath, "utf8"));
+const testSummaryText = await fs.readFile(testSummaryPath, "utf8");
+const passedTestCount = Number(testSummaryText.match(/Passed: (\d+)/)?.[1]);
+if (!Number.isFinite(passedTestCount)) throw new Error("Could not read the verified MATLAB test count.");
+const overlapFor = (budget, floorFactor) => {
+  const matching = simulationSummary.filter((row) => Number(row.budget) === budget && Number(row.floor_factor) === floorFactor);
+  if (matching.length !== 2) throw new Error(`Expected two increment summaries for budget ${budget}, floor ${floorFactor}.`);
+  return matching.reduce((sum, row) => sum + Number(row.actual_strict_overlap_percent), 0) / matching.length / 100;
+};
+const falseOverlapFor = (budget, floorFactor) => {
+  const matching = simulationSummary.filter((row) => Number(row.budget) === budget && Number(row.floor_factor) === floorFactor);
+  return matching.reduce((sum, row) => sum + Number(row.false_overlap_percent), 0) / matching.length;
+};
+const overlap20 = [0, 1, 2].map((floorFactor) => overlapFor(20, floorFactor));
+const overlap50 = [0, 1, 2].map((floorFactor) => overlapFor(50, floorFactor));
+const finalFalseOverlap50 = falseOverlapFor(50, 2);
 
 const { applyPresentationChartFont, finalizePresentation } = await import(
   pathToFileURL(path.join(SKILL_DIR, "container_tools/artifact_tool_utils.mjs")).href,
@@ -125,15 +149,15 @@ function styleTable(table, rows, cols, header=true, fontSize=17) {
 
 // 7 final study chart
 {
- const s=presentation.slides.add(); s.background.fill=C.paper; title(s,"Final physical simulation: 129,600 runs",7);
+ const s=presentation.slides.add(); s.background.fill=C.paper; title(s,"Corrected physical simulation: 129,600 runs",7);
  const chart=s.charts.add("bar",{position:{left:72,top:160,width:760,height:420},categories:["No floor","1 × increment","2 × increment"],series:[
-  {name:"20-test budget",values:[0.9323,0.9233,0.9336],valuesFormatCode:"0.00%",fill:C.blue},
-  {name:"50-test budget",values:[0.9728,0.9792,0.9964],valuesFormatCode:"0.00%",fill:C.teal}],barOptions:{direction:"column",grouping:"clustered",gapWidth:65},hasLegend:true,legend:{position:"bottom",overlay:false},yAxis:{min:.88,max:1,majorUnit:.02,numberFormatCode:"0%",majorGridlines:{fill:C.line,width:1},textStyle:{typeface:family,fontSize:14,color:C.muted}},xAxis:{textStyle:{typeface:family,fontSize:14,color:C.muted}},dataLabels:{showValue:true,position:"outEnd",textStyle:{typeface:family,fontSize:14,bold:true,color:C.ink}},chartFill:C.paper,plotAreaFill:C.white});
+  {name:"20-test budget",values:overlap20,valuesFormatCode:"0.00%",fill:C.blue},
+  {name:"50-test budget",values:overlap50,valuesFormatCode:"0.00%",fill:C.teal}],barOptions:{direction:"column",grouping:"clustered",gapWidth:65},hasLegend:true,legend:{position:"bottom",overlay:false},yAxis:{min:.88,max:1,majorUnit:.02,numberFormatCode:"0%",majorGridlines:{fill:C.line,width:1},textStyle:{typeface:family,fontSize:14,color:C.muted}},xAxis:{textStyle:{typeface:family,fontSize:14,color:C.muted}},dataLabels:{showValue:true,position:"outEnd",textStyle:{typeface:family,fontSize:14,bold:true,color:C.ink}},chartFill:C.paper,plotAreaFill:C.white});
  applyPresentationChartFont(chart,{fontFamily:family});
  textBox(s,"2 × increment",890,170,290,46,{size:33,bold:true,color:C.teal});
  textBox(s,"Chosen as the Stage-2 working-sigma floor.",890,224,280,68,{size:21});
- textBox(s,"At 50 tests: 99.64% actual overlap, 0.00% false overlap.",890,340,280,100,{size:23,bold:true,color:C.navy});
- textBox(s,"Middle and width RMSE stayed unchanged at the displayed precision.",890,476,280,92,{size:18,color:C.muted}); footer(s,"432 settings × 300 repetitions");
+ textBox(s,`At 50 tests: ${(100*overlap50[2]).toFixed(2)}% actual overlap, ${finalFalseOverlap50.toFixed(3)}% false overlap.`,890,326,280,104,{size:23,bold:true,color:C.navy});
+ textBox(s,"These corrected values replace the earlier simulation, which used the requested gap—not the actual built gap—to decide the outcome.",890,460,280,118,{size:17,color:C.muted}); footer(s,"432 scenarios × 300 repetitions · outcome uses actual built gap");
 }
 
 // 8 boundaries
@@ -188,7 +212,7 @@ function styleTable(table, rows, cols, header=true, fontSize=17) {
 {
  const s=presentation.slides.add(); s.background.fill=C.navy;
  textBox(s,"Final verification",66,48,900,56,{size:36,bold:true,color:C.white}); box(s,66,118,1148,3,C.blue);
- textBox(s,"77 / 77",72,164,330,62,{size:52,bold:true,color:C.white}); textBox(s,"MATLAB regression tests passed",72,232,430,38,{size:22,color:"#D8EAF2"});
+ textBox(s,`${passedTestCount} / ${passedTestCount}`,72,164,330,62,{size:52,bold:true,color:C.white}); textBox(s,"MATLAB regression tests passed",72,232,430,38,{size:22,color:"#D8EAF2"});
  textBox(s,"1 file",72,330,330,62,{size:52,bold:true,color:C.white}); textBox(s,"Live Script ran alone in an empty folder",72,398,470,60,{size:22,color:"#D8EAF2"});
  textBox(s,"5.3922 / 1.0412",645,164,500,62,{size:45,bold:true,color:C.white}); textBox(s,"Embedded demo result",645,232,430,38,{size:22,color:"#D8EAF2"});
  textBox(s,"V1.8 preserved",645,330,430,62,{size:40,bold:true,color:C.white}); textBox(s,"Original and audit copy hashes remain identical",645,398,500,60,{size:22,color:"#D8EAF2"});
@@ -217,7 +241,7 @@ const result=await finalizePresentation({
   layoutArgs:["--expected-slide-size-emu","12192000,6858000","--validate-heading-fit","--require-native-table-slide","3","--require-native-table-slide","4","--require-native-table-slide","5","--require-native-table-slide","10","--require-native-table-slide","11"],
   fontPolicy:{basis:"design",families:[family]},
   verifyArtifactToolImport:true,
-  receiptPath:path.join(stagingDir,"Neyer_Gap_Test_v1_9_Presentation_r4.validation.json")
+  receiptPath:path.join(stagingDir,"Neyer_Gap_Test_v1_9_Presentation_r5.validation.json")
 });
 
 for(let i=0;i<presentation.slides.items.length;i++){
