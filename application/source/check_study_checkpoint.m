@@ -1,0 +1,143 @@
+function decision = check_study_checkpoint(result, plan, checkpoint_name)
+%CHECK_STUDY_CHECKPOINT Decide whether the declared study checkpoint is enough.
+% An incomplete statistical study is not called a failed physical test.
+% Reserve groups are offered only at their declared checkpoints.
+
+    required_plan_fields = {'outcome', 'reliability', 'confidence', ...
+        'accuracy_mm', 'minimum_gap_mm', 'maximum_gap_mm', ...
+        'main_articles', 'reserve_1_articles', 'reserve_2_articles', ...
+        'reachable_model'};
+    if ~isstruct(plan) || ~all(isfield(plan, required_plan_fields))
+        error('check_study_checkpoint:badPlan', ...
+            'A complete saved study plan is required for the checkpoint.');
+    end
+    checkpoint_name = lower(strtrim(char(string(checkpoint_name))));
+    if ~any(strcmp(checkpoint_name, {'main', 'reserve_1', 'reserve_2'}))
+        error('check_study_checkpoint:badCheckpoint', ...
+            'Checkpoint must be main, reserve 1, or reserve 2.');
+    end
+
+    missing = strings(0, 1);
+    has_successes = isstruct(result) && isfield(result, 'successes') && ...
+        ~isempty(result.successes);
+    if ~has_successes || ~any(logical(result.successes)) || ...
+            ~any(~logical(result.successes))
+        missing(end + 1, 1) = [ ...
+            "Both outcomes have not been observed in the tested region."];
+    end
+
+    if ~isstruct(result) || ~isfield(result, 'has_overlap') || ...
+            ~result.has_overlap
+        missing(end + 1, 1) = [ ...
+            "The Interaction and No-interaction results do not yet overlap enough for a valid fit."];
+    end
+
+    finite_fit = isstruct(result) && all(isfield(result, {'mu', 'sigma'})) && ...
+        isfinite(result.mu) && isfinite(result.sigma) && result.sigma > 0;
+    if ~finite_fit
+        missing(end + 1, 1) = [ ...
+            "A finite middle gap and positive overall variation have not been obtained."];
+    end
+
+    finite_middle_range = isstruct(result) && ...
+        all(isfield(result, {'mu_lo', 'mu_hi'})) && ...
+        isfinite(result.mu_lo) && isfinite(result.mu_hi) && ...
+        result.mu_hi >= result.mu_lo;
+    if ~finite_middle_range
+        missing(end + 1, 1) = [ ...
+            "A finite confidence range for the middle gap has not been obtained."];
+    elseif 0.5 * (result.mu_hi - result.mu_lo) > plan.accuracy_mm
+        missing(end + 1, 1) = sprintf([ ...
+            'The requested middle-gap accuracy of +/-%.4g mm has not been reached.'], ...
+            plan.accuracy_mm);
+    end
+
+    planned_count = checkpoint_count(plan, checkpoint_name);
+    if ~isfield(result, 'n') || result.n < planned_count
+        missing(end + 1, 1) = sprintf([ ...
+            'The declared %s checkpoint requires %d completed articles.'], ...
+            strrep(checkpoint_name, '_', ' '), planned_count);
+    end
+
+    boundary_established = false;
+    safe_gap_mm = NaN;
+    safe_gap_status = struct('code', 'not_checked', ...
+        'message', 'The reliability boundary could not yet be checked.', ...
+        'display_gap', "Not established", 'instruction', "", ...
+        'raw_gap_mm', NaN);
+    if has_successes && isfield(result, 'has_overlap') && result.has_overlap && ...
+            finite_fit
+        boundary = reliability_query(result, plan.outcome, 'gap_for', ...
+            plan.reliability, plan.confidence);
+        raw_boundary = boundary.raw_bound;
+        boundary_established = isfinite(raw_boundary) && ...
+            raw_boundary >= plan.minimum_gap_mm && ...
+            raw_boundary <= plan.maximum_gap_mm;
+        if boundary_established
+            [safe_gap_mm, safe_gap_status] = round_reachable_gap( ...
+                raw_boundary, plan.outcome, plan.reachable_model, []);
+        end
+    end
+    if ~boundary_established
+        missing(end + 1, 1) = [ ...
+            "The requested reliability boundary is not established inside the permitted range."];
+    elseif ~strcmp(safe_gap_status.code, 'ok')
+        missing(end + 1, 1) = [ ...
+            "No safely rounded reachable gap is available for the requested result."];
+    end
+
+    if isempty(missing)
+        status = 'complete';
+        next_checkpoint = '';
+        explanation = [ ...
+            'The declared checkpoint supports the requested result. ' ...
+            'Do not use reserve articles.'];
+    else
+        [next_checkpoint, reserve_available] = following_checkpoint(plan, checkpoint_name);
+        if reserve_available
+            status = 'ask_for_reserve';
+            explanation = sprintf([ ...
+                'The statistical study is incomplete; this is not a failed physical test. ' ...
+                'Review what is missing, then choose whether to use %s.'], ...
+                strrep(next_checkpoint, '_', ' '));
+        else
+            status = 'unsupported';
+            next_checkpoint = '';
+            explanation = [ ...
+                'The requested statement is not supported after the declared reserve checkpoints. ' ...
+                'Do not present this as a failed physical test or a reliability claim.'];
+        end
+    end
+
+    decision = struct('status', status, 'checkpoint', checkpoint_name, ...
+        'next_checkpoint', next_checkpoint, ...
+        'missing_conditions', missing, ...
+        'plain_explanation', explanation, ...
+        'boundary_established', boundary_established, ...
+        'safe_gap_mm', safe_gap_mm, 'safe_gap_status', safe_gap_status);
+end
+
+function count = checkpoint_count(plan, checkpoint_name)
+    switch checkpoint_name
+        case 'main'
+            count = plan.main_articles;
+        case 'reserve_1'
+            count = plan.main_articles + plan.reserve_1_articles;
+        otherwise
+            count = plan.main_articles + plan.reserve_1_articles + ...
+                plan.reserve_2_articles;
+    end
+end
+
+function [name, available] = following_checkpoint(plan, checkpoint_name)
+    if strcmp(checkpoint_name, 'main') && plan.reserve_1_articles > 0
+        name = 'reserve_1';
+        available = true;
+    elseif strcmp(checkpoint_name, 'reserve_1') && plan.reserve_2_articles > 0
+        name = 'reserve_2';
+        available = true;
+    else
+        name = '';
+        available = false;
+    end
+end

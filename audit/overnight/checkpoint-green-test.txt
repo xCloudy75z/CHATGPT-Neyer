@@ -1,0 +1,4 @@
+Checkpoint tests after implementation
+Passed: 8
+Failed: 0
+Incomplete: 0
