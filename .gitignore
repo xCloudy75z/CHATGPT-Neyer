@@ -24,6 +24,14 @@ vendor/
 
 # Internal planning and handover notes with machine-specific context
 docs/
+.superpowers/
+FROM CLAUDE/
+.worktrees/
+
+# MATLAB launch sentinels, UI scratch captures, and transient simulation shards
+*.sentinel
+assets/screenshots/*-scratch.png
+audit/overnight/shards/
 
 # Generated working copies; keep only named final deliverables
 delivery/*.m
