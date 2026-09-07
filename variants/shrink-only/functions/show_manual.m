@@ -1,0 +1,82 @@
+function show_manual()
+%SHOW_MANUAL  Show the built-in user manual in a scrollable window. [compiled-app]
+%   The manual text is EMBEDDED here (no external file), so Help works the same in
+%   the .exe, the .mlx, and standalone use -- nothing to find on disk.
+    f  = uifigure('Name', 'D-Optimal Sensitivity Tool - Help', 'Position', [340 180 680 600]);
+    gl = uigridlayout(f, [1 1]); gl.Padding = [10 10 10 10];
+    ta = uitextarea(gl, 'Value', manual_lines(), 'Editable', 'off');
+    ta.FontName = 'Consolas';
+end
+
+function lines = manual_lines()
+%MANUAL_LINES  The user manual as plain text (embedded; no file dependency).
+    lines = {
+      'D-OPTIMAL SENSITIVITY TOOL - USER MANUAL'
+      ''
+      'WHAT THIS TOOL DOES'
+      'It finds the drop height at which your 3D-printed parts break. Each part is'
+      'tested once and either breaks or survives. The tool picks the most informative'
+      'height to test next, and from the pattern estimates two numbers: the average'
+      'breaking height and the spread (how much parts vary). It also gives a "safe"'
+      'height (almost nothing breaks below it) and a "breaks" height (almost everything'
+      'breaks above it), each with a confidence range.'
+      ''
+      'THE MENU (five buttons)'
+      '- Pre-Test Planner: before the lab. Enter your guesses; it tells you how many'
+      '  parts to prepare and where to make the first drop.'
+      '- Run a Test: the real experiment. Enter your inputs, then for each part the'
+      '  tool shows the height to set; you drop it and click Break or Survive.'
+      '- Reliability Calculator: after a test, ask "at this height, what fraction of'
+      '  parts break/survive?"'
+      '- Run a Demo (verify): replays a published example; must show 5.3922 / 1.0412'
+      '  MATCH. Press it any time to trust the tool.'
+      '- Help: opens this manual.'
+      ''
+      'YOUR INPUTS'
+      '- Low / high guess for the average height (mm): a rough bracket for where'
+      '  parts break.'
+      '- Rough guess of the spread (mm): how much parts vary; a rough number is fine.'
+      '- Number of parts to test: how many you will drop (20-30+ recommended).'
+      '- Rig minimum height (mm): the lowest your rig can set (e.g. 0). Blank = none.'
+      '- Unit: mm, cm, m, or km (a label only; all numbers stay in that unit).'
+      ''
+      'DOING THE DROPS'
+      'For each part the tool shows "Test k of N - set the height to X mm". Set your'
+      'rig to X, drop the part, and click Break or Survive. Cancel stops the run.'
+      ''
+      'READING THE RESULTS'
+      '- Average breaking height: the headline number.'
+      '- Safe (green): below this height, almost nothing breaks.'
+      '- Fails (red): above this height, almost everything breaks.'
+      '- 95% range: we are 95% sure the true average is between these two numbers.'
+      '- The chart: the curve shows how likely a part is to break at each height; its'
+      '  peak is the average; a wider curve means parts vary more.'
+      '- Save results...: writes a CSV of every drop plus a picture-and-words HTML'
+      '  report you can open in any browser or hand in.'
+      ''
+      'CONFIDENCE vs RELIABILITY  (they are DIFFERENT things)'
+      '- RELIABILITY is about the PARTS: what fraction survive or break at a given'
+      '  height (e.g. 99.9% survive). It answers "how often does the part hold?"'
+      '- CONFIDENCE is about OUR ANSWER: how sure we are, given we only tested a few'
+      '  parts (e.g. 95% confident). It answers "how much should you trust the number?"'
+      '- Together: "95% confident at least 88% break at 6 mm" -> the 88% is'
+      '  RELIABILITY, the 95% is CONFIDENCE.'
+      '- Turning confidence UP gives a bigger safety margin (more certainty demanded'
+      '  from limited data). Turning reliability UP pushes to a more extreme height.'
+      '- One line to remember: reliability is about the parts; confidence is about us.'
+      ''
+      'IF YOUR PARTS ARE INCONSISTENT (the tool stays honest)'
+      '3D prints vary. A part that breaks low, where a good one would survive, is DATA,'
+      'not an error - the tool folds it in, and it shows up as a BIGGER SPREAD (a wide,'
+      'flat curve). You will see: a large spread; a safe height pushed very low, or an'
+      'honest "couldn''t pin this down - plan for about N parts" note instead of a fake'
+      'number; and wider 95% ranges. What to do: print more parts (the tool says roughly'
+      'how many) or improve print consistency. The tool never fakes precision on messy'
+      'data - degrading truthfully is the point.'
+      ''
+      'VERIFY IT WORKS'
+      'Press Run a Demo (verify). It must show average 5.3922, spread 1.0412 - MATCH.'
+      ''
+      'Method: Neyer (1994) D-optimal sensitivity test.'
+    };
+end
