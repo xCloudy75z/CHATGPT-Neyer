@@ -34,21 +34,27 @@ function res = reliability_at_height(levels, successes, tail, x, C)
     if ~has_overlap(levels, successes), return; end
 
     [mu, sigma, Lmax] = best_fit(levels, successes, mean(levels), fit_sigma0(levels));
-    khat = (x - mu) / sigma;               % standardised distance of x from centre
+    khat = (x - mu) / sigma;               % larger k means a larger physical gap
     c1   = shape_model(C, 'quantile')^2;
     kfl  = shape_model(1e-6, 'quantile');  % 1-in-a-million floor (~ -4.7534)
     Rk   = @(k) 2*(Lmax - prof_quantile(levels, successes, x, k, sigma));
 
     if strcmp(tail, 'break')
-        res.reliability = phi_cdf(khat);              % Phi(khat)
-        cap = khat - kfl;                             % search downward toward the floor
-        kb  = find_root(Rk, khat, -1, c1, cap, -Inf); % lower k -> lower reliability
+        % Legacy 'break' means Interaction in the gap application. Because
+        % Interaction becomes less likely as the gap grows, a cautious lower
+        % probability is found by searching toward a LARGER k.
+        res.reliability = phi_cdf(khat);
+        cap = -kfl - khat;                            % floor occurs at k = -kfl
+        kb  = find_root(Rk, khat, +1, c1, cap, +Inf);
         if isnan(kb), res.bound = 1e-6; res.bound_floored = true;
         else          res.bound = phi_cdf(kb); end
     else
-        res.reliability = phi_cdf(-khat);             % Phi(-khat) = survive prob
-        cap = -kfl - khat;                            % search upward (higher k -> lower survive)
-        kb  = find_root(Rk, khat, +1, c1, cap, +Inf);
+        % Legacy 'survive' means No interaction. No interaction becomes less
+        % likely as the gap shrinks, so its cautious lower probability is
+        % found by searching toward a SMALLER k.
+        res.reliability = phi_cdf(-khat);
+        cap = khat - kfl;                             % floor occurs at k = kfl
+        kb  = find_root(Rk, khat, -1, c1, cap, -Inf);
         if isnan(kb), res.bound = 1e-6; res.bound_floored = true;
         else          res.bound = phi_cdf(-kb); end
     end

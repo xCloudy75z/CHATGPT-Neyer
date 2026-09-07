@@ -1,0 +1,7 @@
+Expected failing regression test before correction
+Passed: 1
+Failed: 3
+Incomplete: 0
+EXPECTED FAILURE: TestFixedGapConfidence/interactionMinimumDoesNotExceedBestEstimate
+EXPECTED FAILURE: TestFixedGapConfidence/noInteractionMinimumDoesNotExceedBestEstimate
+EXPECTED FAILURE: TestFixedGapConfidence/representativeMinimumsAreFiniteAndNotArtificialFloors
