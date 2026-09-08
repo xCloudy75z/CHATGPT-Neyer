@@ -21,6 +21,8 @@ const VIEWPORTS = [
   { name: "phone", width: 390, height: 844 },
 ];
 
+const REVIEW_CAPTURE_PAGES = new Set(["method.html", "test-workflow.html"]);
+
 const CONTENT_TYPES = new Map([
   [".css", "text/css; charset=utf-8"],
   [".html", "text/html; charset=utf-8"],
@@ -50,6 +52,19 @@ function resolveSitePath(siteRoot, requestUrl) {
   return { target, relativePath: relativeTarget.split(path.sep).join("/") };
 }
 
+async function resolveRealSiteFile(siteRoot, requestUrl) {
+  const { target, relativePath } = resolveSitePath(siteRoot, requestUrl);
+  const [realRoot, realTarget] = await Promise.all([
+    fsp.realpath(siteRoot),
+    fsp.realpath(target),
+  ]);
+  const relativeTarget = path.relative(realRoot, realTarget);
+  if (relativeTarget === "" || relativeTarget.startsWith("..") || path.isAbsolute(relativeTarget)) {
+    throw new Error("request path is outside the real site root");
+  }
+  return { target: realTarget, relativePath };
+}
+
 function createSiteServer(siteRoot) {
   const root = path.resolve(siteRoot);
   return http.createServer(async (request, response) => {
@@ -60,8 +75,13 @@ function createSiteServer(siteRoot) {
     }
     let target;
     try {
-      ({ target } = resolveSitePath(root, request.url));
+      ({ target } = await resolveRealSiteFile(root, request.url));
     } catch (error) {
+      if (error && error.code === "ENOENT") {
+        response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+        response.end("Not found");
+        return;
+      }
       response.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
       response.end(`Forbidden: ${error.message}`);
       return;
@@ -107,6 +127,13 @@ async function listen(server) {
   return `http://127.0.0.1:${address.port}`;
 }
 
+async function closeListeningServer(server) {
+  if (!server.listening) {
+    return;
+  }
+  await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+}
+
 function preferredEdgeExecutable() {
   const candidates = [
     process.env.PROGRAMFILES && path.join(process.env.PROGRAMFILES, "Microsoft", "Edge", "Application", "msedge.exe"),
@@ -121,6 +148,13 @@ function pngDimensions(pngPath) {
     throw new Error(`not a PNG file: ${pngPath}`);
   }
   return { width: header.readUInt32BE(16), height: header.readUInt32BE(20) };
+}
+
+function reviewCaptureFileName(pageName, viewportName) {
+  if (!REVIEW_CAPTURE_PAGES.has(pageName)) {
+    return null;
+  }
+  return `${path.basename(pageName, ".html")}-${viewportName}.png`;
 }
 
 async function inspectPage(page, url, viewport) {
@@ -138,30 +172,47 @@ async function inspectPage(page, url, viewport) {
   return layout;
 }
 
-async function runCapture({ repositoryRoot = path.resolve(__dirname, "..") } = {}) {
+async function runCapture({
+  repositoryRoot = path.resolve(__dirname, ".."),
+  chromium: suppliedChromium,
+  edgeExecutable: suppliedEdgeExecutable,
+  createServer = createSiteServer,
+} = {}) {
   const siteRoot = path.join(repositoryRoot, "site");
   const auditDirectory = path.join(repositoryRoot, "audit", "site");
-  const { chromium } = require("playwright");
-  const edgeExecutable = preferredEdgeExecutable();
+  const chromium = suppliedChromium || require("playwright").chromium;
+  const edgeExecutable = suppliedEdgeExecutable || preferredEdgeExecutable();
   if (!edgeExecutable) {
     throw new Error("no verified local Microsoft Edge executable was found");
   }
   await fsp.mkdir(auditDirectory, { recursive: true });
-  const server = createSiteServer(siteRoot);
-  const baseUrl = await listen(server);
-  const browser = await chromium.launch({
-    executablePath: edgeExecutable,
-    headless: true,
-    args: ["--disable-background-networking", "--disable-component-update", "--disable-gpu"],
-  });
+  const server = createServer(siteRoot);
+  let browser;
+  let operationFailed = false;
   const results = [];
   try {
+    const baseUrl = await listen(server);
+    browser = await chromium.launch({
+      executablePath: edgeExecutable,
+      headless: true,
+      args: ["--disable-background-networking", "--disable-component-update", "--disable-gpu"],
+    });
     for (const viewport of VIEWPORTS) {
       const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1 });
       const page = await context.newPage();
       for (const pageName of PUBLIC_PAGES) {
         const layout = await inspectPage(page, `${baseUrl}/${pageName}`, viewport);
         results.push({ viewport: viewport.name, pageName, ...layout });
+        const reviewCapture = reviewCaptureFileName(pageName, viewport.name);
+        if (reviewCapture) {
+          const reviewImagePath = path.join(auditDirectory, reviewCapture);
+          await page.screenshot({ path: reviewImagePath, fullPage: true });
+          results.push({
+            viewport: viewport.name,
+            pageName: `${pageName}:inspection-capture`,
+            ...pngDimensions(reviewImagePath),
+          });
+        }
       }
       await page.goto(`${baseUrl}/index.html`, { waitUntil: "networkidle" });
       const focus = await page.locator(".primary-action").evaluate((element) => {
@@ -179,9 +230,26 @@ async function runCapture({ repositoryRoot = path.resolve(__dirname, "..") } = {
       results.push({ viewport: viewport.name, pageName: "capture", ...image });
       await context.close();
     }
+  } catch (error) {
+    operationFailed = true;
+    throw error;
   } finally {
-    await browser.close();
-    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    let cleanupError;
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (error) {
+        cleanupError = error;
+      }
+    }
+    try {
+      await closeListeningServer(server);
+    } catch (error) {
+      cleanupError ||= error;
+    }
+    if (!operationFailed && cleanupError) {
+      throw cleanupError;
+    }
   }
   return { edgeExecutable, results };
 }
@@ -198,4 +266,11 @@ if (require.main === module) {
   });
 }
 
-module.exports = { createSiteServer, pngDimensions, resolveSitePath, runCapture };
+module.exports = {
+  createSiteServer,
+  pngDimensions,
+  resolveRealSiteFile,
+  resolveSitePath,
+  reviewCaptureFileName,
+  runCapture,
+};

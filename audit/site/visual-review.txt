@@ -3,15 +3,17 @@ Date: 2026-09-08
 
 Capture command
 ---------------
-NODE_PATH=C:\Users\games\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\node_modules \
-  C:\Users\games\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe \
-  tools/capture_public_site.cjs
+PowerShell:
+
+$env:NODE_PATH = 'C:\Users\games\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\node_modules'
+& 'C:\Users\games\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' tools\capture_public_site.cjs
 
 The helper served only the local site directory on a temporary loopback port,
-rejected decoded paths that escape that directory, and launched the verified
-local Microsoft Edge executable through bundled Playwright. It loaded every
-listed public page at both viewports and failed when document scroll width
-exceeded the viewport.
+resolved both the site root and requested target to their real filesystem
+locations before serving, and rejected lexical, decoded, symlink, and junction
+escapes. It launched the verified local Microsoft Edge executable through
+bundled Playwright. It loaded every listed public page at both viewports and
+failed when document scroll width exceeded the viewport.
 
 Runtime page results
 --------------------
@@ -41,6 +43,10 @@ Retained evidence
 -----------------
 - site-desktop.png: 1440 x 1953 px full-page image.
 - site-phone.png: 390 x 3626 px full-page image.
+- method-desktop.png: 1440 x 2189 px full-page inspection image.
+- method-phone.png: 390 x 2959 px full-page inspection image.
+- test-workflow-desktop.png: 1440 x 5024 px full-page inspection image.
+- test-workflow-phone.png: 390 x 4357 px full-page inspection image.
 
 Visual inspection
 -----------------
@@ -52,9 +58,19 @@ Visual inspection
   action scale without clipping; workflow and route cards stack into one
   comfortable column; text stays legible; the status panel remains visually
   distinct; the focused action retains a visible outline.
-- The method page gap ruler is covered by the same narrow-screen one-column
-  CSS rule; the automated phone run found no horizontal overflow on that page
-  or on any other public page.
+- Method desktop: the five-column gap ruler is 621 px wide, with separate
+  operating-instruction and middle-gap colours; its response curve, legend,
+  caution, and example remain distinct rather than competing for one column.
+- Method phone: the ruler changes to one 335 px column inside its 358 px
+  container. Its direction label, five ordered stops, response curve, legend,
+  caution, and example stack without overlap or horizontal clipping.
+- Workflow desktop: all seven MATLAB figures keep their aspect ratios, fit
+  inside their figure cards, and remain paired with their numbered explanatory
+  captions. The displayed image widths range from 480 to about 499 px.
+- Workflow phone: the seven figures scale down proportionally to about 236 px
+  wide, remain inside their cards, and retain readable surrounding captions;
+  no image is clipped or stretched. The retained workflow captures show all
+  seven screen/caption pairs at both widths.
 
 Correction made
 ---------------
@@ -65,11 +81,19 @@ code wrap at safe break points. The corrected run reported 390 px scroll width
 for audit.html and every other phone page. Only the corrected PNG evidence is
 retained.
 
+The capture helper now also closes its loopback server when browser launch or
+browser shutdown fails. Its Node regression creates a real temporary
+junction/symlink and confirms an HTTP request through it receives 403, then
+uses a controlled browser-launch failure and confirms zero listening server
+handles remain.
+
 Verification
 ------------
 - Bundled Python: 23 public-site validator regressions passed.
 - Bundled Python site validator: Public site validation passed.
-- Bundled Node: capture helper containment regression passed.
+- Bundled Node: four capture-helper regressions passed, including real HTTP
+  symlink/junction containment and controlled launch-failure cleanup.
+- Successful capture process check: Edge processes were 0 before and 0 after.
 - git diff --check: passed.
 - Forbidden/public secret scan over site/: no matches.
 
