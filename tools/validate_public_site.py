@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
@@ -30,6 +31,8 @@ REQUIRED_TEXT = (
     "0.015 mm",
     "two decimal places",
 )
+EXACT_NUMERIC_EVIDENCE = ("211", "191", "63")
+FORBIDDEN_PATH_PATTERN = re.compile(r"(?:file:|[a-z]:[\\/]+users[\\/])", re.IGNORECASE)
 
 SCREENSHOT_NAMES = (
     "v110-01-main-menu.png",
@@ -39,6 +42,12 @@ SCREENSHOT_NAMES = (
     "v110-05-requested-gap.png",
     "v110-06-results.png",
     "v110-07-help.png",
+)
+
+CSS_RESOURCE_PATTERN = re.compile(
+    r"""(?:url\(\s*(?:\"([^\"]*)\"|'([^']*)'|([^\s)'\"]+))\s*\)|
+    @import\s+(?:\"([^\"]*)\"|'([^']*)'))""",
+    re.IGNORECASE | re.VERBOSE,
 )
 
 
@@ -102,7 +111,7 @@ def _parse_html(path: Path) -> tuple[SiteHtmlParser | None, str | None]:
 
 def _is_remote(value: str) -> bool:
     parsed = urlparse(value)
-    return bool(parsed.scheme) or value.startswith("//")
+    return parsed.scheme.lower() in {"http", "https"} or value.startswith("//")
 
 
 def _is_runtime_asset(tag: str, attributes: dict[str, str]) -> bool:
@@ -113,20 +122,28 @@ def _is_runtime_asset(tag: str, attributes: dict[str, str]) -> bool:
     return False
 
 
-def _local_target(page: Path, site_root: Path, value: str) -> Path | None:
+def _resource_values(attribute_name: str, value: str) -> list[str]:
+    if attribute_name != "srcset" or value.lstrip().lower().startswith("data:"):
+        return [value]
+    return [candidate.strip().split()[0] for candidate in value.split(",") if candidate.strip()]
+
+
+def _local_target(page: Path, site_root: Path, value: str) -> tuple[Path | None, bool]:
     parsed = urlparse(value)
-    if _is_remote(value) or parsed.scheme or value.startswith("#"):
-        return None
     target_text = unquote(parsed.path)
-    if not target_text:
-        return None
+    if value.startswith("#") or not target_text:
+        return None, False
+    if _is_remote(value) or parsed.scheme.lower() in {"data", "mailto", "tel"}:
+        return None, False
+    if parsed.scheme or target_text.startswith(("/", "\\")):
+        return None, True
     target = (page.parent / target_text).resolve()
     root = site_root.resolve()
     try:
         target.relative_to(root)
     except ValueError:
-        return None
-    return target
+        return None, True
+    return target, False
 
 
 def _fingerprint_pairs(site_root: Path, repository_root: Path) -> list[tuple[Path, Path]]:
@@ -159,6 +176,46 @@ def _relative(path: Path, root: Path) -> str:
         return path.relative_to(root).as_posix()
     except ValueError:
         return str(path)
+
+
+def _forbidden_text_problems(value: str, label: str = "") -> list[str]:
+    decoded_value = unquote(value)
+    lowered_value = decoded_value.lower()
+    problems: list[str] = []
+    has_machine_specific_path = False
+    for forbidden in FORBIDDEN_TEXT:
+        if forbidden.lower() in lowered_value:
+            kind = "machine-specific path" if forbidden == "C:\\Users\\" else "forbidden text"
+            problems.append(f"{label}: {kind}: {forbidden}".lstrip(": "))
+            has_machine_specific_path |= kind == "machine-specific path"
+    if FORBIDDEN_PATH_PATTERN.search(decoded_value) and not has_machine_specific_path:
+        problems.append(f"{label}: machine-specific path: {decoded_value}".lstrip(": "))
+    return problems
+
+
+def _validate_css_resources(site_root: Path) -> list[str]:
+    problems: list[str] = []
+    for stylesheet in sorted(site_root.rglob("*.css")):
+        try:
+            contents = stylesheet.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as error:
+            problems.append(f"cannot read {stylesheet}: {error}")
+            continue
+        label = _relative(stylesheet, site_root)
+        problems.extend(_forbidden_text_problems(contents, label))
+        for match in CSS_RESOURCE_PATTERN.finditer(contents):
+            value = next(group for group in match.groups() if group is not None).strip()
+            if not value:
+                continue
+            if _is_remote(value):
+                problems.append(f"{label}: external runtime asset: {value}")
+                continue
+            target, is_invalid = _local_target(stylesheet, site_root, value)
+            if is_invalid:
+                problems.append(f"{label}: invalid internal target: {value}")
+            elif target is not None and not target.is_file():
+                problems.append(f"{label}: missing internal target: {value}")
+    return problems
 
 
 def validate_page_shell(site_root: Path) -> list[str]:
@@ -222,30 +279,39 @@ def validate_site(site_root: Path, repository_root: Path) -> list[str]:
         page_parsers.append((page, parser))
         page_label = _relative(page, site_root)
         for tag, attributes in parser.elements:
-            for attribute_name in ("href", "src"):
-                value = attributes.get(attribute_name, "").strip()
-                if not value:
-                    continue
-                if _is_remote(value) and _is_runtime_asset(tag, attributes):
-                    problems.append(
-                        f"{page_label}: external runtime asset: {value}"
-                    )
-                    continue
-                target = _local_target(page, site_root, value)
-                if target is not None and not target.is_file():
-                    problems.append(
-                        f"{page_label}: missing internal target: {value}"
-                    )
+            for attribute_value in attributes.values():
+                problems.extend(_forbidden_text_problems(attribute_value, page_label))
+            for attribute_name in ("href", "src", "srcset", "poster", "data"):
+                raw_value = attributes.get(attribute_name, "").strip()
+                for value in _resource_values(attribute_name, raw_value):
+                    if not value:
+                        continue
+                    if _is_remote(value) and _is_runtime_asset(tag, attributes):
+                        problems.append(
+                            f"{page_label}: external runtime asset: {value}"
+                        )
+                        continue
+                    target, is_invalid = _local_target(page, site_root, value)
+                    if is_invalid:
+                        problems.append(
+                            f"{page_label}: invalid internal target: {value}"
+                        )
+                    elif target is not None and not target.is_file():
+                        problems.append(
+                            f"{page_label}: missing internal target: {value}"
+                        )
             if tag == "img" and not attributes.get("alt", "").strip():
                 problems.append(f"{page_label}: missing alt text")
 
+    problems.extend(_validate_css_resources(site_root))
     all_text = "\n".join("".join(parser.text) for _, parser in page_parsers).lower()
-    for forbidden in FORBIDDEN_TEXT:
-        if forbidden.lower() in all_text:
-            label = "machine-specific path" if forbidden == "C:\\Users\\" else "forbidden text"
-            problems.append(f"{label}: {forbidden}")
+    problems.extend(_forbidden_text_problems(all_text))
     for required in REQUIRED_TEXT:
-        if required.lower() not in all_text:
+        if required in EXACT_NUMERIC_EVIDENCE:
+            is_present = re.search(rf"(?<!\d){re.escape(required)}(?!\d)", all_text)
+        else:
+            is_present = required.lower() in all_text
+        if not is_present:
             problems.append(f"missing required wording: {required}")
 
     problems.extend(validate_page_shell(site_root))

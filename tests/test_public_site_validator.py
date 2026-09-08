@@ -23,6 +23,69 @@ class PublicSiteValidatorTests(unittest.TestCase):
         root = self.make_site('<a href="missing.html">Missing</a>')
         self.assertIn("missing internal target", "\n".join(validate_site(root, root)))
 
+    def test_rejects_internal_links_that_escape_site_root(self):
+        root = self.make_site(
+            '<a href="../outside.html">Relative</a>'
+            '<a href="%2e%2e/encoded.html">Encoded</a>'
+            '<a href="/root.html?view=full">Root</a>'
+        )
+        problems = "\n".join(validate_site(root, root))
+        self.assertIn("invalid internal target: ../outside.html", problems)
+        self.assertIn("invalid internal target: %2e%2e/encoded.html", problems)
+        self.assertIn("invalid internal target: /root.html?view=full", problems)
+
+    def test_allows_same_page_fragment_and_query_on_local_link(self):
+        root = self.make_site('<a href="#summary">Skip</a><a href="index.html?view=full">View</a>')
+        problems = "\n".join(validate_site(root, root))
+        self.assertNotIn("missing internal target: index.html?view=full", problems)
+        self.assertNotIn("invalid internal target", problems)
+
+    def test_rejects_network_resources_loaded_by_local_css(self):
+        root = self.make_site(
+            '<link rel="stylesheet" href="assets/site.css">',
+            {
+                "assets/site.css": (
+                    b'@import url("https://fonts.example/font.css");'
+                    b'.chart { background-image: url(https://cdn.example/chart.png); }'
+                )
+            },
+        )
+        self.assertIn("external runtime asset", "\n".join(validate_site(root, root)))
+
+    def test_rejects_network_resources_in_srcset_and_poster(self):
+        root = self.make_site(
+            '<img srcset="screen.png 1x, https://cdn.example/screen.png 2x" alt="Screen">'
+            '<video poster="https://cdn.example/poster.png"></video>',
+            {"screen.png": b"png"},
+        )
+        problems = "\n".join(validate_site(root, root))
+        self.assertIn("external runtime asset: https://cdn.example/screen.png", problems)
+        self.assertIn("external runtime asset: https://cdn.example/poster.png", problems)
+
+    def test_requires_exact_numeric_evidence_totals(self):
+        root = self.make_site(
+            "middle gap overall variation reliable operating gap "
+            "2110 1910 630 0.015 mm two decimal places"
+        )
+        problems = "\n".join(validate_site(root, root))
+        self.assertIn("missing required wording: 211", problems)
+        self.assertIn("missing required wording: 191", problems)
+        self.assertIn("missing required wording: 63", problems)
+
+    def test_rejects_machine_paths_in_decoded_attributes_and_css(self):
+        root = self.make_site(
+            '<a href="file:///C:/Users/games/secret">Local file</a>',
+            {
+                "assets/site.css": (
+                    b'.logo { background-image: '
+                    b'url(file:///C:/Users/games/logo.png); }'
+                )
+            },
+        )
+        problems = "\n".join(validate_site(root, root))
+        self.assertIn("index.html: machine-specific path", problems)
+        self.assertIn("assets/site.css: machine-specific path", problems)
+
     def test_rejects_machine_specific_path(self):
         root = self.make_site('<p>C:\\Users\\games\\secret</p>')
         self.assertIn("machine-specific path", "\n".join(validate_site(root, root)))
@@ -30,6 +93,12 @@ class PublicSiteValidatorTests(unittest.TestCase):
     def test_rejects_external_runtime_asset(self):
         root = self.make_site('<script src="https://cdn.example/app.js"></script>')
         self.assertIn("external runtime asset", "\n".join(validate_site(root, root)))
+
+    def test_allows_self_contained_data_image(self):
+        root = self.make_site(
+            '<img src="data:image/png;base64,cG5n" alt="Example screen">'
+        )
+        self.assertNotIn("external runtime asset", "\n".join(validate_site(root, root)))
 
     def test_requires_image_description(self):
         root = self.make_site('<img src="screen.png">', {"screen.png": b"png"})
