@@ -2,10 +2,26 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools.validate_public_site import validate_site
+from tools.validate_public_site import validate_page_shell, validate_site
+
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
 
 class PublicSiteValidatorTests(unittest.TestCase):
+    def test_real_pages_have_accessible_shell(self):
+        shell_problems = validate_page_shell(REPOSITORY_ROOT / "site")
+        current_pages = ("index.html", "method.html")
+        current_page_problems = [
+            problem
+            for problem in shell_problems
+            if any(
+                problem.startswith((f"{page}:", f"missing required page: {page}"))
+                for page in current_pages
+            )
+        ]
+        self.assertEqual([], current_page_problems)
+
     def setUp(self):
         self.temporary_directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary_directory.cleanup)

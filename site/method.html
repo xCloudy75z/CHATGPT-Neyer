@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How the Neyer Gap Test method works</title>
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="site-header">
+    <div>
+      <a class="site-name" href="index.html">Neyer Gap Test v1.10</a>
+      <nav aria-label="Main navigation">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a aria-current="page" href="method.html">Method</a></li>
+          <li><a href="test-workflow.html">Run a test</a></li>
+          <li><a href="evidence.html">Evidence</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main id="main-content">
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">How the method works</p>
+      <h1 id="page-title">Read the gap result without mixing up its meanings.</h1>
+      <p class="lede">Smaller physical gaps make Interaction more likely. Larger physical gaps make No interaction more likely. The tool uses your observations to estimate where that change happens.</p>
+    </section>
+
+    <section class="reading-width" aria-labelledby="ruler-title">
+      <h2 id="ruler-title">Physical gap ruler</h2>
+      <div class="gap-ruler" role="img" aria-label="A physical-gap ruler showing more likely Interaction at smaller gaps, a middle gap in the centre, and more likely No interaction at larger gaps.">
+        <div><strong>Small</strong><br>Interaction more likely</div>
+        <div class="operating"><strong>Operating instruction</strong><br>For the planned target</div>
+        <div class="middle"><strong>Middle gap</strong><br>About half may interact</div>
+        <div><strong>Larger</strong><br>Interaction less likely</div>
+        <div><strong>Largest</strong><br>No interaction more likely</div>
+      </div>
+    </section>
+
+    <section class="two-column" aria-labelledby="curve-title">
+      <div class="reading-width">
+        <h2 id="curve-title">Response curve</h2>
+        <svg class="response-curve" viewBox="0 0 720 340" role="img" aria-labelledby="curve-title curve-description">
+          <desc id="curve-description">A downward curve shows Interaction becoming less likely as the physical gap increases. A blue centre line marks the middle gap and a green earlier line marks a separate operating instruction.</desc>
+          <line x1="80" y1="45" x2="80" y2="280" stroke="#17313b" stroke-width="3" />
+          <line x1="80" y1="280" x2="670" y2="280" stroke="#17313b" stroke-width="3" />
+          <path d="M95 68 C195 75 260 104 350 166 S520 250 655 263" fill="none" stroke="#216c8d" stroke-width="8" />
+          <line x1="285" y1="92" x2="285" y2="280" stroke="#2f7d68" stroke-width="4" stroke-dasharray="8 7" />
+          <line x1="405" y1="92" x2="405" y2="280" stroke="#216c8d" stroke-width="4" stroke-dasharray="8 7" />
+          <text x="98" y="35" fill="#17313b" font-size="20">Interaction more likely</text>
+          <text x="465" y="320" fill="#17313b" font-size="20">Physical gap increases</text>
+          <text x="205" y="82" fill="#2f7d68" font-size="18">Operating instruction</text>
+          <text x="374" y="82" fill="#216c8d" font-size="18">Middle gap</text>
+        </svg>
+      </div>
+      <aside class="caution">
+        <h2>Keep the questions separate</h2>
+        <p>The middle gap describes an approximately 50/50 response point. A reliable operating gap is a separate instruction chosen for the planned response target. Neither label promises what one individual article will do.</p>
+      </aside>
+    </section>
+
+    <section class="definition" aria-labelledby="middle-title">
+      <h2 id="middle-title">Middle gap</h2>
+      <p>The middle gap is the physical gap where approximately half of similar articles may interact. It is a summary of the study response, not an operating instruction.</p>
+    </section>
+    <section class="definition" aria-labelledby="variation-title">
+      <h2 id="variation-title">Overall variation</h2>
+      <p>Overall variation describes how much the response changes from article to article around the middle gap. Sigma is its mathematical name. More overall variation means the response is spread across a wider range of physical gaps.</p>
+    </section>
+
+    <aside class="example">
+      <h2>Example, not a real study result</h2>
+      <p>A middle gap of 5.39 mm means approximately half of similar articles may interact there. It does not make 5.39 mm a safe operating gap.</p>
+      <p>The example operating instruction is 2.30 mm or smaller for the planned Interaction target. That is a different answer for a different question.</p>
+    </aside>
+
+    <nav class="page-nav" aria-label="Page navigation">
+      <ul>
+        <li><a href="index.html">← Home</a></li>
+        <li><a href="planner.html">Next: Pre-Test Planner →</a></li>
+      </ul>
+    </nav>
+  </main>
+  <footer class="site-footer"><div>Documentation for the reviewed Neyer Gap Test v1.10 MATLAB implementation.</div></footer>
+</body>
+</html>
