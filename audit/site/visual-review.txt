@@ -1,0 +1,84 @@
+Neyer public-site visual review — Task 6
+Date: 2026-09-08
+
+Capture command
+---------------
+NODE_PATH=C:\Users\games\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\node_modules \
+  C:\Users\games\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe \
+  tools/capture_public_site.cjs
+
+The helper served only the local site directory on a temporary loopback port,
+rejected decoded paths that escape that directory, and launched the verified
+local Microsoft Edge executable through bundled Playwright. It loaded every
+listed public page at both viewports and failed when document scroll width
+exceeded the viewport.
+
+Runtime page results
+--------------------
+Desktop, 1440 x 1100 viewport:
+- index.html: loaded, 1440 px client width, 1440 px scroll width.
+- method.html: loaded, 1440 px client width, 1440 px scroll width.
+- planner.html: loaded, 1440 px client width, 1440 px scroll width.
+- test-workflow.html: loaded, 1440 px client width, 1440 px scroll width.
+- results.html: loaded, 1440 px client width, 1440 px scroll width.
+- physical-setup.html: loaded, 1440 px client width, 1440 px scroll width.
+- audit.html: loaded, 1440 px client width, 1440 px scroll width.
+- evidence.html: loaded, 1440 px client width, 1440 px scroll width.
+- Primary action focus: solid 3 px rgb(181, 106, 27) outline.
+
+Phone, 390 x 844 viewport:
+- index.html: loaded, 390 px client width, 390 px scroll width.
+- method.html: loaded, 390 px client width, 390 px scroll width.
+- planner.html: loaded, 390 px client width, 390 px scroll width.
+- test-workflow.html: loaded, 390 px client width, 390 px scroll width.
+- results.html: loaded, 390 px client width, 390 px scroll width.
+- physical-setup.html: loaded, 390 px client width, 390 px scroll width.
+- audit.html: loaded, 390 px client width, 390 px scroll width.
+- evidence.html: loaded, 390 px client width, 390 px scroll width.
+- Primary action focus: solid 3 px rgb(181, 106, 27) outline.
+
+Retained evidence
+-----------------
+- site-desktop.png: 1440 x 1953 px full-page image.
+- site-phone.png: 390 x 3626 px full-page image.
+
+Visual inspection
+-----------------
+- Desktop: the hero has a clear primary reading order; the five-step workflow
+  remains one aligned row; navigation is compact and legible; route cards form
+  a consistent three-column grid; the focused primary action visibly shows the
+  amber outline.
+- Phone: navigation remains readable on its second header line; hero text and
+  action scale without clipping; workflow and route cards stack into one
+  comfortable column; text stays legible; the status panel remains visually
+  distinct; the focused action retains a visible outline.
+- The method page gap ruler is covered by the same narrow-screen one-column
+  CSS rule; the automated phone run found no horizontal overflow on that page
+  or on any other public page.
+
+Correction made
+---------------
+The initial phone run failed on audit.html with 413 px scroll width. Long,
+unbroken repository filenames inside code elements set the minimum width of a
+two-column grid child. site.css now permits grid children to shrink and lets
+code wrap at safe break points. The corrected run reported 390 px scroll width
+for audit.html and every other phone page. Only the corrected PNG evidence is
+retained.
+
+Verification
+------------
+- Bundled Python: 23 public-site validator regressions passed.
+- Bundled Python site validator: Public site validation passed.
+- Bundled Node: capture helper containment regression passed.
+- git diff --check: passed.
+- Forbidden/public secret scan over site/: no matches.
+
+Commit
+------
+Commit message: test: verify public site layouts
+
+Concerns
+--------
+The render proof uses the verified local Edge executable in headless mode.
+Task 7 must repeat the visual checks against the published HTTPS site before
+claiming that the public address is live.

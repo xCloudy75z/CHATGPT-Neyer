@@ -136,6 +136,12 @@ h2 { margin-top: 0; }
   gap: 1rem;
 }
 
+.workflow > *,
+.route-grid > *,
+.two-column > * { min-width: 0; }
+
+code { overflow-wrap: anywhere; }
+
 .workflow { grid-template-columns: repeat(5, minmax(0, 1fr)); margin-block: 3rem; }
 
 .workflow > li {
