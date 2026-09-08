@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neyer Gap Test v1.10 evidence</title>
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="site-header">
+    <div>
+      <a class="site-name" href="index.html">Neyer Gap Test v1.10</a>
+      <nav aria-label="Main navigation">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="method.html">Method</a></li>
+          <li><a href="test-workflow.html">Run a test</a></li>
+          <li><a aria-current="page" href="evidence.html">Evidence</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main id="main-content">
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">Executed v1.10 records</p>
+      <h1 id="page-title">Read the recorded evidence before relying on the workflow.</h1>
+      <p class="lede">These are committed MATLAB and simulation records. They support the documented implementation; they do not prove a new physical setup has been measured.</p>
+    </section>
+
+    <section class="two-column" aria-labelledby="checks-title">
+      <div class="reading-width">
+        <h2 id="checks-title">Executed check totals</h2>
+        <ul>
+          <li>211 complete MATLAB checks: 0 failed and 0 incomplete.</li>
+          <li>191 mock-laboratory checks across 7 routes: 0 failed and 0 incomplete.</li>
+          <li>63 focused final-review safety regressions: 0 failed and 0 incomplete.</li>
+        </ul>
+        <p>All three records name MATLAB R2022b. The mock-laboratory record also states that each destructive-test route uses a new build and that four or five readings describe one unchanged build.</p>
+      </div>
+      <aside class="verified">
+        <h2>What these totals mean</h2>
+        <p>They record executed checks with no failed or incomplete entries in these files. They do not remove the need to confirm a particular physical spacer build.</p>
+      </aside>
+    </section>
+
+    <section class="reading-width" aria-labelledby="simulation-title">
+      <h2 id="simulation-title">Frozen planner-validation result</h2>
+      <p>The recorded planner-validation summary contains 12 scenarios: 8 supported cases accepted, 0 supported cases rejected, and 4 unsupported confidence cases deliberately withheld. The withheld cases are an intentional protection, not successful support for those requests.</p>
+      <p>The record uses 40 repetitions per scenario. It is a frozen simulation result, not a claim about unmeasured physical spacer combinations.</p>
+    </section>
+
+    <section class="reading-width" aria-labelledby="sources-title">
+      <h2 id="sources-title">Repository evidence files</h2>
+      <ul>
+        <li><a href="https://github.com/xCloudy75z/CHATGPT-Neyer/blob/main/audit/overnight/final-full-suite.txt"><code>audit/overnight/final-full-suite.txt</code></a> — complete MATLAB suite.</li>
+        <li><a href="https://github.com/xCloudy75z/CHATGPT-Neyer/blob/main/audit/overnight/full-test-summary.txt"><code>audit/overnight/full-test-summary.txt</code></a> — complete mock-laboratory verification.</li>
+        <li><a href="https://github.com/xCloudy75z/CHATGPT-Neyer/blob/main/audit/overnight/final-review-regressions.txt"><code>audit/overnight/final-review-regressions.txt</code></a> — final independent-review regression group.</li>
+        <li><a href="https://github.com/xCloudy75z/CHATGPT-Neyer/blob/main/audit/overnight/planner-validation-summary.csv"><code>audit/overnight/planner-validation-summary.csv</code></a> — 12-scenario planner-validation summary.</li>
+      </ul>
+    </section>
+
+    <section class="two-column" aria-labelledby="limit-title">
+      <div class="reading-width">
+        <h2 id="limit-title">Evidence boundary</h2>
+        <p>The records support the v1.10 software checks, mock-laboratory routes, and frozen planner scenarios. They do not prove a 0.015 mm usable step or every printed-spacer combination.</p>
+      </div>
+      <aside class="caution">
+        <h2>Physical confirmation remains</h2>
+        <p>Measure each actual build, keep its readings, and pause when no confirmed reachable setting is available.</p>
+      </aside>
+    </section>
+
+    <nav class="page-nav" aria-label="Page navigation">
+      <ul>
+        <li><a href="audit.html">← Audit and corrections</a></li>
+        <li><a href="index.html">Return home →</a></li>
+      </ul>
+    </nav>
+  </main>
+  <footer class="site-footer"><div>Documentation for the reviewed Neyer Gap Test v1.10 MATLAB implementation.</div></footer>
+</body>
+</html>

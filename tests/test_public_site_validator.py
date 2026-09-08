@@ -1,3 +1,5 @@
+import csv
+import re
 import tempfile
 import unittest
 from html.parser import HTMLParser
@@ -103,6 +105,51 @@ def normalise_text(parts):
 
 
 class PublicSiteValidatorTests(unittest.TestCase):
+    def test_evidence_page_matches_the_committed_audit_records(self):
+        """Catches public evidence totals that drift from the executed records."""
+        evidence = (REPOSITORY_ROOT / "site" / "evidence.html").read_text(
+            encoding="utf-8"
+        )
+
+        def recorded_count(filename, label):
+            record = (REPOSITORY_ROOT / "audit" / "overnight" / filename).read_text(
+                encoding="utf-8"
+            )
+            match = re.search(rf"^{re.escape(label)}: (\d+)$", record, re.MULTILINE)
+            self.assertIsNotNone(match, f"missing {label} in {filename}")
+            return match.group(1)
+
+        full_suite = "final-full-suite.txt"
+        mock_lab = "full-test-summary.txt"
+        final_review = "final-review-regressions.txt"
+        planner_summary = "planner-validation-summary.csv"
+
+        self.assertIn(
+            f"{recorded_count(full_suite, 'Passed')} complete MATLAB checks", evidence
+        )
+        self.assertIn(f"{recorded_count(full_suite, 'Failed')} failed", evidence)
+        self.assertIn(f"{recorded_count(full_suite, 'Incomplete')} incomplete", evidence)
+        self.assertIn(
+            f"{recorded_count(mock_lab, 'Passed')} mock-laboratory checks", evidence
+        )
+        self.assertIn(f"{recorded_count(mock_lab, 'Routes')} routes", evidence)
+        self.assertIn(
+            f"{recorded_count(final_review, 'Passed')} focused final-review safety regressions",
+            evidence,
+        )
+
+        with (REPOSITORY_ROOT / "audit" / "overnight" / planner_summary).open(
+            encoding="utf-8", newline=""
+        ) as source:
+            scenarios = list(csv.DictReader(source))
+        accepted = sum(row["conclusion"] == "accepted" for row in scenarios)
+        withheld = sum(row["conclusion"] == "withheld" for row in scenarios)
+        rejected = len(scenarios) - accepted - withheld
+        self.assertIn(f"{len(scenarios)} scenarios", evidence)
+        self.assertIn(f"{accepted} supported cases accepted", evidence)
+        self.assertIn(f"{rejected} supported cases rejected", evidence)
+        self.assertIn(f"{withheld} unsupported confidence cases deliberately withheld", evidence)
+
     def test_planner_guide_gives_each_question_its_own_explanation(self):
         """Catches a planner guide that collapses distinct fields into loose prose."""
         planner = (REPOSITORY_ROOT / "site" / "planner.html").read_text(
@@ -197,19 +244,7 @@ class PublicSiteValidatorTests(unittest.TestCase):
             self.assertIn(required_explanation, workflow)
 
     def test_real_pages_have_accessible_shell(self):
-        expected_deferred_problems = {
-            f"missing required page: {page}"
-            for page in (
-                "audit.html",
-                "evidence.html",
-                "physical-setup.html",
-                "results.html",
-            )
-        }
-        self.assertEqual(
-            expected_deferred_problems,
-            set(validate_page_shell(REPOSITORY_ROOT / "site")),
-        )
+        self.assertEqual([], validate_page_shell(REPOSITORY_ROOT / "site"))
 
     def test_home_page_states_release_and_links_to_live_script(self):
         home_page = (REPOSITORY_ROOT / "site" / "index.html").read_text(
