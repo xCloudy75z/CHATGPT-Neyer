@@ -109,28 +109,29 @@ class VisibleTextParser(HTMLParser):
 
     def __init__(self):
         super().__init__(convert_charrefs=True)
-        self.hidden_tags = []
+        self.stack = []
         self.text = []
 
     def handle_starttag(self, tag, attrs):
         attributes = dict(attrs)
         style = attributes.get("style", "").replace(" ", "").lower()
-        is_hidden = (
+        inherited_hidden = bool(self.stack and self.stack[-1]["hidden"])
+        is_hidden = inherited_hidden or (
             tag in {"script", "style", "template"}
             or "hidden" in attributes
             or attributes.get("aria-hidden", "").lower() == "true"
             or "display:none" in style
             or "visibility:hidden" in style
         )
-        if is_hidden:
-            self.hidden_tags.append(tag)
+        if tag not in VOID_ELEMENTS:
+            self.stack.append({"tag": tag, "hidden": is_hidden})
 
     def handle_endtag(self, tag):
-        if self.hidden_tags and tag == self.hidden_tags[-1]:
-            self.hidden_tags.pop()
+        if tag not in VOID_ELEMENTS and self.stack and self.stack[-1]["tag"] == tag:
+            self.stack.pop()
 
     def handle_data(self, data):
-        if not self.hidden_tags:
+        if not self.stack or not self.stack[-1]["hidden"]:
             self.text.append(data)
 
 
@@ -139,6 +140,59 @@ def visible_text(markup):
     parser.feed(markup)
     parser.close()
     return normalise_text(parser.text)
+
+
+class EvidenceResultParser(HTMLParser):
+    """Parse visible, direct result rows from the one evidence-results list."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.stack = []
+        self.result_list_count = 0
+        self.items = []
+        self.active_item = None
+
+    def handle_starttag(self, tag, attrs):
+        attributes = dict(attrs)
+        style = attributes.get("style", "").replace(" ", "").lower()
+        parent = self.stack[-1] if self.stack else None
+        inherited_hidden = bool(parent and parent["hidden"])
+        hidden = inherited_hidden or (
+            tag in {"script", "style", "template"}
+            or "hidden" in attributes
+            or attributes.get("aria-hidden", "").lower() == "true"
+            or "display:none" in style
+            or "visibility:hidden" in style
+        )
+        is_result_list = (
+            tag == "ul" and "evidence-results" in attributes.get("class", "").split()
+        )
+        entry = {"tag": tag, "hidden": hidden, "result_list": is_result_list}
+        if tag not in VOID_ELEMENTS:
+            self.stack.append(entry)
+        if is_result_list:
+            self.result_list_count += 1
+        if tag == "li" and parent and parent["result_list"]:
+            self.active_item = {"text": [], "hidden": hidden}
+            self.items.append(self.active_item)
+
+    def handle_endtag(self, tag):
+        if tag in VOID_ELEMENTS or not self.stack or self.stack[-1]["tag"] != tag:
+            return
+        entry = self.stack.pop()
+        if tag == "li" and self.active_item is not None:
+            self.active_item = None
+
+    def handle_data(self, data):
+        if self.active_item is not None and self.stack and not self.stack[-1]["hidden"]:
+            self.active_item["text"].append(data)
+
+
+def evidence_result_structure(markup):
+    parser = EvidenceResultParser()
+    parser.feed(markup)
+    parser.close()
+    return parser.result_list_count, [normalise_text(item["text"]) for item in parser.items]
 
 
 def recorded_count(repository_root, filename, label):
@@ -154,12 +208,15 @@ def recorded_count(repository_root, filename, label):
 def evidence_page_problems(repository_root, markup):
     """Return reader-visible mismatches against the executed evidence records."""
     text = visible_text(markup)
+    result_list_count, result_items = evidence_result_structure(markup)
     records = (
         ("final-full-suite.txt", "complete MATLAB checks", ""),
         ("full-test-summary.txt", "mock-laboratory checks", " across {} routes"),
         ("final-review-regressions.txt", "focused final-review safety regressions", ""),
     )
     problems = []
+    if result_list_count != 1:
+        problems.append("expected exactly one evidence-results list")
     for filename, description, route_suffix in records:
         passed = recorded_count(repository_root, filename, "Passed")
         failed = recorded_count(repository_root, filename, "Failed")
@@ -169,8 +226,11 @@ def evidence_page_problems(repository_root, markup):
             f"{passed} {description}{route_suffix.format(routes)}: "
             f"{failed} failed and {incomplete} incomplete."
         )
-        if expected not in text:
-            problems.append(f"visible {description} record does not match {filename}")
+        named_items = [item for item in result_items if description in item]
+        if named_items != [expected]:
+            problems.append(f"visible {description} result row does not match {filename}")
+        if text.count(description) != 1:
+            problems.append(f"expected exactly one visible {description} claim")
 
     with (repository_root / "audit" / "overnight" / "planner-validation-summary.csv").open(
         encoding="utf-8", newline=""
@@ -211,16 +271,25 @@ class PublicSiteValidatorTests(unittest.TestCase):
         )
         self.assertEqual([], evidence_page_problems(REPOSITORY_ROOT, evidence))
 
-        hidden_totals = evidence.replace(
-            "191 mock-laboratory checks across 7 routes: 0 failed and 0 incomplete.",
-            '<span hidden>191 mock-laboratory checks across 7 routes: 0 failed and 0 incomplete.</span>',
-        )
-        self.assertTrue(evidence_page_problems(REPOSITORY_ROOT, hidden_totals))
+        correct_mock_result = "191 mock-laboratory checks across 7 routes: 0 failed and 0 incomplete."
         wrong_mock_result = evidence.replace(
-            "191 mock-laboratory checks across 7 routes: 0 failed and 0 incomplete.",
+            correct_mock_result,
             "191 mock-laboratory checks across 7 routes: 99 failed and 88 incomplete.",
         )
         self.assertTrue(evidence_page_problems(REPOSITORY_ROOT, wrong_mock_result))
+        detached_conflict = wrong_mock_result.replace(
+            "</main>", f"<p>{correct_mock_result}</p></main>"
+        )
+        self.assertTrue(evidence_page_problems(REPOSITORY_ROOT, detached_conflict))
+        detached_duplicate = evidence.replace(
+            "</main>", f"<p>{correct_mock_result}</p></main>"
+        )
+        self.assertTrue(evidence_page_problems(REPOSITORY_ROOT, detached_duplicate))
+        nested_hidden = wrong_mock_result.replace(
+            "</main>",
+            f"<div hidden><div>cover</div><span>{correct_mock_result}</span></div></main>",
+        )
+        self.assertTrue(evidence_page_problems(REPOSITORY_ROOT, nested_hidden))
 
     def test_evidence_validation_rejects_unknown_conclusions_and_wrong_repetitions(self):
         """Catches a planner summary that silently relabels unsupported scenarios."""
@@ -268,7 +337,8 @@ class PublicSiteValidatorTests(unittest.TestCase):
             self.assertIn(reviewed + filename, (REPOSITORY_ROOT / "site" / "evidence.html").read_text(encoding="utf-8"))
         audit_text = visible_text(audit)
         for definition in (
-            "Bound-aware means the search stays inside the permitted physical-gap limits.",
+            "Bound-aware means using earlier lower and upper middle-gap estimates to decide how far Stage 1 searches.",
+            "Physical permitted limits are applied separately after selection.",
             "Bisection means repeatedly halving the range between observed Interaction and No interaction.",
             "Strict overlap means the Interaction and No interaction ranges share more than a touching endpoint.",
             "D-optimal means choosing the next gap expected to add the most useful information.",
