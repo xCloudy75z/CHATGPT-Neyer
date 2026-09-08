@@ -43,17 +43,18 @@
       <div class="reading-width">
         <h2 id="curve-title">Response curve</h2>
         <svg class="response-curve" viewBox="0 0 720 340" role="img" aria-labelledby="curve-title curve-description">
-          <desc id="curve-description">A downward curve shows Interaction becoming less likely as the physical gap increases. A blue centre line marks the middle gap and a green earlier line marks a separate operating instruction.</desc>
+          <desc id="curve-description">A downward curve shows Interaction becoming less likely as the physical gap increases. A blue centre line marks the middle gap and a green earlier line marks a separate operating instruction. The responsive legend below identifies both markers.</desc>
           <line x1="80" y1="45" x2="80" y2="280" stroke="#17313b" stroke-width="3" />
           <line x1="80" y1="280" x2="670" y2="280" stroke="#17313b" stroke-width="3" />
           <path d="M95 68 C195 75 260 104 350 166 S520 250 655 263" fill="none" stroke="#216c8d" stroke-width="8" />
           <line x1="285" y1="92" x2="285" y2="280" stroke="#2f7d68" stroke-width="4" stroke-dasharray="8 7" />
           <line x1="405" y1="92" x2="405" y2="280" stroke="#216c8d" stroke-width="4" stroke-dasharray="8 7" />
-          <text x="98" y="35" fill="#17313b" font-size="20">Interaction more likely</text>
-          <text x="465" y="320" fill="#17313b" font-size="20">Physical gap increases</text>
-          <text x="205" y="82" fill="#2f7d68" font-size="18">Operating instruction</text>
-          <text x="374" y="82" fill="#216c8d" font-size="18">Middle gap</text>
         </svg>
+        <p>Interaction is more likely toward the smaller physical gaps on the left. As the physical gap increases to the right, Interaction becomes less likely.</p>
+        <ul class="curve-legend" aria-label="Response-curve marker legend">
+          <li><span class="curve-marker operating" aria-hidden="true"></span><span><strong>Operating instruction</strong>Earlier green marker for the planned response target.</span></li>
+          <li><span class="curve-marker middle" aria-hidden="true"></span><span><strong>Middle gap</strong>Blue marker for the approximately 50/50 response point.</span></li>
+        </ul>
       </div>
       <aside class="caution">
         <h2>Keep the questions separate</h2>

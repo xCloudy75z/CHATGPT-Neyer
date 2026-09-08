@@ -211,6 +211,37 @@ h2 { margin-top: 0; }
   background: #fff;
 }
 
+.curve-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+  max-width: 48rem;
+  margin: .75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.curve-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: .6rem;
+  align-items: start;
+  padding: .75rem;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.curve-legend strong { display: block; }
+
+.curve-marker {
+  width: .8rem;
+  height: 2.5rem;
+  border-left: .3rem dashed;
+}
+
+.curve-marker.operating { border-color: var(--green); }
+.curve-marker.middle { border-color: var(--blue); }
+
 .page-nav { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); }
 
 .site-footer { border-top: 1px solid var(--line); }
@@ -222,6 +253,7 @@ h2 { margin-top: 0; }
   main { padding-block: 2.5rem 3rem; }
   .gap-ruler { grid-template-columns: 1fr; border-left: .45rem solid var(--ink); border-top: 0; padding: 0 0 0 1rem; }
   .gap-ruler::before { position: static; display: block; margin: 0 0 .6rem -1rem; }
+  .curve-legend { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

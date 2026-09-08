@@ -10,17 +10,28 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
 class PublicSiteValidatorTests(unittest.TestCase):
     def test_real_pages_have_accessible_shell(self):
-        shell_problems = validate_page_shell(REPOSITORY_ROOT / "site")
-        current_pages = ("index.html", "method.html")
-        current_page_problems = [
-            problem
-            for problem in shell_problems
-            if any(
-                problem.startswith((f"{page}:", f"missing required page: {page}"))
-                for page in current_pages
+        expected_deferred_problems = {
+            f"missing required page: {page}"
+            for page in (
+                "audit.html",
+                "evidence.html",
+                "physical-setup.html",
+                "planner.html",
+                "results.html",
+                "test-workflow.html",
             )
-        ]
-        self.assertEqual([], current_page_problems)
+        }
+        self.assertEqual(
+            expected_deferred_problems,
+            set(validate_page_shell(REPOSITORY_ROOT / "site")),
+        )
+
+    def test_home_page_states_release_and_links_to_live_script(self):
+        home_page = (REPOSITORY_ROOT / "site" / "index.html").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("MATLAB R2022b", home_page)
+        self.assertIn('href="downloads/Neyer_Gap_Test_v1_10.mlx"', home_page)
 
     def setUp(self):
         self.temporary_directory = tempfile.TemporaryDirectory()
