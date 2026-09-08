@@ -104,51 +104,185 @@ def normalise_text(parts):
     return " ".join("".join(parts).split())
 
 
+class VisibleTextParser(HTMLParser):
+    """Collect reader-visible text while ignoring comments and hidden content."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.hidden_tags = []
+        self.text = []
+
+    def handle_starttag(self, tag, attrs):
+        attributes = dict(attrs)
+        style = attributes.get("style", "").replace(" ", "").lower()
+        is_hidden = (
+            tag in {"script", "style", "template"}
+            or "hidden" in attributes
+            or attributes.get("aria-hidden", "").lower() == "true"
+            or "display:none" in style
+            or "visibility:hidden" in style
+        )
+        if is_hidden:
+            self.hidden_tags.append(tag)
+
+    def handle_endtag(self, tag):
+        if self.hidden_tags and tag == self.hidden_tags[-1]:
+            self.hidden_tags.pop()
+
+    def handle_data(self, data):
+        if not self.hidden_tags:
+            self.text.append(data)
+
+
+def visible_text(markup):
+    parser = VisibleTextParser()
+    parser.feed(markup)
+    parser.close()
+    return normalise_text(parser.text)
+
+
+def recorded_count(repository_root, filename, label):
+    record = (repository_root / "audit" / "overnight" / filename).read_text(
+        encoding="utf-8"
+    )
+    match = re.search(rf"^{re.escape(label)}: (\d+)$", record, re.MULTILINE)
+    if match is None:
+        raise ValueError(f"missing {label} in {filename}")
+    return match.group(1)
+
+
+def evidence_page_problems(repository_root, markup):
+    """Return reader-visible mismatches against the executed evidence records."""
+    text = visible_text(markup)
+    records = (
+        ("final-full-suite.txt", "complete MATLAB checks", ""),
+        ("full-test-summary.txt", "mock-laboratory checks", " across {} routes"),
+        ("final-review-regressions.txt", "focused final-review safety regressions", ""),
+    )
+    problems = []
+    for filename, description, route_suffix in records:
+        passed = recorded_count(repository_root, filename, "Passed")
+        failed = recorded_count(repository_root, filename, "Failed")
+        incomplete = recorded_count(repository_root, filename, "Incomplete")
+        routes = recorded_count(repository_root, filename, "Routes") if route_suffix else ""
+        expected = (
+            f"{passed} {description}{route_suffix.format(routes)}: "
+            f"{failed} failed and {incomplete} incomplete."
+        )
+        if expected not in text:
+            problems.append(f"visible {description} record does not match {filename}")
+
+    with (repository_root / "audit" / "overnight" / "planner-validation-summary.csv").open(
+        encoding="utf-8", newline=""
+    ) as source:
+        scenarios = list(csv.DictReader(source))
+    conclusions = {row["conclusion"] for row in scenarios}
+    unknown = conclusions - {"accepted", "withheld"}
+    if unknown:
+        problems.append(f"unknown planner conclusions: {sorted(unknown)}")
+        return problems
+    repetitions = {row["repetitions"] for row in scenarios}
+    if repetitions != {"40"}:
+        problems.append(f"planner repetitions are not all 40: {sorted(repetitions)}")
+    accepted = [row for row in scenarios if row["conclusion"] == "accepted"]
+    withheld = [row for row in scenarios if row["conclusion"] == "withheld"]
+    accepted_confidence = {row["confidence"] for row in accepted}
+    withheld_confidence = {row["confidence"] for row in withheld}
+    if accepted_confidence != {"0.95"}:
+        problems.append(f"accepted confidence classes changed: {sorted(accepted_confidence)}")
+    if withheld_confidence != {"0.1", "0.499", "0.5", "0.999"}:
+        problems.append(f"withheld confidence classes changed: {sorted(withheld_confidence)}")
+    expected_scenarios = (
+        f"{len(scenarios)} scenarios with 40 repetitions each: "
+        f"{len(accepted)} supported 95% confidence cases accepted; "
+        f"0 supported cases rejected; {len(withheld)} unsupported confidence cases deliberately withheld "
+        "at 10%, 49.9%, 50%, or 99.9% confidence."
+    )
+    if expected_scenarios not in text:
+        problems.append("visible planner-validation result does not match its scenario classes")
+    return problems
+
+
 class PublicSiteValidatorTests(unittest.TestCase):
     def test_evidence_page_matches_the_committed_audit_records(self):
-        """Catches public evidence totals that drift from the executed records."""
+        """Catches hidden, detached, or drifted evidence claims on the public page."""
         evidence = (REPOSITORY_ROOT / "site" / "evidence.html").read_text(
             encoding="utf-8"
         )
+        self.assertEqual([], evidence_page_problems(REPOSITORY_ROOT, evidence))
 
-        def recorded_count(filename, label):
-            record = (REPOSITORY_ROOT / "audit" / "overnight" / filename).read_text(
+        hidden_totals = evidence.replace(
+            "191 mock-laboratory checks across 7 routes: 0 failed and 0 incomplete.",
+            '<span hidden>191 mock-laboratory checks across 7 routes: 0 failed and 0 incomplete.</span>',
+        )
+        self.assertTrue(evidence_page_problems(REPOSITORY_ROOT, hidden_totals))
+        wrong_mock_result = evidence.replace(
+            "191 mock-laboratory checks across 7 routes: 0 failed and 0 incomplete.",
+            "191 mock-laboratory checks across 7 routes: 99 failed and 88 incomplete.",
+        )
+        self.assertTrue(evidence_page_problems(REPOSITORY_ROOT, wrong_mock_result))
+
+    def test_evidence_validation_rejects_unknown_conclusions_and_wrong_repetitions(self):
+        """Catches a planner summary that silently relabels unsupported scenarios."""
+        summary = REPOSITORY_ROOT / "audit" / "overnight" / "planner-validation-summary.csv"
+        source = summary.read_text(encoding="utf-8")
+        unknown = source.replace(",accepted\n", ",review\n", 1)
+        wrong_repetitions = source.replace(",40,", ",39,", 1)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            audit = root / "audit" / "overnight"
+            audit.mkdir(parents=True)
+            for filename in (
+                "final-full-suite.txt",
+                "full-test-summary.txt",
+                "final-review-regressions.txt",
+            ):
+                (audit / filename).write_text(
+                    (REPOSITORY_ROOT / "audit" / "overnight" / filename).read_text(
+                        encoding="utf-8"
+                    ),
+                    encoding="utf-8",
+                )
+            evidence = (REPOSITORY_ROOT / "site" / "evidence.html").read_text(
                 encoding="utf-8"
             )
-            match = re.search(rf"^{re.escape(label)}: (\d+)$", record, re.MULTILINE)
-            self.assertIsNotNone(match, f"missing {label} in {filename}")
-            return match.group(1)
+            (audit / summary.name).write_text(unknown, encoding="utf-8")
+            self.assertIn("unknown planner conclusions", "\n".join(evidence_page_problems(root, evidence)))
+            (audit / summary.name).write_text(wrong_repetitions, encoding="utf-8")
+            self.assertIn("planner repetitions are not all 40", "\n".join(evidence_page_problems(root, evidence)))
 
-        full_suite = "final-full-suite.txt"
-        mock_lab = "full-test-summary.txt"
-        final_review = "final-review-regressions.txt"
-        planner_summary = "planner-validation-summary.csv"
-
+    def test_audit_uses_immutable_evidence_links_and_defines_technical_terms(self):
+        """Catches release-broken links and unexplained audit terminology."""
+        audit = (REPOSITORY_ROOT / "site" / "audit.html").read_text(encoding="utf-8")
+        results = (REPOSITORY_ROOT / "site" / "results.html").read_text(encoding="utf-8")
+        reviewed = "https://github.com/xCloudy75z/CHATGPT-Neyer/blob/c78e7ed/"
+        self.assertNotIn("/blob/main/", audit)
+        self.assertNotIn("/blob/main/", (REPOSITORY_ROOT / "site" / "evidence.html").read_text(encoding="utf-8"))
+        self.assertIn(reviewed + "delivery/Neyer_Overnight_Verification_Report.html#audit", audit)
+        for filename in (
+            "audit/overnight/final-full-suite.txt",
+            "audit/overnight/full-test-summary.txt",
+            "audit/overnight/final-review-regressions.txt",
+            "audit/overnight/planner-validation-summary.csv",
+        ):
+            self.assertIn(reviewed + filename, (REPOSITORY_ROOT / "site" / "evidence.html").read_text(encoding="utf-8"))
+        audit_text = visible_text(audit)
+        for definition in (
+            "Bound-aware means the search stays inside the permitted physical-gap limits.",
+            "Bisection means repeatedly halving the range between observed Interaction and No interaction.",
+            "Strict overlap means the Interaction and No interaction ranges share more than a touching endpoint.",
+            "D-optimal means choosing the next gap expected to add the most useful information.",
+            "One-sided confidence sets a cautious operating boundary in one safe direction.",
+        ):
+            self.assertIn(definition, audit_text)
         self.assertIn(
-            f"{recorded_count(full_suite, 'Passed')} complete MATLAB checks", evidence
+            "The middle-gap and overall-variation ranges are two-sided confidence ranges with lower and upper estimates.",
+            visible_text(results),
         )
-        self.assertIn(f"{recorded_count(full_suite, 'Failed')} failed", evidence)
-        self.assertIn(f"{recorded_count(full_suite, 'Incomplete')} incomplete", evidence)
         self.assertIn(
-            f"{recorded_count(mock_lab, 'Passed')} mock-laboratory checks", evidence
+            "Operating tail boundaries use one-sided confidence in the safe direction.",
+            visible_text(results),
         )
-        self.assertIn(f"{recorded_count(mock_lab, 'Routes')} routes", evidence)
-        self.assertIn(
-            f"{recorded_count(final_review, 'Passed')} focused final-review safety regressions",
-            evidence,
-        )
-
-        with (REPOSITORY_ROOT / "audit" / "overnight" / planner_summary).open(
-            encoding="utf-8", newline=""
-        ) as source:
-            scenarios = list(csv.DictReader(source))
-        accepted = sum(row["conclusion"] == "accepted" for row in scenarios)
-        withheld = sum(row["conclusion"] == "withheld" for row in scenarios)
-        rejected = len(scenarios) - accepted - withheld
-        self.assertIn(f"{len(scenarios)} scenarios", evidence)
-        self.assertIn(f"{accepted} supported cases accepted", evidence)
-        self.assertIn(f"{rejected} supported cases rejected", evidence)
-        self.assertIn(f"{withheld} unsupported confidence cases deliberately withheld", evidence)
 
     def test_planner_guide_gives_each_question_its_own_explanation(self):
         """Catches a planner guide that collapses distinct fields into loose prose."""

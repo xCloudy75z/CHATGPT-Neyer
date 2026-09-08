@@ -33,25 +33,25 @@
       <table>
         <thead><tr><th scope="col">Area</th><th scope="col">v1.8 problem</th><th scope="col">v1.10 result</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Stage 1</th><td>The reference sequence was reproduced, but the outward search did not fully use the intended bound-aware rule in every branch.</td><td>The bound-aware rule is used in the smaller-gap Interaction direction and covered by regressions.</td></tr>
+          <tr><th scope="row">Stage 1</th><td>Bound-aware means the search stays inside the permitted physical-gap limits. The reference sequence was reproduced, but the outward search did not fully use that rule in every branch.</td><td>The bound-aware rule is used in the smaller-gap Interaction direction and checked again so the earlier problem does not return.</td></tr>
           <tr><th scope="row">Stage-2 changeover</th><td>A 1.5× guessed overall-variation threshold was selected to reproduce a table, not established as the method rule.</td><td>Stage 1 changes to Stage 2 at 1.0× the guessed overall variation. This is the changeover rule.</td></tr>
           <tr><th scope="row">Stage-2 narrowing</th><td>The configured 0.8 narrowing factor was not applied by the decision loop.</td><td>After each separated Stage-2 result, the working overall variation is multiplied by 0.8. This is a narrowing rule, not the 1.0× changeover rule.</td></tr>
-          <tr><th scope="row">One-way Stage 2</th><td>An intermediate correction could return the process to bisection.</td><td>Stage 2 stays one-way and ends only after strict overlap.</td></tr>
-          <tr><th scope="row">Confidence handling</th><td>The core fit needed one-sided confidence checks and safeguards for extreme artificial data.</td><td>The fitted middle gap and overall variation are retained with corrected one-sided confidence handling; extreme artificial data remain a disclosed numerical limit.</td></tr>
-          <tr><th scope="row">D-optimal selection</th><td>The information calculation matched the method, but the search fence and grid were engineering choices.</td><td>The retained information choice is mapped to a reachable and useful physical setting.</td></tr>
+          <tr><th scope="row">One-way Stage 2</th><td>Bisection means repeatedly halving the range between observed Interaction and No interaction. An intermediate correction could return to that earlier process.</td><td>Stage 2 stays one-way and ends only after strict overlap. Strict overlap means the Interaction and No interaction ranges share more than a touching endpoint.</td></tr>
+          <tr><th scope="row">Confidence handling</th><td>The core fit needed confidence checks for tail boundaries and safeguards for extreme artificial data.</td><td>The middle-gap and overall-variation ranges are two-sided, with lower and upper estimates. One-sided confidence sets a cautious operating boundary in one safe direction. Extreme artificial data remain a disclosed numerical limit.</td></tr>
+          <tr><th scope="row">Next-gap information choice</th><td>D-optimal means choosing the next gap expected to add the most useful information. The information calculation matched the method, but the search fence and grid were engineering choices.</td><td>The retained information choice is mapped to a reachable and useful physical setting.</td></tr>
           <tr><th scope="row">Boundary confirmation</th><td>Repeated use of a boundary could look like a failed or looping test.</td><td>One confirmation is requested. A second contradiction pauses safely and preserves the record for review.</td></tr>
           <tr><th scope="row">Two-decimal request</th><td>Fixed decimal rounding could request a gap that the equipment could not build.</td><td>The request is selected from reachable settings and displayed with two decimal places; measured readings keep their entered precision.</td></tr>
           <tr><th scope="row">Useful-setting stop</th><td>Some no-alternative cases could repeat a setting without a clear reason.</td><td>The app chooses the nearest different reachable and useful setting, or pauses when none exists.</td></tr>
         </tbody>
       </table>
-      <p>Source: <a href="https://github.com/xCloudy75z/CHATGPT-Neyer/blob/main/audit/README.md"><code>audit/README.md</code></a>.</p>
+      <p>Source: the reviewed v1.10 <a href="https://github.com/xCloudy75z/CHATGPT-Neyer/blob/c78e7ed/delivery/Neyer_Overnight_Verification_Report.html#audit"><code>delivery/Neyer_Overnight_Verification_Report.html#audit</code></a>.</p>
     </section>
 
     <section class="two-column" aria-labelledby="review-title">
       <div class="reading-width">
         <h2 id="review-title">Implemented independent-review corrections</h2>
         <p>Final review also corrected safety fields that could fail open, prevented a 0.015 mm foil observation from being treated as usable resolution, and prevented a later boundary clamp from undoing a reachable setting.</p>
-        <p>Those corrections are recorded in <a href="https://github.com/xCloudy75z/CHATGPT-Neyer/blob/main/audit/overnight/final-review-regressions.txt"><code>audit/overnight/final-review-regressions.txt</code></a>.</p>
+        <p>The named corrections are described in the reviewed v1.10 <a href="https://github.com/xCloudy75z/CHATGPT-Neyer/blob/c78e7ed/delivery/Neyer_Overnight_Verification_Report.html#audit"><code>delivery/Neyer_Overnight_Verification_Report.html#audit</code></a>. The separate aggregate record reports the 63 completed final-review checks: <a href="https://github.com/xCloudy75z/CHATGPT-Neyer/blob/c78e7ed/audit/overnight/final-review-regressions.txt"><code>audit/overnight/final-review-regressions.txt</code></a>.</p>
       </div>
       <aside class="caution">
         <h2>Optional ideas and remaining limitations</h2>
