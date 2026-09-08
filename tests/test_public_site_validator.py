@@ -553,6 +553,73 @@ class PublicSiteValidatorTests(unittest.TestCase):
                     public_path,
                 )
 
+    def test_preparation_script_reports_missing_source_without_removing_public_files(self):
+        """A missing first source must name its relative path and preserve public files."""
+        script = REPOSITORY_ROOT / "tools" / "prepare_public_site.ps1"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            preserved = root / "site" / "keep-this-public-file.txt"
+            preserved.parent.mkdir(parents=True)
+            preserved.write_bytes(b"keep")
+
+            result = subprocess.run(
+                [
+                    "powershell.exe",
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    str(script),
+                    "-RepositoryRoot",
+                    str(root),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn(
+                "Required reviewed source is missing: delivery/Neyer_Gap_Test_v1_10.mlx",
+                result.stderr,
+            )
+            self.assertEqual(b"keep", preserved.read_bytes())
+            self.assertFalse((root / "site" / "downloads").exists())
+
+    def test_preparation_script_reports_directory_source_without_removing_public_files(self):
+        """A directory in place of a source must be clear and leave public files alone."""
+        script = REPOSITORY_ROOT / "tools" / "prepare_public_site.ps1"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "delivery" / "Neyer_Gap_Test_v1_10.mlx").mkdir(parents=True)
+            preserved = root / "site" / "keep-this-public-file.txt"
+            preserved.parent.mkdir(parents=True)
+            preserved.write_bytes(b"keep")
+
+            result = subprocess.run(
+                [
+                    "powershell.exe",
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    str(script),
+                    "-RepositoryRoot",
+                    str(root),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn(
+                "Required reviewed source is not a file: delivery/Neyer_Gap_Test_v1_10.mlx",
+                result.stderr,
+            )
+            self.assertEqual(b"keep", preserved.read_bytes())
+            self.assertFalse((root / "site" / "downloads").exists())
+
     def setUp(self):
         self.temporary_directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary_directory.cleanup)

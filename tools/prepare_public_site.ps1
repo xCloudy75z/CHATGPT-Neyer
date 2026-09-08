@@ -69,10 +69,10 @@ foreach ($copy in $copies) {
         $source = Get-Item -LiteralPath $sourcePath -ErrorAction Stop
     }
     catch {
-        throw "Required reviewed source is missing: $copy.Source"
+        throw "Required reviewed source is missing: $($copy.Source)"
     }
     if ($source.PSIsContainer) {
-        throw "Required reviewed source is not a file: $copy.Source"
+        throw "Required reviewed source is not a file: $($copy.Source)"
     }
 
     $destinationPath = Join-Path $repository.FullName $copy.Destination
