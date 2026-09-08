@@ -8,6 +8,7 @@ $deliveryRoot = Join-Path $ProjectRoot 'delivery'
 $destination = Join-Path $deliveryRoot 'Neyer_Gap_Test_v1_10.m'
 
 $requiredFiles = @(
+    'apply_run_configuration_overrides.m',
     'best_fit.m',
     'check_inputs.m',
     'check_study_checkpoint.m',
@@ -18,6 +19,7 @@ $requiredFiles = @(
     'estimate_supported_targets.m',
     'find_root.m',
     'fit_sigma0.m',
+    'format_confidence_range.m',
     'format_requested_gap.m',
     'format_result_text.m',
     'has_overlap.m',
@@ -47,6 +49,7 @@ $requiredFiles = @(
     'report.m',
     'result_decision_summary.m',
     'result_output_paths.m',
+    'result_save_available.m',
     'results_to_csv_text.m',
     'results_to_html.m',
     'round_reachable_gap.m',
@@ -113,21 +116,14 @@ $header = @'
 % Reliability is the predicted chance at a gap. Confidence describes how
 % much support the completed data give that prediction. They are different.
 
-%% Start with the Pre-Test Planner
-% Choose one of two routes:
+%% Start a direct test without the planner
+% Press Run, choose Run a Test, and enter the direct-test settings. This route
+% does not read or require a Pre-Test Planner result. The number of articles
+% is the maximum number of destructive tests you allow. It is not a promise
+% that a particular confidence target will be reached.
 %
-% * Requirements first: enter the reliability, confidence, middle-gap
-%   accuracy, rough Interaction and No-interaction endpoints, permitted gap
-%   range, and the gap settings your equipment can actually build.
-% * Available articles first: enter how many independent articles are
-%   available, then keep either reliability or confidence fixed. The other
-%   value is only a pre-test expectation, not a final claim.
-%
-% The plan separates the main study from two reserve groups. Reserve groups
-% are not used automatically. The user decides at each named checkpoint.
-% The main study may estimate the middle gap and overall variation, but a
-% supported reliability result requires at least 400 independent articles
-% under the recorded virtual-study safety rule. Some requests need more.
+% The Pre-Test Planner remains available as a separate optional tool. It is
+% not needed for the direct Run a Test workflow and can be reviewed later.
 
 %% Physical gap settings
 % Define settings from measured physical capability, not from the foil label.

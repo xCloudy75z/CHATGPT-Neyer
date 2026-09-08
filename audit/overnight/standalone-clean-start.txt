@@ -1,5 +1,5 @@
 MATLAB 2022b isolated Live Script verification passed.
 The temporary folder contained only Neyer_Gap_Test_v1_10.mlx.
-Embedded local functions: 114
+Embedded local functions: 123
 Embedded functions match the reviewed build source exactly.
 Published example displayed middle gap 5.39 and overall variation 1.04.

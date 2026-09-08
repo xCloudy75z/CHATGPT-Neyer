@@ -11,7 +11,6 @@ function s = format_result_text(result)
         end
         return;
     end
-    cc = 100 * result.confidence_level;
     decision = result_decision_summary(result);
     if decision.supported
         decision_lines = { ...
@@ -28,10 +27,12 @@ function s = format_result_text(result)
         sprintf('Tests used: %d', result.n)
         ''
         sprintf('MIDDLE GAP (about 50%% interaction): %.2f mm', result.mu)
-        sprintf('  %.4g%% confident it is between %.2f and %.2f mm', cc, result.mu_lo, result.mu_hi)
+        ['  ' format_confidence_range(result.confidence_level, ...
+            result.mu_lo, result.mu_hi, 'mm')]
         ''
         sprintf('OVERALL VARIATION: %.2f mm', result.sigma)
-        sprintf('  %.4g%% confident it is between %.2f and %.2f mm', cc, result.sigma_lo, result.sigma_hi)
+        ['  ' format_confidence_range(result.confidence_level, ...
+            result.sigma_lo, result.sigma_hi, 'mm')]
         '  This describes how much the entire tested process varies from article to article.'
         ''
         'Smaller gaps make interaction more likely; larger gaps make it less likely.'

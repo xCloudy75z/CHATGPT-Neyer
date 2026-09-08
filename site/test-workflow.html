@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Seven-screen test walkthrough | Neyer Gap Test</title>
+  <title>Direct test walkthrough | Neyer Gap Test</title>
   <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
@@ -25,7 +25,7 @@
     <section class="hero" aria-labelledby="page-title">
       <p class="eyebrow">Run a test</p>
       <h1 id="page-title">Follow the checked MATLAB screens in their real order.</h1>
-      <p class="lede">This is a guide to the reviewed MATLAB workflow. It records one destructive test at a time and does not reproduce the calculation in the browser.</p>
+      <p class="lede">This direct route does not use the Pre-Test Planner. It records one destructive test at a time and does not reproduce the calculation in the browser.</p>
     </section>
 
     <aside class="caution reading-width">
@@ -34,49 +34,44 @@
     </aside>
 
     <section class="reading-width" aria-labelledby="screens-title">
-      <h2 id="screens-title">The seven screens</h2>
+      <h2 id="screens-title">The direct Run-a-Test path</h2>
 
       <figure class="definition">
-        <img src="assets/screens/v110-01-main-menu.png" alt="Neyer Gap Test main menu with buttons to start a test, open the Pre-Test Planner, view help, and close the application." style="display: block; max-width: 100%; height: auto;">
-        <figcaption><strong>1. Main menu.</strong> Choose the Pre-Test Planner when articles and gaps still need planning, or start the test workflow after the plan is ready.</figcaption>
-      </figure>
-
-      <figure class="definition">
-        <img src="assets/screens/v110-02-planner-input.png" alt="Pre-Test Planner input screen showing planning choices, reliability, confidence, gap accuracy, endpoints, and physical setup questions." style="display: block; max-width: 100%; height: auto;">
-        <figcaption><strong>2. Planner inputs.</strong> Enter the planning answers in order. The tool uses the required result direction, evidence targets, endpoints, and reachable physical setup to form an estimate.</figcaption>
-      </figure>
-
-      <figure class="definition">
-        <img src="assets/screens/v110-03-planner-review.png" alt="Pre-Test Planner review screen showing a main study group, reserve groups, a first requested gap, assumptions, and review notes." style="display: block; max-width: 100%; height: auto;">
-        <figcaption><strong>3. Planner review.</strong> Read the main group and reserve groups before saving. Reserve articles are offered at checkpoints; they do not continue the study automatically.</figcaption>
+        <img src="assets/screens/v110-01-main-menu.png" alt="Neyer Gap Test main menu showing that Run a Test is independent and the Pre-Test Planner is separate." style="display: block; max-width: 100%; height: auto;">
+        <figcaption><strong>1. Main menu.</strong> Select <strong>Run a Test</strong>. You do not need to open, complete, or save anything in the Pre-Test Planner.</figcaption>
       </figure>
 
       <figure class="definition">
         <img src="assets/screens/v110-04-test-inputs.png" alt="Test-settings screen asking for middle-gap guesses, overall-variation guess, destructive-test count, permitted gap, unit, usable gap step, and foil information." style="display: block; max-width: 100%; height: auto;">
-        <figcaption><strong>4. Test inputs.</strong> Confirm the study settings, including a positive usable gap step. Smaller gaps make Interaction more likely; larger gaps make No interaction more likely.</figcaption>
+        <figcaption><strong>2. Test inputs.</strong> Enter the low and high guesses, rough overall variation, maximum allowed test count, permitted gap range, unit, and usable gap step. The maximum test count is a limit, not a promise of confidence.</figcaption>
       </figure>
 
       <figure class="definition">
         <img src="assets/screens/v110-05-requested-gap.png" alt="Requested-gap screen that gives a two-decimal build instruction, accepts four or five measured gaps, and provides Interaction and No interaction buttons." style="display: block; max-width: 100%; height: auto;">
-        <figcaption><strong>5. Requested gap and outcome.</strong> Build the stated two-decimal request, measure the unchanged setup, enter four or five readings, then select Interaction or No interaction after the destructive test.</figcaption>
+        <figcaption><strong>3. Requested gap and outcome.</strong> Build the stated two-decimal request, measure the unchanged setup, enter four or five readings, then select Interaction or No interaction after the destructive test.</figcaption>
         <p>If a requested 2.45 mm build measures 2.50, 2.50, 2.49, 2.52 and 2.48 mm, enter all five readings. Their measured mean, 2.498 mm, is used by the calculation.</p>
         <p>The construction request remains 2.45 mm. The requested setting and measured mean are related but are not the same value: the request uses two decimal places, while the measured mean keeps the entered precision.</p>
       </figure>
 
       <figure class="definition">
         <img src="assets/screens/v110-06-results.png" alt="Results screen showing the estimated middle gap, overall variation, an operating instruction, confidence information, and saved study records." style="display: block; max-width: 100%; height: auto;">
-        <figcaption><strong>6. Results.</strong> Read the study decision and its limits. The middle gap and overall variation explain the response; the operating instruction is a separate answer for the required result direction.</figcaption>
+        <figcaption><strong>4. Results.</strong> Read the middle gap, overall variation, and the limits supported by the completed tests. If a fit is not yet possible, the completed data can still be saved.</figcaption>
       </figure>
 
       <figure class="definition">
         <img src="assets/screens/v110-07-help.png" alt="Operator guide screen listing preparation, measurement, boundary protection, result-reading, confidence, and reliability guidance." style="display: block; max-width: 100%; height: auto;">
-        <figcaption><strong>7. Help and boundary protection.</strong> An unexpected result at a study boundary is repeated once for confirmation. If it happens twice, a boundary pause saves the data and asks for review. A boundary pause is a safe request for confirmation, not a failed experiment.</figcaption>
+        <figcaption><strong>5. Help and boundary protection.</strong> An unexpected result at a study boundary is repeated once for confirmation. If it happens twice, a boundary pause saves the data and asks for review. A boundary pause is a safe request for confirmation, not a failed experiment.</figcaption>
       </figure>
     </section>
 
+    <aside class="caution reading-width">
+      <h2>The planner is separate</h2>
+      <p>The Pre-Test Planner remains available for later review, but it does not feed settings, article counts, or stopping rules into the direct Run-a-Test path.</p>
+    </aside>
+
     <nav class="page-nav" aria-label="Page navigation">
       <ul>
-        <li><a href="planner.html">← Pre-Test Planner</a></li>
+        <li><a href="method.html">← How the method works</a></li>
         <li><a href="results.html">Next: Understand results →</a></li>
       </ul>
     </nav>

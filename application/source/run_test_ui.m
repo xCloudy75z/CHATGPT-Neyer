@@ -11,8 +11,7 @@ function result = run_test_ui(cfg0, loaded_plan)
     parsed = ask_settings_ui(loaded_plan);
     if isempty(parsed), fprintf('run_test_ui: cancelled.\n'); result = []; return; end
     if nargin >= 1 && ~isempty(cfg0)
-        f = fieldnames(cfg0);
-        for i = 1:numel(f), parsed.cfg.(f{i}) = cfg0.(f{i}); end
+        parsed.cfg = apply_run_configuration_overrides(parsed.cfg, cfg0);
     end
     try
         result = run_physical_test(parsed.params, parsed.num_parts, ...
@@ -37,7 +36,11 @@ function result = run_test_ui(cfg0, loaded_plan)
             end
         end
         show_result(result);
-    catch
+    catch result_error
+        warning('run_test_ui:resultDisplayFailed', ...
+            'The tests finished, but the results window did not open: %s', ...
+            result_error.message);
+        show_result_error_notice(result_error);
     end
 
 end
@@ -48,13 +51,16 @@ function parsed = ask_settings_ui(loaded_plan)
     labels = {'Low guess for the middle gap (mm):', ...
               'High guess for the middle gap (mm):', ...
               'Rough guess of the overall variation (mm):', ...
-              'Number of destructive tests:', ...
+              'Maximum allowed number of destructive tests:', ...
               'Minimum permitted gap (mm):', ...
+              'Maximum permitted gap (mm):', ...
               'Gap unit:', ...
               'Usable gap step for this study (mm):', ...
               'Approximate foil thickness (mm, information only):'};
-    defs = {'0','10','1','20','0','mm','0.05','0.015'};
-    planned_message = 'Planned checkpoint: No saved plan loaded';
+    defs = {'0','10','1','20','0','10','mm','0.05','0.015'};
+    planned_message = [ ...
+        'No Pre-Test Planner is used. The article number is the maximum ' ...
+        'allowed, not a confidence-based stopping promise.'];
     if nargin >= 1 && ~isempty(loaded_plan)
         if all(isfield(loaded_plan, {'interaction_gap_mm', ...
                 'no_interaction_gap_mm', 'estimated_sigma_mm', ...
@@ -66,25 +72,28 @@ function parsed = ask_settings_ui(loaded_plan)
             defs{5} = sprintf('%.6g', loaded_plan.minimum_gap_mm);
             planned_message = sprintf('Planned checkpoint: Main study - %d articles', ...
                 loaded_plan.main_articles);
-            defs{7} = sprintf('%.6g', usable_resolution_for_plan( ...
-                loaded_plan, str2double(defs{7})));
+            if isfield(loaded_plan, 'maximum_gap_mm')
+                defs{6} = sprintf('%.6g', loaded_plan.maximum_gap_mm);
+            end
+            defs{8} = sprintf('%.6g', usable_resolution_for_plan( ...
+                loaded_plan, str2double(defs{8})));
         end
     end
 
-    fig = uifigure('Name', 'Neyer gap test - inputs', 'Position', [280 90 700 680]);
-    gl  = uigridlayout(fig, [10 2]);
-    gl.RowHeight     = {46, 46, 46, 46, 46, 46, 46, 46, 46, 54};
+    fig = uifigure('Name', 'Neyer gap test - inputs', 'Position', [280 45 720 750]);
+    gl  = uigridlayout(fig, [11 2]);
+    gl.RowHeight     = {70, 46, 46, 46, 46, 46, 46, 46, 46, 46, 54};
     gl.ColumnWidth   = {'1x', 190};
     gl.Padding       = [28 24 28 24];
     gl.RowSpacing    = 12;
     gl.ColumnSpacing = 16;
 
-    ttl = uilabel(gl, 'Text', ['Enter your test settings  |  ' planned_message], ...
-        'FontSize', 18, 'FontWeight', 'bold', 'WordWrap', 'on');
+    ttl = uilabel(gl, 'Text', ['Run a Test directly  |  ' planned_message], ...
+        'FontSize', 17, 'FontWeight', 'bold', 'WordWrap', 'on');
     ttl.Layout.Row = 1; ttl.Layout.Column = [1 2];
 
-    edits = gobjects(1, 8);
-    for i = 1:8
+    edits = gobjects(1, 9);
+    for i = 1:9
         lb = uilabel(gl, 'Text', labels{i}, 'FontSize', 15, 'WordWrap', 'on');
         lb.Layout.Row = i + 1; lb.Layout.Column = 1;
         edits(i) = uieditfield(gl, 'text', 'Value', defs{i}, 'FontSize', 16);
@@ -92,7 +101,7 @@ function parsed = ask_settings_ui(loaded_plan)
     end
 
     bp = uigridlayout(gl, [1 2]);
-    bp.Layout.Row = 10; bp.Layout.Column = [1 2];
+    bp.Layout.Row = 11; bp.Layout.Column = [1 2];
     bp.ColumnWidth = {'1x', '1x'}; bp.Padding = [0 6 0 0]; bp.ColumnSpacing = 16;
     uibutton(bp, 'Text', 'Start test', 'FontSize', 16, 'FontWeight', 'bold', ...
              'BackgroundColor', [0.20 0.42 0.40], 'FontColor', [1 1 1], ...
@@ -106,8 +115,8 @@ function parsed = ask_settings_ui(loaded_plan)
     if isvalid(fig), delete(fig); end
 
     function startTest()
-        answers = cell(1, 8);
-        for j = 1:8, answers{j} = edits(j).Value; end
+        answers = cell(1, 9);
+        for j = 1:9, answers{j} = edits(j).Value; end
         try
             store.parsed = parse_run_inputs(answers);
             if ~isempty(loaded_plan)
@@ -152,6 +161,22 @@ end
 
 function delete_if_valid(figure_handle)
     if isvalid(figure_handle), delete(figure_handle); end
+end
+
+function show_result_error_notice(result_error)
+    try
+        notice = uifigure('Name', 'Neyer result notice', ...
+            'Position', [460 300 520 180]);
+        message = sprintf([ ...
+            'The tests finished, but the results window could not open.\n\n' ...
+            'Return to the main menu and select Review latest results.\n\n' ...
+            'Reason: %s'], result_error.message);
+        uialert(notice, message, 'Results not shown', 'Icon', 'warning', ...
+            'CloseFcn', @(~, ~) delete_if_valid(notice));
+    catch notice_error
+        warning('run_test_ui:resultNoticeFailed', ...
+            'The result notice could not open: %s', notice_error.message);
+    end
 end
 
 % =================================================================================

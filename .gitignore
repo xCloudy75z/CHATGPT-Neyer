@@ -36,6 +36,7 @@ FROM CLAUDE/
 .matlab-prefs/
 .matlab-prefs-shard-*/
 .matlab-prefs-*/
+audit/direct-run/matlab-prefs-*/
 MathWorks/
 
 # MATLAB launch sentinels, UI scratch captures, and transient simulation shards
@@ -69,5 +70,6 @@ delivery/*_r*.pptx
 .env.*
 *.pem
 *.key
+*.p12
 credentials.json
 secrets.*

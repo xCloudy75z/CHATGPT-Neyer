@@ -20,18 +20,25 @@ REQUIRED_PAGES = {
     "audit.html",
     "evidence.html",
 }
-FORBIDDEN_TEXT = ("transition width", "C:\\Users\\", "localhost")
+FORBIDDEN_TEXT = (
+    "transition width",
+    "load the saved plan",
+    "C:\\Users\\",
+    "localhost",
+)
 REQUIRED_TEXT = (
     "middle gap",
     "overall variation",
     "reliable operating gap",
-    "211",
+    "223",
     "191",
     "63",
     "0.015 mm",
     "two decimal places",
+    "does not use the pre-test planner",
+    "maximum allowed",
 )
-EXACT_NUMERIC_EVIDENCE = ("211", "191", "63")
+EXACT_NUMERIC_EVIDENCE = ("223", "191", "63")
 FORBIDDEN_PATH_PATTERN = re.compile(r"(?:file:|[a-z]:[\\/]+users[\\/])", re.IGNORECASE)
 
 SCREENSHOT_NAMES = (
@@ -151,10 +158,6 @@ def _fingerprint_pairs(site_root: Path, repository_root: Path) -> list[tuple[Pat
         (
             site_root / "downloads" / "Neyer_Gap_Test_v1_10.mlx",
             repository_root / "delivery" / "Neyer_Gap_Test_v1_10.mlx",
-        ),
-        (
-            site_root / "reports" / "Neyer_Overnight_Verification_Report.html",
-            repository_root / "delivery" / "Neyer_Overnight_Verification_Report.html",
         ),
     ]
     pairs.extend(

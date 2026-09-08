@@ -1,0 +1,4 @@
+MATLAB 2022b direct Run a Test screen check passed.
+Nine input boxes were shown, including maximum permitted gap.
+The screen stated that no Pre-Test Planner was used.
+No-fit result: Save enabled, Calculate disabled, no NaN shown.

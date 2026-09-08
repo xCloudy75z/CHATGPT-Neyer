@@ -30,10 +30,6 @@ $copies = @(
         Destination = "site/downloads/Neyer_Gap_Test_v1_10.mlx"
     },
     [PSCustomObject]@{
-        Source = "delivery/Neyer_Overnight_Verification_Report.html"
-        Destination = "site/reports/Neyer_Overnight_Verification_Report.html"
-    },
-    [PSCustomObject]@{
         Source = "assets/screenshots/v110-01-main-menu.png"
         Destination = "site/assets/screens/v110-01-main-menu.png"
     },
@@ -81,4 +77,4 @@ foreach ($copy in $copies) {
     Copy-Item -LiteralPath $source.FullName -Destination $destinationPath -Force
 }
 
-Write-Output "Prepared 9 verified public release files."
+Write-Output "Prepared 8 verified public release files."

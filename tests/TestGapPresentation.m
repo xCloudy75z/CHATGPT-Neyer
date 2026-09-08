@@ -86,6 +86,65 @@ classdef TestGapPresentation < matlab.unittest.TestCase
             testCase.verifyFalse(contains(lower(text),'survive'));
         end
 
+        function incompleteRangesUsePlainLanguageInsteadOfNan(testCase)
+            lowerMissing=format_confidence_range(0.95,NaN,2.16,'mm');
+            upperMissing=format_confidence_range(0.95,0.05,NaN,'mm');
+
+            testCase.verifyEqual(lowerMissing, ...
+                '95% confidence range: lower limit not established; upper limit 2.16 mm');
+            testCase.verifyEqual(upperMissing, ...
+                '95% confidence range: lower limit 0.05 mm; upper limit not established');
+            testCase.verifyFalse(contains(lower(lowerMissing),'nan'));
+            testCase.verifyFalse(contains(lower(upperMissing),'nan'));
+        end
+
+        function noFitResultCanStillBeSaved(testCase)
+            result=no_fit_physical_result();
+
+            testCase.verifyTrue(result_save_available(result));
+        end
+
+        function noFitHtmlPreservesCompletedPhysicalTests(testCase)
+            result=no_fit_physical_result();
+
+            text=results_to_html(result,'');
+
+            testCase.verifySubstring(text,'No fitted middle gap has been established');
+            testCase.verifySubstring(text,'Completed physical tests');
+            testCase.verifySubstring(text,'5.50');
+            testCase.verifySubstring(text,'3.30');
+            testCase.verifySubstring(text,'1.10');
+            testCase.verifySubstring(text,'No interaction');
+            testCase.verifySubstring(text,'Interaction');
+            testCase.verifyFalse(contains(lower(text),'nan'));
+        end
+
+        function htmlEscapesUnitAndKeepsMeasuredPrecision(testCase)
+            result=no_fit_physical_result();
+            result.unit='mm & <check>';
+            result.levels=[5.501;3.668;1.1075];
+            result.requested_levels=[5.50;3.65;1.10];
+            result.measurements={ [5.501 5.502 5.499 5.500], ...
+                [3.661 3.670 3.681 3.660], ...
+                [1.107 1.108 1.107 1.108] };
+
+            text=results_to_html(result,'');
+
+            testCase.verifySubstring(text,'mm &amp; &lt;check&gt;');
+            testCase.verifyFalse(contains(text,'mm & <check>'));
+            testCase.verifySubstring(text,'3.65 mm');
+            testCase.verifySubstring(text,'3.668 mm');
+            testCase.verifySubstring(text,'3.661, 3.67, 3.681, 3.66');
+        end
+
+        function htmlRejectsMisalignedTestRows(testCase)
+            result=no_fit_physical_result();
+            result.successes=logical([0;1]);
+
+            testCase.verifyError(@()results_to_html(result,''), ...
+                'results_to_html:recordLengthMismatch');
+        end
+
         function existingCsvPreventsBothResultFilesFromBeingChanged(testCase)
             folder=tempname;
             mkdir(folder);
@@ -137,6 +196,16 @@ classdef TestGapPresentation < matlab.unittest.TestCase
                         sprintf('%s still contains "%s".',files{f},visibleOldPhrases{p}));
                 end
             end
+        end
+
+        function resultWindowErrorsAreExplainedInsteadOfHidden(testCase)
+            projectRoot=fileparts(fileparts(mfilename('fullpath')));
+            source=fileread(fullfile(projectRoot,'application','source', ...
+                'run_test_ui.m'));
+
+            testCase.verifySubstring(source,'catch result_error');
+            testCase.verifySubstring(source,'run_test_ui:resultDisplayFailed');
+            testCase.verifySubstring(source,'Review latest results');
         end
 
         function operatorWordingUsesOverallVariation(testCase)
@@ -275,4 +344,19 @@ function result=finished_result()
         'sigma',1,'sigma_lo',0.7,'sigma_hi',1.4, ...
         'confidence_level',0.95,'tail_fraction',0.999, ...
         'high_interaction_gap',1.9,'negligible_interaction_gap',8.1);
+end
+
+function result=no_fit_physical_result()
+result=struct( ...
+    'has_overlap',false,'status','complete','stop_reason','', ...
+    'n',3,'unit','mm','levels',[5.5;3.3;1.1], ...
+    'successes',logical([0;0;1]), ...
+    'raw_requested_levels',[5.5;3.25;1.1], ...
+    'requested_levels',[5.5;3.3;1.1], ...
+    'measurements',{{[5.5 5.5 5.5 5.5], ...
+                     [3.3 3.3 3.3 3.3], ...
+                     [1.1 1.1 1.1 1.1]}}, ...
+    'mu',NaN,'mu_lo',NaN,'mu_hi',NaN, ...
+    'sigma',NaN,'sigma_lo',NaN,'sigma_hi',NaN, ...
+    'confidence_level',0.95,'tail_fraction',0.999);
 end

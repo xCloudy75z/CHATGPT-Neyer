@@ -5,12 +5,10 @@ function neyer_app()
     end
 
     state.result = [];      % most recent run, for the Reliability button
-    state.plan = [];        % current pre-test plan, if one has been prepared or loaded
-
-    fig = uifigure('Name', 'Neyer Gap Test', 'Position', [300 160 480 560], ...
+    fig = uifigure('Name', 'Neyer Gap Test', 'Position', [300 160 480 500], ...
         'Color', [247 249 250] / 255);
-    gl = uigridlayout(fig, [10 1]);
-    gl.RowHeight  = {44, 42, 58, 48, 48, 48, 12, 48, 48, 48};
+    gl = uigridlayout(fig, [8 1]);
+    gl.RowHeight  = {44, 42, 58, 58, 48, 12, 48, 48};
     gl.Padding    = [26 20 26 20];
     gl.RowSpacing = 10;
 
@@ -20,16 +18,14 @@ function neyer_app()
     title.Layout.Row = 1;
 
     guide = uilabel(gl, 'Text', ...
-        'Plan  >  Prepare  >  Test  >  Check  >  Finish', ...
+        'Run a Test works independently. The planner is optional and separate.', ...
         'FontSize', 13, 'FontWeight', 'bold', ...
         'FontColor', [35 108 142] / 255);
     guide.Layout.Row = 2;
 
-    uibutton(gl, 'Text', 'Pre-Test Planner', 'FontSize', 16, ...
+    uibutton(gl, 'Text', 'Pre-Test Planner (separate)', 'FontSize', 16, ...
         'FontWeight', 'bold', 'BackgroundColor', [35 108 142] / 255, ...
         'FontColor', [1 1 1], 'ButtonPushedFcn', @onPlanner);
-    uibutton(gl, 'Text', 'Load a saved plan', 'FontSize', 15, ...
-        'ButtonPushedFcn', @onLoadPlan);
     uibutton(gl, 'Text', 'Run a Test', 'FontSize', 16, ...
         'FontWeight', 'bold', 'BackgroundColor', [47 125 109] / 255, ...
         'FontColor', [1 1 1], 'ButtonPushedFcn', @onRunTest);
@@ -44,7 +40,7 @@ function neyer_app()
     % ---- callbacks (nested: share `state` and `fig`) ------------------------
     function onRunTest(~, ~)
         try
-            res = run_test_ui([], state.plan);
+            res = run_test_ui([], []);
             if ~isempty(res), state.result = res; end
         catch err
             uialert(fig, err.message, 'Something went wrong');
@@ -76,28 +72,13 @@ function neyer_app()
         try
             plan = pretest_planner_ui();
             if ~isempty(plan)
-                state.plan = plan;
                 uialert(fig, sprintf([ ...
-                    'The current plan contains %d main-study articles.\n\n' ...
-                    'Select Run a Test when the physical setup is ready.'], ...
+                    'The separate plan contains %d main-study articles.\n\n' ...
+                    'Direct Run a Test does not use this plan.'], ...
                     plan.main_articles), 'Plan ready', 'Icon', 'success');
             end
         catch err
             uialert(fig, err.message, 'Please check your inputs');
-        end
-    end
-
-    function onLoadPlan(~, ~)
-        [filename, folder] = uigetfile('*.json', 'Load a saved study plan');
-        if isequal(filename, 0), return; end
-        try
-            [state.plan, loaded_path] = load_study_plan(fullfile(folder, filename));
-            uialert(fig, sprintf([ ...
-                'Plan loaded from:\n%s\n\nPlanned checkpoint: Main study (%d articles).'], ...
-                loaded_path, state.plan.main_articles), ...
-                'Plan loaded', 'Icon', 'success');
-        catch err
-            uialert(fig, err.message, 'Plan could not be loaded', 'Icon', 'warning');
         end
     end
 

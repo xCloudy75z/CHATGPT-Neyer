@@ -134,7 +134,7 @@ exit(0);
             rows = arrayfun(@(control) control.Layout.Row, fields);
             [~, order] = sort(rows);
             fields = fields(order);
-            values = {'0','10','1','20','0','mm','0.10','0.015'};
+            values = {'0','10','1','20','0','10','mm','0.10','0.015'};
             for field_number = 1:min(numel(fields), numel(values))
                 fields(field_number).Value = values{field_number};
             end

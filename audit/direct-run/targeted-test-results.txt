@@ -1,0 +1,45 @@
+                                         <strong>Name</strong>                                          <strong>Passed</strong>    <strong>Failed</strong>    <strong>Incomplete</strong>    <strong>Duration</strong>       <strong>Details</strong>   
+    <strong>_______________________________________________________________________________</strong>    <strong>______</strong>    <strong>______</strong>    <strong>__________</strong>    <strong>_________</strong>    <strong>____________</strong>
+
+    {'TestPhysicalUiInputs/settingsRequirePhysicalIncrement'                      }    true      false       false           0.181    {1x1 struct}
+    {'TestPhysicalUiInputs/settingsStoreConfirmedIncrement'                       }    true      false       false         0.23126    {1x1 struct}
+    {'TestPhysicalUiInputs/settingsSeparateFoilFromUsableResolution'              }    true      false       false        0.017433    {1x1 struct}
+    {'TestPhysicalUiInputs/directSettingsCreateReachableRegularGapList'           }    true      false       false        0.047057    {1x1 struct}
+    {'TestPhysicalUiInputs/directSettingsRejectMaximumNotAboveMinimum'            }    true      false       false        0.013468    {1x1 struct}
+    {'TestPhysicalUiInputs/directInputErrorsUseVisibleQuestionNames'              }    true      false       false        0.031604    {1x1 struct}
+    {'TestPhysicalUiInputs/changedDirectOverridesRebuildReachableGaps'            }    true      false       false       0.0065559    {1x1 struct}
+    {'TestPhysicalUiInputs/usableResolutionMustSupportTwoDecimalRequests'         }    true      false       false       0.0089065    {1x1 struct}
+    {'TestPhysicalUiInputs/combinationPlanDoesNotTreatFoilAsUsableStep'           }    true      false       false       0.0029257    {1x1 struct}
+    {'TestPhysicalUiInputs/regularPlanCarriesItsConfirmedStep'                    }    true      false       false        0.001889    {1x1 struct}
+    {'TestPhysicalUiInputs/editedRegularPlanCannotSilentlyReplaceInvalidStep'     }    true      false       false       0.0082836    {1x1 struct}
+    {'TestPhysicalUiInputs/requestedGapInstructionUsesTwoDecimalPlaces'           }    true      false       false       0.0086953    {1x1 struct}
+    {'TestPhysicalUiInputs/responseParsesFourOrFiveMeasurements'                  }    true      false       false        0.017162    {1x1 struct}
+    {'TestPhysicalUiInputs/responseRejectsWrongCountOrInvalidReading'             }    true      false       false        0.054876    {1x1 struct}
+    {'TestGapPresentation/plainTextUsesGapMeaning'                                }    true      false       false        0.060379    {1x1 struct}
+    {'TestGapPresentation/csvStoresGapAndInteractionOutcomes'                     }    true      false       false       0.0070997    {1x1 struct}
+    {'TestGapPresentation/physicalCsvPreservesRequestsAndEveryReading'            }    true      false       false       0.0097104    {1x1 struct}
+    {'TestGapPresentation/physicalCsvUsesCleanRoundTripPrecision'                 }    true      false       false       0.0040248    {1x1 struct}
+    {'TestGapPresentation/htmlExplainsDecreasingGapDirection'                     }    true      false       false       0.0087239    {1x1 struct}
+    {'TestGapPresentation/incompleteRangesUsePlainLanguageInsteadOfNan'           }    true      false       false       0.0044491    {1x1 struct}
+    {'TestGapPresentation/noFitResultCanStillBeSaved'                             }    true      false       false       0.0017458    {1x1 struct}
+    {'TestGapPresentation/noFitHtmlPreservesCompletedPhysicalTests'               }    true      false       false       0.0086715    {1x1 struct}
+    {'TestGapPresentation/htmlEscapesUnitAndKeepsMeasuredPrecision'               }    true      false       false       0.0065104    {1x1 struct}
+    {'TestGapPresentation/htmlRejectsMisalignedTestRows'                          }    true      false       false       0.0080368    {1x1 struct}
+    {'TestGapPresentation/existingCsvPreventsBothResultFilesFromBeingChanged'     }    true      false       false        0.029474    {1x1 struct}
+    {'TestGapPresentation/existingHtmlPreventsBothResultFilesFromBeingChanged'    }    true      false       false         0.01172    {1x1 struct}
+    {'TestGapPresentation/operatorScreensDoNotUseOldDropTestLanguage'             }    true      false       false        0.016122    {1x1 struct}
+    {'TestGapPresentation/resultWindowErrorsAreExplainedInsteadOfHidden'          }    true      false       false       0.0017751    {1x1 struct}
+    {'TestGapPresentation/operatorWordingUsesOverallVariation'                    }    true      false       false       0.0060634    {1x1 struct}
+    {'TestGapPresentation/mainMenuNamesTheNeyerGapTest'                           }    true      false       false       0.0012947    {1x1 struct}
+    {'TestGapPresentation/resultHeadlineHasEnoughVerticalSpace'                   }    true      false       false       0.0012188    {1x1 struct}
+    {'TestGapPresentation/chartEdgeCalloutsPointInward'                           }    true      false       false       0.0023544    {1x1 struct}
+    {'TestGapPresentation/pausedPlainTextRequestsReviewNotMoreTests'              }    true      false       false       0.0009803    {1x1 struct}
+    {'TestGapPresentation/chartShowsCorrectGapDirection'                          }    true      false       false          9.1179    {1x1 struct}
+    {'TestGapPresentation/matlabResultFigureKeepsBellCurveAndAddsProbabilityCurve'}    true      false       false         0.51112    {1x1 struct}
+    {'TestDirectRunSafety/sixtyTwoSeparatedResultsNeverRequestImmediateDuplicate' }    true      false       false         0.19311    {1x1 struct}
+    {'TestPlannerUiSource/plannerIsOneGuidedWorksheet'                            }    true      false       false       0.0092338    {1x1 struct}
+    {'TestPlannerUiSource/everyMainPlannerQuestionHasPlainHelp'                   }    true      false       false       0.0028914    {1x1 struct}
+    {'TestPlannerUiSource/mainMenuKeepsPlannerSeparateFromDirectTesting'          }    true      false       false       0.0023088    {1x1 struct}
+    {'TestPlannerUiSource/directRunDoesNotSilentlyUseAStoredPlannerResult'        }    true      false       false       0.0013335    {1x1 struct}
+    {'TestPlannerUiSource/saveScreenShowsExactDestinationBeforeWriting'           }    true      false       false       0.0014935    {1x1 struct}
+

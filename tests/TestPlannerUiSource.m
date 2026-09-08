@@ -36,16 +36,27 @@ classdef TestPlannerUiSource < matlab.unittest.TestCase
             end
         end
 
-        function mainMenuUsesNewPlannerAndCanLoadPlanForTesting(testCase)
+        function mainMenuKeepsPlannerSeparateFromDirectTesting(testCase)
             projectRoot = fileparts(fileparts(mfilename('fullpath')));
             menuSource = fileread(fullfile(projectRoot, 'application', 'source', ...
                 'neyer_app.m'));
             testSource = fileread(fullfile(projectRoot, 'application', 'source', ...
                 'run_test_ui.m'));
             testCase.verifySubstring(menuSource, 'pretest_planner_ui');
-            testCase.verifySubstring(menuSource, 'Load a saved plan');
+            testCase.verifySubstring(menuSource, 'Pre-Test Planner (separate)');
+            testCase.verifyFalse(contains(menuSource, 'Load a saved plan'));
             testCase.verifySubstring(testSource, 'loaded_plan');
             testCase.verifySubstring(testSource, 'Planned checkpoint');
+        end
+
+        function directRunDoesNotSilentlyUseAStoredPlannerResult(testCase)
+            projectRoot = fileparts(fileparts(mfilename('fullpath')));
+            menuSource = fileread(fullfile(projectRoot, 'application', 'source', ...
+                'neyer_app.m'));
+
+            testCase.verifySubstring(menuSource, 'run_test_ui([], [])');
+            testCase.verifyFalse(contains(menuSource, ...
+                'run_test_ui([], state.plan)'));
         end
 
         function saveScreenShowsExactDestinationBeforeWriting(testCase)

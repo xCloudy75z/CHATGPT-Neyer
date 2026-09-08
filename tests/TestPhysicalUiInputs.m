@@ -34,6 +34,54 @@ classdef TestPhysicalUiInputs < matlab.unittest.TestCase
                 'AbsTol',1e-12);
         end
 
+        function directSettingsCreateReachableRegularGapList(testCase)
+            answers={'1','10','1','62','1','10','mm','0.10','0.015'};
+
+            parsed=parse_run_inputs(answers);
+
+            testCase.verifyEqual(parsed.cfg.min_level,1,'AbsTol',1e-12);
+            testCase.verifyEqual(parsed.cfg.max_level,10,'AbsTol',1e-12);
+            testCase.verifyEqual(parsed.cfg.reachable_model.gaps_mm(1),1, ...
+                'AbsTol',1e-12);
+            testCase.verifyEqual(parsed.cfg.reachable_model.gaps_mm(end),10, ...
+                'AbsTol',1e-12);
+            testCase.verifyEqual(diff(parsed.cfg.reachable_model.gaps_mm), ...
+                repmat(0.1,90,1),'AbsTol',1e-12);
+        end
+
+        function directSettingsRejectMaximumNotAboveMinimum(testCase)
+            answers={'1','10','1','62','1','1','mm','0.10','0.015'};
+
+            testCase.verifyError(@()parse_run_inputs(answers), ...
+                'parse_run_inputs:badMaxLevel');
+        end
+
+        function directInputErrorsUseVisibleQuestionNames(testCase)
+            try
+                parse_run_inputs( ...
+                    {'10','1','-1','2','0','10','mm','0.10','0.015'});
+                testCase.assertFail('Invalid direct settings were accepted.');
+            catch inputError
+                testCase.verifySubstring(inputError.message,'High guess');
+                testCase.verifySubstring(inputError.message,'low guess');
+                testCase.verifyFalse(contains(inputError.message,'avg_low'));
+                testCase.verifyFalse(contains(inputError.message,'num_parts'));
+            end
+        end
+
+        function changedDirectOverridesRebuildReachableGaps(testCase)
+            parsed=parse_run_inputs( ...
+                {'1','10','1','10','1','10','mm','0.10','0.015'});
+            overrides=struct('min_level',2,'max_level',3, ...
+                'usable_resolution',0.5);
+
+            updated=apply_run_configuration_overrides(parsed.cfg,overrides);
+
+            testCase.verifyEqual(updated.level_increment,0.5,'AbsTol',1e-12);
+            testCase.verifyEqual(updated.reachable_model.gaps_mm, ...
+                [2;2.5;3],'AbsTol',1e-12);
+        end
+
         function usableResolutionMustSupportTwoDecimalRequests(testCase)
             answers={'0','10','1','20','0','mm','0.015','0.015'};
 
