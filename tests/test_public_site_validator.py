@@ -1,5 +1,6 @@
 import csv
 import re
+import subprocess
 import tempfile
 import unittest
 from html.parser import HTMLParser
@@ -456,6 +457,101 @@ class PublicSiteValidatorTests(unittest.TestCase):
         )
         self.assertIn("MATLAB R2022b", home_page)
         self.assertIn('href="downloads/Neyer_Gap_Test_v1_10.mlx"', home_page)
+
+    def test_fingerprint_mismatch_names_both_relative_release_paths(self):
+        """Makes a changed public release file actionable without local paths."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            site = root / "site"
+            public_copy = site / "downloads" / "Neyer_Gap_Test_v1_10.mlx"
+            reviewed_copy = root / "delivery" / "Neyer_Gap_Test_v1_10.mlx"
+            public_copy.parent.mkdir(parents=True)
+            reviewed_copy.parent.mkdir(parents=True)
+            public_copy.write_bytes(b"changed public release")
+            reviewed_copy.write_bytes(b"reviewed release")
+
+            problems = validate_site(site, root)
+
+        self.assertIn(
+            "fingerprint mismatch: downloads/Neyer_Gap_Test_v1_10.mlx "
+            "!= delivery/Neyer_Gap_Test_v1_10.mlx",
+            problems,
+        )
+
+    def test_preparation_script_copies_exact_assets_without_removing_public_files(self):
+        """Requires a literal-path, repeatable packager rather than a clean operation."""
+        script = REPOSITORY_ROOT / "tools" / "prepare_public_site.ps1"
+        self.assertTrue(script.is_file())
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            expected = {
+                "delivery/Neyer_Gap_Test_v1_10.mlx": b"standalone release",
+                "delivery/Neyer_Overnight_Verification_Report.html": b"offline report",
+            }
+            expected.update(
+                {
+                    f"assets/screenshots/{name}": name.encode("ascii")
+                    for name in (
+                        "v110-01-main-menu.png",
+                        "v110-02-planner-input.png",
+                        "v110-03-planner-review.png",
+                        "v110-04-test-inputs.png",
+                        "v110-05-requested-gap.png",
+                        "v110-06-results.png",
+                        "v110-07-help.png",
+                    )
+                }
+            )
+            for relative_path, content in expected.items():
+                source = root / relative_path
+                source.parent.mkdir(parents=True, exist_ok=True)
+                source.write_bytes(content)
+            preserved = root / "site" / "keep-this-public-file.txt"
+            preserved.parent.mkdir(parents=True)
+            preserved.write_bytes(b"keep")
+
+            result = subprocess.run(
+                [
+                    "powershell.exe",
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    str(script),
+                    "-RepositoryRoot",
+                    str(root),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertEqual(b"keep", preserved.read_bytes())
+            public_paths = {
+                "delivery/Neyer_Gap_Test_v1_10.mlx": "site/downloads/Neyer_Gap_Test_v1_10.mlx",
+                "delivery/Neyer_Overnight_Verification_Report.html": "site/reports/Neyer_Overnight_Verification_Report.html",
+            }
+            public_paths.update(
+                {
+                    f"assets/screenshots/{name}": f"site/assets/screens/{name}"
+                    for name in (
+                        "v110-01-main-menu.png",
+                        "v110-02-planner-input.png",
+                        "v110-03-planner-review.png",
+                        "v110-04-test-inputs.png",
+                        "v110-05-requested-gap.png",
+                        "v110-06-results.png",
+                        "v110-07-help.png",
+                    )
+                }
+            )
+            for source_path, public_path in public_paths.items():
+                self.assertEqual(
+                    (root / source_path).read_bytes(),
+                    (root / public_path).read_bytes(),
+                    public_path,
+                )
 
     def setUp(self):
         self.temporary_directory = tempfile.TemporaryDirectory()
