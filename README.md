@@ -4,6 +4,19 @@ This project contains the audited Neyer D-optimal gap-test application for MATLA
 
 The application models a destructive gap test in which smaller gaps make interaction more likely and larger gaps make interaction less likely. It estimates the middle gap, where interaction is about 50%, and the overall variation around that middle.
 
+## Public review site
+
+The verified public review site is available at
+[https://xcloudy75z.github.io/CHATGPT-Neyer/](https://xcloudy75z.github.io/CHATGPT-Neyer/).
+
+It includes plain-language guides to the [method](https://xcloudy75z.github.io/CHATGPT-Neyer/method.html),
+[planning questions](https://xcloudy75z.github.io/CHATGPT-Neyer/planner.html),
+[seven-screen test workflow](https://xcloudy75z.github.io/CHATGPT-Neyer/test-workflow.html),
+[results](https://xcloudy75z.github.io/CHATGPT-Neyer/results.html),
+[physical setup](https://xcloudy75z.github.io/CHATGPT-Neyer/physical-setup.html),
+[audit](https://xcloudy75z.github.io/CHATGPT-Neyer/audit.html), and
+[evidence](https://xcloudy75z.github.io/CHATGPT-Neyer/evidence.html).
+
 ## Start here
 
 1. Download [Neyer_Gap_Test_v1_10.mlx](delivery/Neyer_Gap_Test_v1_10.mlx).
