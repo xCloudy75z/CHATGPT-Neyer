@@ -8,46 +8,181 @@ from tools.validate_public_site import validate_page_shell, validate_site
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
+VOID_ELEMENTS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
+
+
+class ContentStructureParser(HTMLParser):
+    """Parse the planner and walkthrough contracts, including closing tags."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.open_tags = []
+        self.errors = []
+        self.definitions = []
+        self.figures = []
+        self._definition = None
+        self._heading_definition = None
+        self._figure = None
+        self._in_caption = False
+
+    def handle_starttag(self, tag, attrs):
+        attributes = dict(attrs)
+        if tag not in VOID_ELEMENTS:
+            self.open_tags.append(tag)
+        if tag == "section" and "definition" in attributes.get("class", "").split():
+            if self._definition is not None:
+                self.errors.append("nested definition")
+            self._definition = {
+                "id": attributes.get("id", ""),
+                "heading": [],
+                "text": [],
+                "closed": False,
+            }
+        if tag == "h2" and self._definition is not None:
+            self._heading_definition = self._definition
+        if tag == "figure":
+            if self._figure is not None:
+                self.errors.append("nested figure")
+            self._figure = {"src": "", "alt": "", "style": "", "caption": [], "closed": False}
+        if tag == "img" and self._figure is not None:
+            self._figure["src"] = attributes.get("src", "")
+            self._figure["alt"] = attributes.get("alt", "")
+            self._figure["style"] = attributes.get("style", "")
+        if tag == "figcaption" and self._figure is not None:
+            self._in_caption = True
+
+    def handle_endtag(self, tag):
+        if tag not in VOID_ELEMENTS:
+            if not self.open_tags or self.open_tags[-1] != tag:
+                self.errors.append(f"unmatched closing tag: {tag}")
+            else:
+                self.open_tags.pop()
+        if tag == "h2":
+            self._heading_definition = None
+        if tag == "figcaption":
+            self._in_caption = False
+        if tag == "figure":
+            if self._figure is None:
+                self.errors.append("figure closed without opening")
+            else:
+                self._figure["closed"] = True
+                self.figures.append(self._figure)
+                self._figure = None
+        if tag == "section" and self._definition is not None:
+            self._definition["closed"] = True
+            self.definitions.append(self._definition)
+            self._definition = None
+
+    def handle_data(self, data):
+        if self._definition is not None:
+            self._definition["text"].append(data)
+        if self._heading_definition is not None:
+            self._heading_definition["heading"].append(data)
+        if self._in_caption and self._figure is not None:
+            self._figure["caption"].append(data)
+
+    def finish(self):
+        if self.open_tags:
+            self.errors.append(f"unclosed tags: {', '.join(self.open_tags)}")
+        if self._definition is not None:
+            self.errors.append("unclosed definition")
+        if self._figure is not None:
+            self.errors.append("unclosed figure")
+        return self
+
+
+def parse_content_structure(markup):
+    parser = ContentStructureParser()
+    parser.feed(markup)
+    parser.close()
+    return parser.finish()
+
+
+def normalise_text(parts):
+    return " ".join("".join(parts).split())
+
 
 class PublicSiteValidatorTests(unittest.TestCase):
-    def test_planner_guide_explains_every_planning_answer(self):
-        """Catches a planner page that omits an operator's required choice."""
+    def test_planner_guide_gives_each_question_its_own_explanation(self):
+        """Catches a planner guide that collapses distinct fields into loose prose."""
         planner = (REPOSITORY_ROOT / "site" / "planner.html").read_text(
             encoding="utf-8"
         )
-        for required_explanation in (
-            "Required physical result",
-            "Keep this requirement fixed",
-            "Reliability (%)",
-            "Confidence (%)",
-            "Required gap accuracy (+/- mm)",
-            "Almost-always Interaction gap (mm)",
-            "Almost-always No-interaction gap (mm)",
-            "Earlier information",
-            "Minimum permitted gap (mm)",
-            "Maximum permitted gap (mm)",
-            "Physical setup method",
-            "Regular increment (mm)",
-            "Confirmed gaps (mm)",
-            "Measured components and maximum count",
-            "Usable gap step",
-            "Maximum articles available",
-            "Main study estimate",
-            "Reserve group 1",
-            "Reserve group 2",
-            "400 independent articles",
-        ):
-            self.assertIn(required_explanation, planner)
-        self.assertIn("What it means:", planner)
-        self.assertIn("Example:", planner)
+        parser = parse_content_structure(planner)
+        self.assertEqual([], parser.errors)
+        expected_entries = {
+            "planning-question": "Planning question",
+            "available-articles": "Maximum articles available",
+            "fixed-requirement": "Keep this requirement fixed",
+            "result-direction": "Required physical result",
+            "reliability": "Reliability (%)",
+            "confidence": "Confidence (%)",
+            "accuracy": "Required gap accuracy (+/- mm)",
+            "interaction-endpoint": "Almost-always Interaction gap (mm)",
+            "no-interaction-endpoint": "Almost-always No-interaction gap (mm)",
+            "previous-information": "Earlier information",
+            "minimum-gap": "Minimum permitted gap (mm)",
+            "maximum-gap": "Maximum permitted gap (mm)",
+            "physical-method": "Physical setup method",
+            "regular-increment": "Regular increment (mm)",
+            "confirmed-gaps": "Confirmed gaps (mm)",
+            "measured-components": "Measured components and maximum count",
+            "usable-step": "Usable gap step",
+        }
+        entries = {entry["id"]: entry for entry in parser.definitions}
+        self.assertEqual(set(expected_entries), set(entries))
+        for entry_id, expected_heading in expected_entries.items():
+            entry = entries[entry_id]
+            self.assertTrue(entry["closed"])
+            self.assertEqual(expected_heading, normalise_text(entry["heading"]))
+            entry_text = normalise_text(entry["text"])
+            self.assertIn("What it means:", entry_text)
+            self.assertIn("Example:", entry_text)
+            self.assertIn("Important:", entry_text)
+
+        accuracy_text = normalise_text(entries["accuracy"]["text"])
+        self.assertIn("middle-gap estimate", accuracy_text)
+        self.assertNotIn("estimated operating gap", accuracy_text)
         self.assertIn("not used automatically", planner)
         self.assertIn("not a universal", planner)
+        self.assertIn("does not include the optional fixed-gap zero-failure qualification planner", planner)
+        self.assertIn("298 is the specific fixed-condition rule", planner)
+        self.assertIn("299 is the conservative general calculation", planner)
+        self.assertIn("neither is a Neyer curve-study quantity", planner)
 
-    def test_workflow_guide_keeps_build_measurement_and_boundary_steps_clear(self):
-        """Catches a walkthrough that loses a safety-critical operator distinction."""
+    def test_content_structure_rejects_collapsed_or_unclosed_mutations(self):
+        """Proves one keyword-filled block and unclosed figures cannot satisfy Task 3."""
+        collapsed_planner = '<section class="definition" id="planning-question"><h2>Planning question</h2>What it means: Example: Important:'
+        malformed_workflow = '<figure><img src="assets/screens/v110-01-main-menu.png" alt="A useful screen description with enough specific detail."><figcaption>1. Main menu.</figcaption>'
+        self.assertTrue(parse_content_structure(collapsed_planner).errors)
+        self.assertTrue(parse_content_structure(malformed_workflow).errors)
+
+    def test_workflow_guide_uses_the_seven_verified_screens_in_order(self):
+        """Catches reordered, uncaptioned, non-descriptive, or phone-overflowing screens."""
         workflow = (REPOSITORY_ROOT / "site" / "test-workflow.html").read_text(
             encoding="utf-8"
         )
+        parser = parse_content_structure(workflow)
+        self.assertEqual([], parser.errors)
+        expected_screens = (
+            ("v110-01-main-menu.png", "1. Main menu.", "buttons"),
+            ("v110-02-planner-input.png", "2. Planner inputs.", "planning choices"),
+            ("v110-03-planner-review.png", "3. Planner review.", "reserve groups"),
+            ("v110-04-test-inputs.png", "4. Test inputs.", "usable gap step"),
+            ("v110-05-requested-gap.png", "5. Requested gap and outcome.", "four or five measured gaps"),
+            ("v110-06-results.png", "6. Results.", "operating instruction"),
+            ("v110-07-help.png", "7. Help and boundary protection.", "boundary protection"),
+        )
+        self.assertEqual(7, len(parser.figures))
+        for figure, (name, caption, alt_marker) in zip(parser.figures, expected_screens):
+            self.assertTrue(figure["closed"])
+            self.assertEqual(f"assets/screens/{name}", figure["src"])
+            self.assertTrue(normalise_text(figure["caption"]).startswith(caption))
+            self.assertIn(alt_marker, figure["alt"].lower())
+            self.assertGreaterEqual(len(figure["alt"].split()), 8)
+            self.assertIn("max-width: 100%", figure["style"])
+            self.assertIn("height: auto", figure["style"])
+
         for required_explanation in (
             "newly built setup",
             "four or five readings",
@@ -60,19 +195,6 @@ class PublicSiteValidatorTests(unittest.TestCase):
             "2.498 mm",
         ):
             self.assertIn(required_explanation, workflow)
-
-        class FigureCounter(HTMLParser):
-            def __init__(self):
-                super().__init__()
-                self.figure_count = 0
-
-            def handle_starttag(self, tag, attrs):
-                if tag == "figure":
-                    self.figure_count += 1
-
-        parser = FigureCounter()
-        parser.feed(workflow)
-        self.assertEqual(7, parser.figure_count)
 
     def test_real_pages_have_accessible_shell(self):
         expected_deferred_problems = {

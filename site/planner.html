@@ -32,6 +32,7 @@
       <h2>Read the estimate in groups</h2>
       <p>The main study estimate is the first group to prepare. Reserve group 1 and reserve group 2 stay separate. They are not used automatically: at each checkpoint, you decide whether the next reserve group is needed.</p>
       <p>The planner uses a 400 independent articles safety floor before it can issue a supported reliability setting. That is a conservative rule supported by this project’s recorded simulations, not a universal Neyer number and not an instruction to run 400 articles in every study.</p>
+      <p><strong>Separate optional fixed-condition demonstration:</strong> v1.10 does not include the optional fixed-gap zero-failure qualification planner. That optional demonstration checks one already-chosen gap, rather than estimating the Neyer response curve. 298 is the specific fixed-condition rule; 299 is the conservative general calculation; neither is a Neyer curve-study quantity.</p>
     </aside>
 
     <section class="definition" id="planning-question">
@@ -78,16 +79,23 @@
 
     <section class="definition" id="accuracy">
       <h2>Required gap accuracy (+/- mm)</h2>
-      <p><strong>What it means:</strong> This is how close the estimated operating gap needs to be, in millimetres.</p>
-      <p><strong>Example:</strong> A requested accuracy of +/-0.10 mm means the study needs an answer close enough for a tenth-of-a-millimetre decision.</p>
-      <p class="caution"><strong>Important:</strong> Ask only for accuracy that the confirmed physical builds can achieve. A calculation cannot make an unreachable gap buildable.</p>
+      <p><strong>What it means:</strong> This is how close the middle-gap estimate needs to be, in millimetres. The middle gap is the approximately 50/50 response point.</p>
+      <p><strong>Example:</strong> A requested middle-gap accuracy of +/-0.10 mm means the study needs a middle estimate close enough for a tenth-of-a-millimetre decision.</p>
+      <p class="caution"><strong>Important:</strong> This accuracy check is not the separate operating instruction. Ask only for accuracy that the confirmed physical builds can achieve; a calculation cannot make an unreachable gap buildable.</p>
     </section>
 
-    <section class="definition" id="endpoints">
-      <h2>Almost-always Interaction gap (mm) and Almost-always No-interaction gap (mm)</h2>
-      <p><strong>What it means:</strong> These endpoints give the planner a smaller gap where Interaction is expected almost every time and a larger gap where No interaction is expected almost every time.</p>
-      <p><strong>Example:</strong> Enter 1.00 mm for a small gap expected to interact and 10.00 mm for a larger gap expected not to interact.</p>
-      <p class="caution"><strong>Important:</strong> “Almost always” is not certainty. For a first study, the planner treats these endpoint answers as at least 95%, not 100%.</p>
+    <section class="definition" id="interaction-endpoint">
+      <h2>Almost-always Interaction gap (mm)</h2>
+      <p><strong>What it means:</strong> Enter a smaller gap where Interaction is expected almost every time.</p>
+      <p><strong>Example:</strong> Enter 1.00 mm when similar articles are expected to interact at that small gap.</p>
+      <p class="caution"><strong>Important:</strong> “Almost always” is not certainty. For a first study, the planner treats this endpoint as at least 95%, not 100%.</p>
+    </section>
+
+    <section class="definition" id="no-interaction-endpoint">
+      <h2>Almost-always No-interaction gap (mm)</h2>
+      <p><strong>What it means:</strong> Enter a larger gap where No interaction is expected almost every time.</p>
+      <p><strong>Example:</strong> Enter 10.00 mm when similar articles are expected not to interact at that larger gap.</p>
+      <p class="caution"><strong>Important:</strong> This is the opposite endpoint from the Interaction gap, not a promise about every individual article.</p>
     </section>
 
     <section class="definition" id="previous-information">
@@ -97,10 +105,17 @@
       <p class="caution"><strong>Important:</strong> Earlier information is an assumption for planning, not a replacement for the new study’s measured results.</p>
     </section>
 
-    <section class="definition" id="limits">
-      <h2>Minimum permitted gap (mm) and Maximum permitted gap (mm)</h2>
-      <p><strong>What it means:</strong> Set the smallest permitted physical gap and the largest useful physical gap for this setup.</p>
-      <p><strong>Example:</strong> A study might permit 0.00 mm through 10.00 mm.</p>
+    <section class="definition" id="minimum-gap">
+      <h2>Minimum permitted gap (mm)</h2>
+      <p><strong>What it means:</strong> Set the smallest physical gap the equipment and study rules permit.</p>
+      <p><strong>Example:</strong> Enter 0.00 mm when no-spacer contact is permitted.</p>
+      <p class="caution"><strong>Important:</strong> Do not lower this boundary merely because an estimate falls below it. The permitted range comes from the physical setup and safety rules.</p>
+    </section>
+
+    <section class="definition" id="maximum-gap">
+      <h2>Maximum permitted gap (mm)</h2>
+      <p><strong>What it means:</strong> Set the largest useful physical gap for this setup.</p>
+      <p><strong>Example:</strong> Enter 10.00 mm when that is the largest planned gap.</p>
       <p class="caution"><strong>Important:</strong> A larger gap that is already obviously No interaction adds no useful evidence, and an estimate outside the permitted range is not a build instruction.</p>
     </section>
 
@@ -111,25 +126,32 @@
       <p class="caution"><strong>Important:</strong> Use only confirmed reachable gaps. Approximately 0.015 mm foil thickness is construction information, not proof of a 0.015 mm usable test step.</p>
     </section>
 
-    <section class="definition" id="usable-step">
-      <h2>Usable gap step and Regular increment (mm)</h2>
-      <p><strong>What it means:</strong> The usable gap step is the smallest physical change this study can reliably request and build.</p>
-      <p><strong>Example:</strong> A 0.05 mm usable gap step can support requested build gaps such as 2.45 mm and 2.50 mm.</p>
-      <p class="caution"><strong>Important:</strong> A regular increment is suitable only when every requested multiple can genuinely be built. It must not be replaced by foil thickness.</p>
+    <section class="definition" id="regular-increment">
+      <h2>Regular increment (mm)</h2>
+      <p><strong>What it means:</strong> Set the repeating physical increment when every requested multiple can genuinely be built.</p>
+      <p><strong>Example:</strong> Enter 0.05 mm when the setup can repeatedly build 2.45 mm, 2.50 mm, and later 0.05 mm changes.</p>
+      <p class="caution"><strong>Important:</strong> Choose this method only for genuine regular builds. It must not be replaced by foil thickness.</p>
     </section>
 
     <section class="definition" id="confirmed-gaps">
-      <h2>Confirmed gaps (mm) and Measured components and maximum count</h2>
-      <p><strong>What it means:</strong> List only buildable gaps already checked by measurement, or enter each component’s measured size and maximum count.</p>
+      <h2>Confirmed gaps (mm)</h2>
+      <p><strong>What it means:</strong> List only individual buildable gaps already checked by measurement.</p>
       <p><strong>Example:</strong> A confirmed list might be 0, 0.5, 1, 2, and 10 mm.</p>
-      <p class="caution"><strong>Important:</strong> Nominal spacer labels are not measurements. The planner needs the physical combinations that the laboratory can actually repeat.</p>
+      <p class="caution"><strong>Important:</strong> Nominal spacer labels are not measurements. Include only gaps the laboratory can actually repeat.</p>
     </section>
 
-    <section class="definition" id="estimate">
-      <h2>Main study estimate, Reserve group 1, and Reserve group 2</h2>
-      <p><strong>What it means:</strong> The main study estimate is the first article group. Reserve group 1 checks a harder variation assumption; reserve group 2 extends that check if the next checkpoint asks.</p>
-      <p><strong>Example:</strong> Prepare the main group first and label reserve group 1 and reserve group 2 separately so they remain available for a later decision.</p>
-      <p class="caution"><strong>Important:</strong> A reserve group is a conditional option, not an automatic order to keep testing. Stop and review at each checkpoint.</p>
+    <section class="definition" id="measured-components">
+      <h2>Measured components and maximum count</h2>
+      <p><strong>What it means:</strong> Enter each spacer or foil component’s measured size and the greatest number of layers the setup permits.</p>
+      <p><strong>Example:</strong> Enter a measured foil layer and the maximum number of foil layers that can be used with a printed spacer.</p>
+      <p class="caution"><strong>Important:</strong> The planner combines measured components, not nominal labels. Measure the actual build before using it in a destructive test.</p>
+    </section>
+
+    <section class="definition" id="usable-step">
+      <h2>Usable gap step</h2>
+      <p><strong>What it means:</strong> The usable gap step is the smallest physical change this study can reliably request and build during the test workflow.</p>
+      <p><strong>Example:</strong> A 0.05 mm usable gap step can support requested build gaps such as 2.45 mm and 2.50 mm.</p>
+      <p class="caution"><strong>Important:</strong> Approximately 0.015 mm foil thickness is construction information, not proof of a 0.015 mm usable test step.</p>
     </section>
 
     <nav class="page-nav" aria-label="Page navigation">
