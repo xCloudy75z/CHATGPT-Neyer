@@ -1,5 +1,6 @@
 import tempfile
 import unittest
+from html.parser import HTMLParser
 from pathlib import Path
 
 from tools.validate_public_site import validate_page_shell, validate_site
@@ -9,6 +10,70 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
 
 class PublicSiteValidatorTests(unittest.TestCase):
+    def test_planner_guide_explains_every_planning_answer(self):
+        """Catches a planner page that omits an operator's required choice."""
+        planner = (REPOSITORY_ROOT / "site" / "planner.html").read_text(
+            encoding="utf-8"
+        )
+        for required_explanation in (
+            "Required physical result",
+            "Keep this requirement fixed",
+            "Reliability (%)",
+            "Confidence (%)",
+            "Required gap accuracy (+/- mm)",
+            "Almost-always Interaction gap (mm)",
+            "Almost-always No-interaction gap (mm)",
+            "Earlier information",
+            "Minimum permitted gap (mm)",
+            "Maximum permitted gap (mm)",
+            "Physical setup method",
+            "Regular increment (mm)",
+            "Confirmed gaps (mm)",
+            "Measured components and maximum count",
+            "Usable gap step",
+            "Maximum articles available",
+            "Main study estimate",
+            "Reserve group 1",
+            "Reserve group 2",
+            "400 independent articles",
+        ):
+            self.assertIn(required_explanation, planner)
+        self.assertIn("What it means:", planner)
+        self.assertIn("Example:", planner)
+        self.assertIn("not used automatically", planner)
+        self.assertIn("not a universal", planner)
+
+    def test_workflow_guide_keeps_build_measurement_and_boundary_steps_clear(self):
+        """Catches a walkthrough that loses a safety-critical operator distinction."""
+        workflow = (REPOSITORY_ROOT / "site" / "test-workflow.html").read_text(
+            encoding="utf-8"
+        )
+        for required_explanation in (
+            "newly built setup",
+            "four or five readings",
+            "measured mean",
+            "two decimal places",
+            "Interaction",
+            "No interaction",
+            "boundary pause",
+            "2.45 mm",
+            "2.498 mm",
+        ):
+            self.assertIn(required_explanation, workflow)
+
+        class FigureCounter(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.figure_count = 0
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "figure":
+                    self.figure_count += 1
+
+        parser = FigureCounter()
+        parser.feed(workflow)
+        self.assertEqual(7, parser.figure_count)
+
     def test_real_pages_have_accessible_shell(self):
         expected_deferred_problems = {
             f"missing required page: {page}"
@@ -16,9 +81,7 @@ class PublicSiteValidatorTests(unittest.TestCase):
                 "audit.html",
                 "evidence.html",
                 "physical-setup.html",
-                "planner.html",
                 "results.html",
-                "test-workflow.html",
             )
         }
         self.assertEqual(

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seven-screen test walkthrough | Neyer Gap Test</title>
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="site-header">
+    <div>
+      <a class="site-name" href="index.html">Neyer Gap Test v1.10</a>
+      <nav aria-label="Main navigation">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="method.html">Method</a></li>
+          <li><a aria-current="page" href="test-workflow.html">Run a test</a></li>
+          <li><a href="evidence.html">Evidence</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main id="main-content">
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">Run a test</p>
+      <h1 id="page-title">Follow the checked MATLAB screens in their real order.</h1>
+      <p class="lede">This is a guide to the reviewed MATLAB workflow. It records one destructive test at a time and does not reproduce the calculation in the browser.</p>
+    </section>
+
+    <aside class="caution reading-width">
+      <h2>One build, one destructive test</h2>
+      <p>Every destructive test uses a newly built setup. Take four or five readings from that one unchanged setup, then enter all of them. Do not reuse that setup after its destructive test.</p>
+    </aside>
+
+    <section class="reading-width" aria-labelledby="screens-title">
+      <h2 id="screens-title">The seven screens</h2>
+
+      <figure class="definition">
+        <img src="assets/screens/v110-01-main-menu.png" alt="Neyer Gap Test main menu with buttons to start a test, open the Pre-Test Planner, view help, and close the application.">
+        <figcaption><strong>1. Main menu.</strong> Choose the Pre-Test Planner when articles and gaps still need planning, or start the test workflow after the plan is ready.</figcaption>
+      </figure>
+
+      <figure class="definition">
+        <img src="assets/screens/v110-02-planner-input.png" alt="Pre-Test Planner input screen showing planning choices, reliability, confidence, gap accuracy, endpoints, and physical setup questions.">
+        <figcaption><strong>2. Planner inputs.</strong> Enter the planning answers in order. The tool uses the required result direction, evidence targets, endpoints, and reachable physical setup to form an estimate.</figcaption>
+      </figure>
+
+      <figure class="definition">
+        <img src="assets/screens/v110-03-planner-review.png" alt="Pre-Test Planner review screen showing a main study group, reserve groups, a first requested gap, assumptions, and review notes.">
+        <figcaption><strong>3. Planner review.</strong> Read the main group and reserve groups before saving. Reserve articles are offered at checkpoints; they do not continue the study automatically.</figcaption>
+      </figure>
+
+      <figure class="definition">
+        <img src="assets/screens/v110-04-test-inputs.png" alt="Test-settings screen asking for middle-gap guesses, overall-variation guess, destructive-test count, permitted gap, unit, usable gap step, and foil information.">
+        <figcaption><strong>4. Test inputs.</strong> Confirm the study settings, including a positive usable gap step. Smaller gaps make Interaction more likely; larger gaps make No interaction more likely.</figcaption>
+      </figure>
+
+      <figure class="definition">
+        <img src="assets/screens/v110-05-requested-gap.png" alt="Requested-gap screen that gives a two-decimal build instruction, accepts four or five measured gaps, and provides Interaction and No interaction buttons.">
+        <figcaption><strong>5. Requested gap and outcome.</strong> Build the stated two-decimal request, measure the unchanged setup, enter four or five readings, then select Interaction or No interaction after the destructive test.</figcaption>
+        <p>If a requested 2.45 mm build measures 2.50, 2.50, 2.49, 2.52 and 2.48 mm, enter all five readings. Their measured mean, 2.498 mm, is used by the calculation.</p>
+        <p>The construction request remains 2.45 mm. The requested setting and measured mean are related but are not the same value: the request uses two decimal places, while the measured mean keeps the entered precision.</p>
+      </figure>
+
+      <figure class="definition">
+        <img src="assets/screens/v110-06-results.png" alt="Results screen showing the estimated middle gap, overall variation, an operating instruction, confidence information, and saved study records.">
+        <figcaption><strong>6. Results.</strong> Read the study decision and its limits. The middle gap and overall variation explain the response; the operating instruction is a separate answer for the required result direction.</figcaption>
+      </figure>
+
+      <figure class="definition">
+        <img src="assets/screens/v110-07-help.png" alt="Operator guide screen listing preparation, measurement, boundary protection, result-reading, confidence, and reliability guidance.">
+        <figcaption><strong>7. Help and boundary protection.</strong> An unexpected result at a study boundary is repeated once for confirmation. If it happens twice, a boundary pause saves the data and asks for review. A boundary pause is a safe request for confirmation, not a failed experiment.</figcaption>
+      </figure>
+    </section>
+
+    <nav class="page-nav" aria-label="Page navigation">
+      <ul>
+        <li><a href="planner.html">← Pre-Test Planner</a></li>
+        <li><a href="results.html">Next: Understand results →</a></li>
+      </ul>
+    </nav>
+  </main>
+  <footer class="site-footer"><div>Documentation for the reviewed Neyer Gap Test v1.10 MATLAB implementation.</div></footer>
+</body>
+</html>
