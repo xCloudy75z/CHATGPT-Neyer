@@ -265,6 +265,23 @@ def evidence_page_problems(repository_root, markup):
 
 
 class PublicSiteValidatorTests(unittest.TestCase):
+    def test_pages_workflow_validates_site_artifact_before_deploying(self):
+        """The Pages workflow must validate the exact site artifact before deploy."""
+        workflow = REPOSITORY_ROOT / ".github" / "workflows" / "pages.yml"
+        self.assertTrue(workflow.is_file(), "missing GitHub Pages workflow")
+
+        text = workflow.read_text(encoding="utf-8")
+        self.assertIn("codex/neyer-v110", text)
+        self.assertIn("main", text)
+        self.assertIn("pages: write", text)
+        self.assertIn("id-token: write", text)
+        self.assertIn("python3 tools/validate_public_site.py", text)
+        self.assertIn("path: site", text)
+        self.assertLess(
+            text.index("python3 tools/validate_public_site.py"),
+            text.index("actions/deploy-pages@"),
+        )
+
     def test_evidence_page_matches_the_committed_audit_records(self):
         """Catches hidden, detached, or drifted evidence claims on the public page."""
         evidence = (REPOSITORY_ROOT / "site" / "evidence.html").read_text(
