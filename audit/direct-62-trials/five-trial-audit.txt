@@ -1,0 +1,40 @@
+Five direct Run-a-Test trials: logic and mathematics audit
+MATLAB release: 2022b
+Pre-Test Planner used: NO
+Tests requested per trial: 62
+True middle gap: 2.50 mm
+True overall variation: 0.50 mm
+New-build variation used: 0.02 mm standard deviation
+Measurement variation used: 0.01 mm standard deviation
+Readings from each unchanged build: 1
+
+Trial 1 | step 0.05 mm | tests 62 | middle 2.4209 mm | variation 0.4332 mm | Stage 1/2/3 5/3/54 | hard audit PASS
+  PASS
+  Outcome balance: observed minus expected -2.27 (standardized -0.76); truth inside joint 95% region: PASS
+Trial 2 | step 0.10 mm | tests 62 | middle 2.3548 mm | variation 0.4237 mm | Stage 1/2/3 5/3/54 | hard audit PASS
+  PASS
+  Outcome balance: observed minus expected -5.02 (standardized -1.61); truth inside joint 95% region: PASS
+Trial 3 | step 0.15 mm | tests 62 | middle 2.4665 mm | variation 0.5417 mm | Stage 1/2/3 5/1/56 | hard audit PASS
+  PASS
+  Outcome balance: observed minus expected -1.31 (standardized -0.46); truth inside joint 95% region: PASS
+Trial 4 | step 0.25 mm | tests 62 | middle 2.4160 mm | variation 0.3644 mm | Stage 1/2/3 5/2/55 | hard audit PASS
+  PASS
+  Outcome balance: observed minus expected -2.71 (standardized -0.88); truth inside joint 95% region: PASS
+Trial 5 | step 0.50 mm | tests 62 | middle 2.5228 mm | variation 0.4799 mm | Stage 1/2/3 5/12/45 | hard audit PASS
+  PASS
+  Outcome balance: observed minus expected 0.48 (standardized 0.18); truth inside joint 95% region: PASS
+
+Hard checks covered:
+- no planner or planner checkpoints
+- bounds and reachable gaps
+- no accidental immediate duplicate request
+- one measured gap used directly
+- outcome generated from the actual built gap
+- Stage-2 1.0-sigma entry and 0.8 shrink
+- one-way stage movement
+- D-optimal raw selection
+- positive maximum-likelihood fit stable from two starting points
+- finite, ordered 95% ranges for middle and overall variation
+
+Confidence coverage is reported, not used as a hard pass rule. A correct 95% method can miss the true value in an occasional single run.
+Five runs audit the recorded logic and calculations; they do not by themselves prove long-run performance for every material or spacer system.

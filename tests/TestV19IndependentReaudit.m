@@ -65,7 +65,7 @@ classdef TestV19IndependentReaudit < matlab.unittest.TestCase
                 cfg.min_level=0; cfg.max_level=10;
                 cfg.resolution_sigma_floor_factor=2;
                 response=@(gap,~)struct('outcome',gap<=5, ...
-                    'measurements',repmat(gap,1,4));
+                    'measurements',gap);
                 [~,record]=run_physical_test(params,30,response,cfg);
                 stageTwoSigma=record.est_sigma(record.stage==2);
                 testCase.assertNotEmpty(stageTwoSigma);
@@ -120,15 +120,13 @@ classdef TestV19IndependentReaudit < matlab.unittest.TestCase
                 'AbsTol',1e-12);
         end
 
-        function fourAndFiveReadingsUseTheirMean(testCase)
-            four=parse_physical_response('2.50, 2.50, 2.49, 2.51',true);
-            five=parse_physical_response('2.50 2.50 2.49 2.52 2.48',false);
-            testCase.verifyEqual(mean(four.measurements),2.50,'AbsTol',1e-12);
-            testCase.verifyEqual(mean(five.measurements),2.498,'AbsTol',1e-12);
+        function oneReadingIsUsedDirectly(testCase)
+            response=parse_physical_response('2.498',false);
+            testCase.verifyEqual(response.measurements,2.498,'AbsTol',1e-12);
 
             params=struct('mu_min',0,'mu_max',9.9,'sigma_guess',1);
             cfg=neyer_settings(); cfg.level_increment=0.10;
-            record=run_loop(params,1,@(~,~)five,cfg);
+            record=run_loop(params,1,@(~,~)response,cfg);
             testCase.verifyEqual(record.requested_levels,5.00,'AbsTol',1e-12);
             testCase.verifyEqual(record.levels,2.498,'AbsTol',1e-12);
         end
@@ -138,7 +136,7 @@ classdef TestV19IndependentReaudit < matlab.unittest.TestCase
             for increment=[0.05 0.10]
                 cfg=neyer_settings(); cfg.level_increment=increment;
                 response=@(gap,~)struct('outcome',gap<=5, ...
-                    'measurements',repmat(gap,1,4));
+                    'measurements',gap);
                 [~,record]=run_physical_test(params,12,response,cfg);
                 units=record.requested_levels/increment;
                 testCase.verifyEqual(units,round(units),'AbsTol',1e-10);
@@ -151,7 +149,7 @@ classdef TestV19IndependentReaudit < matlab.unittest.TestCase
             cfg=neyer_settings(); cfg.level_increment=0.10;
             params=struct('mu_min',0,'mu_max',10,'sigma_guess',1);
             response=@(gap,testNumber)struct('outcome',false, ...
-                'measurements',gap+[0 0.001*testNumber 0 0]);
+                'measurements',gap+0.001*testNumber);
             record=run_loop(params,20,response,cfg);
             repeated=find(record.requested_levels==0);
             testCase.assertNumElements(repeated,2);

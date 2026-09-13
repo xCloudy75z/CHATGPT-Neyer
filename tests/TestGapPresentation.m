@@ -34,28 +34,26 @@ classdef TestGapPresentation < matlab.unittest.TestCase
             testCase.verifyFalse(contains(lower(text),'survive'));
         end
 
-        function physicalCsvPreservesRequestsAndEveryReading(testCase)
+        function physicalCsvPreservesRequestAndOneMeasurement(testCase)
             result=finished_result();
             result.levels=[3.668;7.004];
             result.raw_requested_levels=[3.645;7.0049];
             result.requested_levels=[3.65;7.00];
-            result.measurements={ [3.661 3.670 3.681 3.660], ...
-                                  [7.011 7.002 6.999 7.001 7.007] };
+            result.measurements={3.668,7.004};
             result.usable_resolution=0.05;
             result.foil_thickness=0.015;
-            result.measurement_ranges=[0.021;0.012];
-            result.measurement_warnings=logical([false;false]);
+            result.measurement_count=[1;1];
+            result.measurement_uncertainty={'not assessed';'not assessed'};
 
             text=results_to_csv_text(result);
 
             testCase.verifySubstring(text, ...
-                ['test,internal target (mm),build request (mm),measured mean (mm),reading 1,' ...
-                 'reading 2,reading 3,reading 4,reading 5,reading range,' ...
-                 'measurement warning,outcome']);
+                ['test,internal target (mm),build request (mm),actual measured gap (mm),' ...
+                 'measurement count,measurement uncertainty,outcome']);
             testCase.verifySubstring(text, ...
-                '1,3.645,3.65,3.668,3.661,3.67,3.681,3.66,,0.021,no,interaction');
+                '1,3.645,3.65,3.668,1,not assessed,interaction');
             testCase.verifySubstring(text, ...
-                '2,7.0049,7.00,7.004,7.011,7.002,6.999,7.001,7.007,0.012,no,no interaction');
+                '2,7.0049,7.00,7.004,1,not assessed,no interaction');
             testCase.verifySubstring(text,'Usable resolution,0.0500,mm');
             testCase.verifySubstring(text,'Foil thickness,0.0150,mm');
         end
@@ -65,7 +63,7 @@ classdef TestGapPresentation < matlab.unittest.TestCase
             result.raw_requested_levels=[pi;7];
             result.requested_levels=[3.14;7];
             result.levels=[pi;7];
-            result.measurements={ [pi 3.14 3.15 3.16], [7 7 7 7] };
+            result.measurements={pi,7};
 
             text=results_to_csv_text(result);
 
@@ -124,9 +122,7 @@ classdef TestGapPresentation < matlab.unittest.TestCase
             result.unit='mm & <check>';
             result.levels=[5.501;3.668;1.1075];
             result.requested_levels=[5.50;3.65;1.10];
-            result.measurements={ [5.501 5.502 5.499 5.500], ...
-                [3.661 3.670 3.681 3.660], ...
-                [1.107 1.108 1.107 1.108] };
+            result.measurements={5.501,3.668,1.1075};
 
             text=results_to_html(result,'');
 
@@ -134,7 +130,7 @@ classdef TestGapPresentation < matlab.unittest.TestCase
             testCase.verifyFalse(contains(text,'mm & <check>'));
             testCase.verifySubstring(text,'3.65 mm');
             testCase.verifySubstring(text,'3.668 mm');
-            testCase.verifySubstring(text,'3.661, 3.67, 3.681, 3.66');
+            testCase.verifySubstring(text,'Measurement uncertainty was not assessed');
         end
 
         function htmlRejectsMisalignedTestRows(testCase)
@@ -353,9 +349,9 @@ result=struct( ...
     'successes',logical([0;0;1]), ...
     'raw_requested_levels',[5.5;3.25;1.1], ...
     'requested_levels',[5.5;3.3;1.1], ...
-    'measurements',{{[5.5 5.5 5.5 5.5], ...
-                     [3.3 3.3 3.3 3.3], ...
-                     [1.1 1.1 1.1 1.1]}}, ...
+    'measurements',{{5.5,3.3,1.1}}, ...
+    'measurement_count',[1;1;1], ...
+    'measurement_uncertainty',{{'not assessed';'not assessed';'not assessed'}}, ...
     'mu',NaN,'mu_lo',NaN,'mu_hi',NaN, ...
     'sigma',NaN,'sigma_lo',NaN,'sigma_hi',NaN, ...
     'confidence_level',0.95,'tail_fraction',0.999);

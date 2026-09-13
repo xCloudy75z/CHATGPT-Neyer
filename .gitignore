@@ -30,6 +30,8 @@ docs/superpowers/*
 !docs/superpowers/plans/
 !docs/superpowers/specs/*.md
 !docs/superpowers/plans/*.md
+!docs/checkpoint-2026-09-13.md
+!docs/measurement-terms-plain-language.md
 .superpowers/
 FROM CLAUDE/
 .worktrees/
@@ -63,6 +65,7 @@ tools/run_planner_validation_pilot.m
 
 # Generated working copies; keep only named final deliverables
 delivery/*.m
+!delivery/General_Measurement_Recorder.m
 delivery/*_r*.pptx
 
 # Common credential files

@@ -18,17 +18,15 @@ classdef TestPhysicalGapWorkflow < matlab.unittest.TestCase
             testCase.verifyEqual(record.levels,5.00,'AbsTol',1e-12);
         end
 
-        function measuredAverageIsUsedAsTheStatisticalGap(testCase)
+        function singleMeasurementIsUsedAsTheStatisticalGap(testCase)
             cfg=neyer_settings(); cfg.level_increment=0.10;
             params=struct('mu_min',0,'mu_max',9.9,'sigma_guess',1);
-            response=@(~,~)struct('outcome',true, ...
-                'measurements',[4.98 5.00 5.01 5.00 5.00]);
+            response=@(~,~)struct('outcome',true,'measurements',4.998);
             record=run_loop(params,1,response,cfg);
 
             testCase.verifyEqual(record.requested_levels,5.00,'AbsTol',1e-12);
             testCase.verifyEqual(record.levels,4.998,'AbsTol',1e-12);
-            testCase.verifyEqual(record.measurements{1}, ...
-                [4.98 5.00 5.01 5.00 5.00],'AbsTol',1e-12);
+            testCase.verifyEqual(record.measurements{1},4.998,'AbsTol',1e-12);
             testCase.verifyTrue(record.successes(1));
         end
 
@@ -36,7 +34,7 @@ classdef TestPhysicalGapWorkflow < matlab.unittest.TestCase
             cfg=neyer_settings(); cfg.level_increment=0.10;
             params=struct('mu_min',0,'mu_max',10,'sigma_guess',1);
             response=@(gap,k)struct('outcome',false, ...
-                'measurements',gap+[0 0.01*k 0 0 0]);
+                'measurements',gap+0.01*k);
             record=run_loop(params,20,response,cfg);
 
             atZero=find(record.requested_levels==0);
@@ -92,7 +90,7 @@ classdef TestPhysicalGapWorkflow < matlab.unittest.TestCase
             parameters = struct('avg_low', 0, 'avg_high', 1, ...
                 'spread_guess', 0.1);
             response = @(gap, ~) struct('outcome', true, ...
-                'measurements', [gap gap gap gap]);
+                'measurements', gap);
 
             [~, record] = run_physical_test(parameters, 3, response, cfg);
 

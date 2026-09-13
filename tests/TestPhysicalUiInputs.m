@@ -124,20 +124,16 @@ classdef TestPhysicalUiInputs < matlab.unittest.TestCase
             testCase.verifyEqual(message,'Build a gap of 3.65 mm.');
         end
 
-        function responseParsesFourOrFiveMeasurements(testCase)
-            four=parse_physical_response('2.50, 2.49, 2.52, 2.48',true);
-            five=parse_physical_response('2.50 2.50 2.49 2.52 2.48',false);
+        function responseParsesOneMeasurement(testCase)
+            response=parse_physical_response('2.507',true);
 
-            testCase.verifyEqual(four.measurements,[2.50 2.49 2.52 2.48]);
-            testCase.verifyTrue(four.outcome);
-            testCase.verifyEqual(five.measurements, ...
-                [2.50 2.50 2.49 2.52 2.48]);
-            testCase.verifyFalse(five.outcome);
+            testCase.verifyEqual(response.measurements,2.507,'AbsTol',1e-12);
+            testCase.verifyTrue(response.outcome);
         end
 
         function responseRejectsWrongCountOrInvalidReading(testCase)
-            invalid={'2.50 2.49 2.52','2.50 2.49 2.52 2.48 2.51 2.50', ...
-                     '2.50 2.49 bad 2.48'};
+            invalid={'','2.50 2.49','2.50, 2.49, 2.52, 2.48', ...
+                     'bad','NaN','Inf'};
             for k=1:numel(invalid)
                 testCase.verifyError( ...
                     @()parse_physical_response(invalid{k},true), ...

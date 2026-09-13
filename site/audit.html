@@ -10,7 +10,7 @@
   <a class="skip-link" href="#main-content">Skip to main content</a>
   <header class="site-header">
     <div>
-      <a class="site-name" href="index.html">Neyer Gap Test v1.10</a>
+      <a class="site-name" href="index.html">Neyer Gap Test v1.11</a>
       <nav aria-label="Main navigation">
         <ul>
           <li><a href="index.html">Home</a></li>
@@ -24,7 +24,7 @@
   <main id="main-content">
     <section class="hero" aria-labelledby="page-title">
       <p class="eyebrow">Audit and corrections</p>
-      <h1 id="page-title">Use the corrected v1.10 workflow, not the earlier v1.8 behaviour.</h1>
+      <h1 id="page-title">Use the corrected v1.11 workflow, not the earlier v1.8 behaviour.</h1>
       <p class="lede">This table keeps original findings separate from the implemented corrections. It does not turn optional ideas or remaining limits into completed claims.</p>
     </section>
 
@@ -40,7 +40,8 @@
           <tr><th scope="row">Confidence handling</th><td>The core fit needed confidence checks for tail boundaries and safeguards for extreme artificial data.</td><td>The middle-gap and overall-variation ranges are two-sided, with lower and upper estimates. One-sided confidence sets a cautious operating boundary in one safe direction. Extreme artificial data remain a disclosed numerical limit.</td></tr>
           <tr><th scope="row">Next-gap information choice</th><td>D-optimal means choosing the next gap expected to add the most useful information. The information calculation matched the method, but the search fence and grid were engineering choices.</td><td>The retained information choice is mapped to a reachable and useful physical setting.</td></tr>
           <tr><th scope="row">Boundary confirmation</th><td>Repeated use of a boundary could look like a failed or looping test.</td><td>One confirmation is requested. A second contradiction pauses safely and preserves the record for review.</td></tr>
-          <tr><th scope="row">Two-decimal request</th><td>Fixed decimal rounding could request a gap that the equipment could not build.</td><td>The request is selected from reachable settings and displayed with two decimal places; measured readings keep their entered precision.</td></tr>
+          <tr><th scope="row">Two-decimal request</th><td>Fixed decimal rounding could request a gap that the equipment could not build.</td><td>The request is selected from reachable settings and displayed with two decimal places; the actual measured gap keeps its entered precision.</td></tr>
+          <tr><th scope="row">Physical measurement</th><td>The earlier workflow asked for four or five readings from one setup, which was impractical across a 62-article study.</td><td>V1.11 accepts exactly one measured gap from each new setup, uses it directly, and states that measuring uncertainty was not assessed.</td></tr>
           <tr><th scope="row">Useful-setting stop</th><td>Some no-alternative cases could repeat a setting without a clear reason.</td><td>The app chooses the nearest different reachable and useful setting, or pauses when none exists.</td></tr>
         </tbody>
       </table>
@@ -66,6 +67,6 @@
       </ul>
     </nav>
   </main>
-  <footer class="site-footer"><div>Documentation for the reviewed Neyer Gap Test v1.10 MATLAB implementation.</div></footer>
+  <footer class="site-footer"><div>Documentation for the reviewed Neyer Gap Test v1.11 MATLAB implementation.</div></footer>
 </body>
 </html>

@@ -1,8 +1,8 @@
 function rows = run_planner_validation_shard(config_path, shard_index, ...
         shard_count, output_path, options)
 %RUN_PLANNER_VALIDATION_SHARD Run one deterministic piece of the virtual study.
-% Every article is a new build. Its real physical gap can vary, and 4 or 5
-% repeated readings are averaged before the Neyer calculation sees that gap.
+% Every article is a new build. Its real physical gap can vary. Current V1.11
+% validation configurations use one measured gap for each article.
 
     if nargin < 5, options = struct(); end
     validate_shard_inputs(shard_index, shard_count, output_path);

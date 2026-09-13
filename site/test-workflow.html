@@ -10,7 +10,7 @@
   <a class="skip-link" href="#main-content">Skip to main content</a>
   <header class="site-header">
     <div>
-      <a class="site-name" href="index.html">Neyer Gap Test v1.10</a>
+      <a class="site-name" href="index.html">Neyer Gap Test v1.11</a>
       <nav aria-label="Main navigation">
         <ul>
           <li><a href="index.html">Home</a></li>
@@ -30,7 +30,7 @@
 
     <aside class="caution reading-width">
       <h2>One build, one destructive test</h2>
-      <p>Every destructive test uses a newly built setup. Take four or five readings from that one unchanged setup, then enter all of them. Do not reuse that setup after its destructive test.</p>
+      <p>Every destructive test uses a newly built setup. Measure that setup once, enter that measured gap, then perform the test. Do not reuse the setup after its destructive test.</p>
     </aside>
 
     <section class="reading-width" aria-labelledby="screens-title">
@@ -47,10 +47,10 @@
       </figure>
 
       <figure class="definition">
-        <img src="assets/screens/v110-05-requested-gap.png" alt="Requested-gap screen that gives a two-decimal build instruction, accepts four or five measured gaps, and provides Interaction and No interaction buttons." style="display: block; max-width: 100%; height: auto;">
-        <figcaption><strong>3. Requested gap and outcome.</strong> Build the stated two-decimal request, measure the unchanged setup, enter four or five readings, then select Interaction or No interaction after the destructive test.</figcaption>
-        <p>If a requested 2.45 mm build measures 2.50, 2.50, 2.49, 2.52 and 2.48 mm, enter all five readings. Their measured mean, 2.498 mm, is used by the calculation.</p>
-        <p>The construction request remains 2.45 mm. The requested setting and measured mean are related but are not the same value: the request uses two decimal places, while the measured mean keeps the entered precision.</p>
+        <img src="assets/screens/v111-05-one-measured-gap.png" alt="V1.11 requested-gap screen with a two-decimal build instruction, one measured-gap field, and Interaction and No interaction buttons." style="display: block; max-width: 100%; height: auto;">
+        <figcaption><strong>3. Requested gap and outcome.</strong> Build the stated two-decimal request, measure the new setup once, enter that measured gap, then select Interaction or No interaction after the destructive test.</figcaption>
+        <p>If the app requests 2.45 mm and the new setup measures 2.50 mm, enter 2.50 mm. The calculation uses 2.50 mm as the actual gap.</p>
+        <p>The construction request remains 2.45 mm and is shown with two decimal places. The requested setting and actual measured gap are kept separately. With one reading, measuring uncertainty is recorded as not assessed.</p>
       </figure>
 
       <figure class="definition">
@@ -59,7 +59,7 @@
       </figure>
 
       <figure class="definition">
-        <img src="assets/screens/v110-07-help.png" alt="Operator guide screen listing preparation, measurement, boundary protection, result-reading, confidence, and reliability guidance." style="display: block; max-width: 100%; height: auto;">
+        <img src="assets/screens/v111-07-help.png" alt="V1.11 operator guide screen listing the one-reading rule, boundary protection, result-reading, confidence, and reliability guidance." style="display: block; max-width: 100%; height: auto;">
         <figcaption><strong>5. Help and boundary protection.</strong> An unexpected result at a study boundary is repeated once for confirmation. If it happens twice, a boundary pause saves the data and asks for review. A boundary pause is a safe request for confirmation, not a failed experiment.</figcaption>
       </figure>
     </section>
@@ -76,6 +76,6 @@
       </ul>
     </nav>
   </main>
-  <footer class="site-footer"><div>Documentation for the reviewed Neyer Gap Test v1.10 MATLAB implementation.</div></footer>
+  <footer class="site-footer"><div>Documentation for the reviewed Neyer Gap Test v1.11 MATLAB implementation.</div></footer>
 </body>
 </html>

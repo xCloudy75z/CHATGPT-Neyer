@@ -15,7 +15,7 @@ classdef TestDirectRunSafety < matlab.unittest.TestCase
                 'mu_max',parsed.params.avg_high, ...
                 'sigma_guess',parsed.params.spread_guess);
             response=@(gap,~)struct('outcome',gap<=1.1, ...
-                'measurements',repmat(gap,1,4));
+                'measurements',gap);
 
             record=run_loop(parameters,parsed.num_parts,response,parsed.cfg);
 

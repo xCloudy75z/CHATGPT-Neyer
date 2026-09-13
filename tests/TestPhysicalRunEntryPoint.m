@@ -12,7 +12,7 @@ classdef TestPhysicalRunEntryPoint < matlab.unittest.TestCase
             params=struct('avg_low',0,'avg_high',10,'spread_guess',1);
             cfg=neyer_settings();
             response=@(gap,~)struct('outcome',true, ...
-                'measurements',repmat(gap,1,4));
+                'measurements',gap);
 
             testCase.verifyError( ...
                 @()run_physical_test(params,1,response,cfg), ...
@@ -22,7 +22,7 @@ classdef TestPhysicalRunEntryPoint < matlab.unittest.TestCase
         function physicalRunRejectsNonpositiveOrNonfiniteIncrement(testCase)
             params=struct('avg_low',0,'avg_high',10,'spread_guess',1);
             response=@(gap,~)struct('outcome',true, ...
-                'measurements',repmat(gap,1,4));
+                'measurements',gap);
             invalid={0,-0.1,NaN,Inf};
 
             for k=1:numel(invalid)
@@ -36,7 +36,7 @@ classdef TestPhysicalRunEntryPoint < matlab.unittest.TestCase
         function physicalRunAcceptsSupportedEquipmentIncrements(testCase)
             params=struct('avg_low',0,'avg_high',9.9,'spread_guess',1);
             response=@(gap,~)struct('outcome',true, ...
-                'measurements',repmat(gap,1,4));
+                'measurements',gap);
 
             for increment=[0.05 0.10]
                 cfg=neyer_settings(); cfg.level_increment=increment;
@@ -63,7 +63,7 @@ classdef TestPhysicalRunEntryPoint < matlab.unittest.TestCase
             params=struct('avg_low',0,'avg_high',10,'spread_guess',1);
             cfg=neyer_settings(); cfg.level_increment=0.10;
             response=@(gap,~)struct('outcome',true, ...
-                'measurements',repmat(gap,1,4));
+                'measurements',gap);
 
             [~,record]=run_physical_test(params,3,response,cfg);
 
@@ -78,7 +78,7 @@ classdef TestPhysicalRunEntryPoint < matlab.unittest.TestCase
             cfg.usable_resolution=0.05;
             cfg.foil_thickness=0.015;
             response=@(gap,~)struct('outcome',true, ...
-                'measurements',repmat(gap,1,4));
+                'measurements',gap);
 
             [~,record]=run_physical_test(params,3,response,cfg);
 
@@ -98,7 +98,7 @@ classdef TestPhysicalRunEntryPoint < matlab.unittest.TestCase
             cfg.usable_resolution=0.05;
             cfg.resolution_sigma_floor_factor=1;
             response=@(gap,~)struct('outcome',true, ...
-                'measurements',repmat(gap,1,4));
+                'measurements',gap);
 
             [~,record]=run_physical_test(params,3,response,cfg);
 
@@ -112,7 +112,7 @@ classdef TestPhysicalRunEntryPoint < matlab.unittest.TestCase
             cfg=neyer_settings(); cfg.usable_resolution=0.05;
             cfg.foil_thickness=0.015;
             response=@(gap,~)struct('outcome',true, ...
-                'measurements',[gap gap+0.01 gap-0.01 gap]);
+                'measurements',gap+0.01);
 
             [result,record]=run_physical_test(params,3,response,cfg);
 
@@ -122,17 +122,17 @@ classdef TestPhysicalRunEntryPoint < matlab.unittest.TestCase
             testCase.verifyEqual(result.foil_thickness,0.015,'AbsTol',1e-12);
         end
 
-        function physicalResultFlagsExcessiveMeasurementRange(testCase)
+        function physicalResultMarksMeasurementUncertaintyNotAssessed(testCase)
             params=struct('avg_low',0,'avg_high',10,'spread_guess',1);
             cfg=neyer_settings(); cfg.usable_resolution=0.05;
             response=@(gap,~)struct('outcome',true, ...
-                'measurements',gap+[0 0.02 0.04 0.06]);
+                'measurements',gap+0.02);
 
             [result,~]=run_physical_test(params,3,response,cfg);
 
-            testCase.verifyEqual(result.measurement_ranges, ...
-                repmat(0.06,3,1),'AbsTol',1e-12);
-            testCase.verifyTrue(all(result.measurement_warnings));
+            testCase.verifyEqual(result.measurement_count,ones(3,1));
+            testCase.verifyEqual(result.measurement_uncertainty, ...
+                repmat({'not assessed'},3,1));
         end
     end
 end

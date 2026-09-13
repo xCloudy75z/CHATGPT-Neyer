@@ -1,6 +1,6 @@
 function result = run_test_ui(cfg0, loaded_plan)
 %RUN_TEST_UI  Run a Neyer test through large, readable pop-up windows (MATLAB
-%   desktop only): settings, then the reachable gap, measured readings, and
+%   desktop only): settings, then the reachable gap, one measured gap, and
 %   interaction outcome for each test. Physical validation lives in
 %   parse_run_inputs and run_physical_test.
     if ~(isdeployed || usejava('desktop'))
@@ -16,7 +16,7 @@ function result = run_test_ui(cfg0, loaded_plan)
     try
         result = run_physical_test(parsed.params, parsed.num_parts, ...
             @(level,k)gap_popup(level,k,parsed.num_parts, ...
-                parsed.cfg.usable_resolution, reachable_model_or_empty(parsed.cfg)), ...
+                reachable_model_or_empty(parsed.cfg)), ...
                 parsed.cfg);
     catch e
         if strcmp(e.identifier, 'run_test_ui:aborted')
@@ -180,9 +180,9 @@ function show_result_error_notice(result_error)
 end
 
 % =================================================================================
-function response = gap_popup(level, k, N, usable_resolution, reachable_model)
+function response = gap_popup(level, k, N, reachable_model)
 %GAP_POPUP Show one reachable setting and collect its physical result.
-    if nargin < 5, reachable_model = []; end
+    if nargin < 4, reachable_model = []; end
     fig = uifigure('Name', 'Neyer gap test', 'Position', [300 170 650 440]);
     gl  = uigridlayout(fig, [5 2]);
     gl.RowHeight     = {'fit', 90, 54, 54, 64};
@@ -206,13 +206,14 @@ function response = gap_popup(level, k, N, usable_resolution, reachable_model)
                  'FontSize', 22, 'FontWeight', 'bold', 'WordWrap', 'on', 'HorizontalAlignment', 'center');
     l2.Layout.Row = 2; l2.Layout.Column = [1 2];
 
-    prompt=uilabel(gl,'Text','Enter 4 or 5 measured gaps:', ...
+    prompt=uilabel(gl,'Text','Enter the measured gap:', ...
         'FontSize',15,'HorizontalAlignment','right');
     prompt.Layout.Row=3; prompt.Layout.Column=1;
     reading_edit=uieditfield(gl,'text','FontSize',16, ...
-        'Placeholder','Example: 2.50, 2.49, 2.52, 2.48');
+        'Placeholder','Example: 2.507');
     reading_edit.Layout.Row=3; reading_edit.Layout.Column=2;
-    note_text='Measure this new spacer build. Its mean will be used in the calculation.';
+    note_text=['Measure this new setup once. That measured gap will be used ' ...
+        'in the calculation. Measurement uncertainty is not assessed here.'];
     note=uilabel(gl,'Text',note_text,'FontSize',14,'WordWrap','on', ...
         'HorizontalAlignment','center');
     note.Layout.Row=4; note.Layout.Column=[1 2];
@@ -239,21 +240,6 @@ function response = gap_popup(level, k, N, usable_resolution, reachable_model)
         catch e
             uialert(fig,e.message,'Please check the measurements');
             return;
-        end
-        reading_range=max(store.response.measurements)-min(store.response.measurements);
-        if reading_range > usable_resolution
-            choice=uiconfirm(fig,sprintf([ ...
-                'These readings span %.3f mm, which is greater than the ' ...
-                '%.2f mm usable gap step for this study. Check the setup ' ...
-                'and measurement method before continuing.'], ...
-                reading_range,usable_resolution), ...
-                'Measurement variation warning', ...
-                'Options',{'Check again','Use these readings'}, ...
-                'DefaultOption',1,'CancelOption',1);
-            if strcmp(choice,'Check again')
-                store.response=[];
-                return;
-            end
         end
         uiresume(fig);
     end

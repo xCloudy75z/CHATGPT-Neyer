@@ -1,0 +1,39 @@
+NEYER GAP TEST V1.11 — START HERE
+
+Main tool
+---------
+Open Neyer_Gap_Test_v1_11.mlx in MATLAB R2022b and press Run once.
+The Live Script contains the complete tool. It does not need outside function files.
+
+Physical test rule
+------------------
+1. Prepare a new setup at the two-decimal gap requested by the app.
+2. Measure that completed setup once.
+3. Enter the one actual measured gap.
+4. Perform the test and choose Interaction or No interaction.
+5. Do not reuse that setup for another destructive test.
+
+The requested gap and actual measured gap are stored separately. The actual
+measured gap is used in the calculation. With one reading, measurement
+uncertainty cannot be estimated, so the saved record says "not assessed".
+
+Separate general recorder
+-------------------------
+Run General_Measurement_Recorder.m when you want to record ordinary spacer or
+sample measurements outside the Neyer adaptive test. It saves a CSV chosen by
+the user and refuses to replace an existing file.
+
+Confirmed software checks
+-------------------------
+- 229 MATLAB R2022b checks passed; 0 failed; 0 incomplete.
+- Five direct 62-article simulations passed their hard checks.
+- Tested usable steps: 0.05, 0.10, 0.15, 0.25, and 0.50 mm.
+- The real MATLAB one-reading pop-up route passed.
+- The V1.11 Live Script ran alone in an empty folder.
+- The separate measurement recorder ran alone in an empty folder.
+
+Remaining physical check
+------------------------
+The software cannot prove which spacer-and-foil combinations your hardware can
+repeatedly build. The 0.05 mm usable step remains provisional until you confirm
+it physically.

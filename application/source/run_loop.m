@@ -158,10 +158,9 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
 
         requested_x = x;
 
-        % Obtain the binary outcome. A physical operator path may also return
-        % 4-5 repeated measurements of the unchanged setup. Their average is
-        % the level used by the statistics; the reachable requested setting is
-        % retained separately for traceability.
+        % Obtain the binary outcome. A physical operator path also returns one
+        % measured gap for the newly built setup. That measurement is the level
+        % used by the statistics; the requested setting remains traceable.
         response = outcome_fn(requested_x,k);
         if isstruct(response)
             if ~isfield(response,'outcome')
@@ -170,15 +169,16 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
             end
             if ~isfield(response,'measurements')
                 error('run_loop:badPhysicalResponse', ...
-                    'Every new spacer build requires measurements.');
+                    'Every new setup requires one measured gap.');
             end
             readings=response.measurements(:)';
-            if ~(isnumeric(readings) && any(numel(readings)==[4 5]) && ...
-                    isreal(readings) && all(isfinite(readings)))
+            if ~(isnumeric(readings) && isscalar(readings) && ...
+                    isreal(readings) && all(isfinite(readings)) && ...
+                    all(readings >= 0))
                 error('run_loop:badMeasurements', ...
-                    'Provide 4 or 5 finite repeated gap measurements.');
+                    'Provide exactly one finite, nonnegative measured gap.');
             end
-            measured_x=mean(readings);
+            measured_x=readings;
             result=logical(response.outcome);
             measurements{k}=readings;
         else

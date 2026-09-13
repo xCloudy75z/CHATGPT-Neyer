@@ -17,9 +17,9 @@ function txt = results_to_csv_text(result)
         isfield(result,'measurements') && numel(result.requested_levels)==n && ...
         numel(result.measurements)==n;
     if isPhysical
-        L{end+1}=sprintf(['test,internal target (%s),build request (%s),measured mean (%s),' ...
-            'reading 1,reading 2,reading 3,reading 4,reading 5,' ...
-            'reading range,measurement warning,outcome'],u,u,u);
+        L{end+1}=sprintf(['test,internal target (%s),build request (%s),' ...
+            'actual measured gap (%s),measurement count,' ...
+            'measurement uncertainty,outcome'],u,u,u);
         requested=result.requested_levels(:);
         if isfield(result,'raw_requested_levels') && ...
                 numel(result.raw_requested_levels)==n
@@ -30,28 +30,9 @@ function txt = results_to_csv_text(result)
         end
         for k=1:n
             if sc(k), o='interaction'; else, o='no interaction'; end
-            readings=result.measurements{k}(:)';
-            cells=repmat({''},1,5);
-            for readingNumber=1:numel(readings)
-                cells{readingNumber}=csv_number(readings(readingNumber));
-            end
-            if isfield(result,'measurement_ranges') && ...
-                    numel(result.measurement_ranges)>=k
-                readingRange=csv_number(result.measurement_ranges(k));
-            else
-                readingRange=csv_number(max(readings)-min(readings));
-            end
-            if isfield(result,'measurement_warnings') && ...
-                    numel(result.measurement_warnings)>=k && ...
-                    result.measurement_warnings(k)
-                warningText='yes';
-            else
-                warningText='no';
-            end
-            L{end+1}=sprintf('%d,%s,%.2f,%s,%s,%s,%s,%s,%s,%s,%s,%s', ...
+            L{end+1}=sprintf('%d,%s,%.2f,%s,1,not assessed,%s', ...
                 k,csv_number(rawRequested(k)),requested(k),csv_number(lv(k)), ...
-                cells{1},cells{2},cells{3},cells{4}, ...
-                cells{5},readingRange,warningText,o);
+                o);
         end
     else
         L{end+1} = sprintf('test,gap (%s),outcome', u);

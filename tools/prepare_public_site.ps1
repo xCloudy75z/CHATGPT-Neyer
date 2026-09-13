@@ -26,8 +26,12 @@ New-Item -ItemType Directory -Path $siteRoot -Force | Out-Null
 
 $copies = @(
     [PSCustomObject]@{
-        Source = "delivery/Neyer_Gap_Test_v1_10.mlx"
-        Destination = "site/downloads/Neyer_Gap_Test_v1_10.mlx"
+        Source = "delivery/Neyer_Gap_Test_v1_11.mlx"
+        Destination = "site/downloads/Neyer_Gap_Test_v1_11.mlx"
+    },
+    [PSCustomObject]@{
+        Source = "delivery/General_Measurement_Recorder.m"
+        Destination = "site/downloads/General_Measurement_Recorder.m"
     },
     [PSCustomObject]@{
         Source = "assets/screenshots/v110-01-main-menu.png"
@@ -56,6 +60,34 @@ $copies = @(
     [PSCustomObject]@{
         Source = "assets/screenshots/v110-07-help.png"
         Destination = "site/assets/screens/v110-07-help.png"
+    },
+    [PSCustomObject]@{
+        Source = "assets/screenshots/v111-05-one-measured-gap.png"
+        Destination = "site/assets/screens/v111-05-one-measured-gap.png"
+    },
+    [PSCustomObject]@{
+        Source = "assets/screenshots/v111-07-help.png"
+        Destination = "site/assets/screens/v111-07-help.png"
+    },
+    [PSCustomObject]@{
+        Source = "audit/v111/full-suite-results.txt"
+        Destination = "site/evidence-files/v111-full-suite-results.txt"
+    },
+    [PSCustomObject]@{
+        Source = "audit/v111/test-matrix.md"
+        Destination = "site/evidence-files/v111-test-matrix.md"
+    },
+    [PSCustomObject]@{
+        Source = "audit/direct-62-trials/five-trial-audit.txt"
+        Destination = "site/evidence-files/v111-five-trial-audit.txt"
+    },
+    [PSCustomObject]@{
+        Source = "audit/v111/standalone-clean-start.txt"
+        Destination = "site/evidence-files/v111-standalone-clean-start.txt"
+    },
+    [PSCustomObject]@{
+        Source = "audit/v111/general-recorder-clean-start.txt"
+        Destination = "site/evidence-files/v111-general-recorder-clean-start.txt"
     }
 )
 
@@ -77,4 +109,4 @@ foreach ($copy in $copies) {
     Copy-Item -LiteralPath $source.FullName -Destination $destinationPath -Force
 }
 
-Write-Output "Prepared 8 verified public release files."
+Write-Output "Prepared 16 verified public release files."

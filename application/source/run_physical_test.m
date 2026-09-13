@@ -4,9 +4,8 @@ function [result, record] = run_physical_test(params, num_parts, outcome_fn, cfg
 %   Physical mode deliberately has no default usable resolution. New callers
 %   provide .usable_resolution; .level_increment remains accepted for older
 %   scripts. Foil thickness never controls rounding or the sigma floor.
-%   OUTCOME_FN must return a struct
-%   containing the binary .outcome and 4 or 5 repeated .measurements for that
-%   test's newly built spacer setup. The
+%   OUTCOME_FN must return a struct containing the binary .outcome and exactly
+%   one finite, nonnegative .measurements value for that newly built setup. The
 %   existing RUN_TEST entry point remains available for synthetic simulations.
 
     if nargin < 4 || ~isstruct(cfg)
@@ -57,9 +56,9 @@ function [result, record] = run_physical_test(params, num_parts, outcome_fn, cfg
     end
     record.resolution_sigma_floor = usable_resolution * ...
         cfg.resolution_sigma_floor_factor;
-    record.measurement_ranges=cellfun(@(readings) ...
-        max(readings)-min(readings),record.measurements);
-    record.measurement_warnings=record.measurement_ranges > usable_resolution;
+    record.measurement_count=ones(numel(record.measurements),1);
+    record.measurement_uncertainty=repmat({'not assessed'}, ...
+        numel(record.measurements),1);
     result.raw_requested_levels=record.raw_requested_levels;
     result.requested_levels=record.requested_levels;
     result.requested_instructions=record.requested_instructions;
@@ -68,16 +67,16 @@ function [result, record] = run_physical_test(params, num_parts, outcome_fn, cfg
     result.foil_thickness=record.foil_thickness;
     result.resolution_sigma_floor_factor=record.resolution_sigma_floor_factor;
     result.resolution_sigma_floor=record.resolution_sigma_floor;
-    result.measurement_ranges=record.measurement_ranges;
-    result.measurement_warnings=record.measurement_warnings;
+    result.measurement_count=record.measurement_count;
+    result.measurement_uncertainty=record.measurement_uncertainty;
     result.checkpoint_decisions=record.checkpoint_decisions;
 
     function response = physical_response(gap, k)
         response = outcome_fn(gap, k);
         if ~isstruct(response) || ~isfield(response,'measurements')
             error('run_physical_test:measurementsRequired', ...
-                ['Physical testing requires an outcome and 4 or 5 gap ' ...
-                 'measurements for every new spacer build.']);
+                ['Physical testing requires an outcome and exactly one ' ...
+                 'measured gap for every new spacer build.']);
         end
     end
 end

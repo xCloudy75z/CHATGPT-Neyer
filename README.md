@@ -19,7 +19,7 @@ It includes plain-language guides to the [method](https://xcloudy75z.github.io/C
 
 ## Start here
 
-1. Download [Neyer_Gap_Test_v1_10.mlx](delivery/Neyer_Gap_Test_v1_10.mlx).
+1. Download [Neyer_Gap_Test_v1_11.mlx](delivery/Neyer_Gap_Test_v1_11.mlx).
 2. Open it in MATLAB R2022b.
 3. Press **Run** once.
 4. Select **Run the published example**. The expected display is a middle gap of 5.39 mm and an overall variation of 1.04 mm.
@@ -33,18 +33,20 @@ The `.mlx` is standalone. It contains the complete application and does not need
 
 ## Physical test rule
 
-For every destructive test, build a new spacer at the reachable gap shown by the app. Measure that unchanged spacer four or five times before testing. Enter all readings, then record **Interaction** or **No interaction**. The app uses the measured mean as the actual statistical gap.
+For every destructive test, prepare a new setup at the reachable gap shown by the app. Measure that setup once before testing. Enter that one measured gap, then record **Interaction** or **No interaction**. The app uses the measured gap as the actual statistical gap.
 
-The physical build instruction always uses two decimal places. Individual
-measurements retain the precision entered and their mean is used in the
-calculation.
+The physical build instruction always uses two decimal places. The one physical
+measurement retains the precision entered and is used in the calculation.
+Because one reading cannot show measurement repeatability, the saved record
+says that measurement uncertainty was not assessed.
 
 The current aluminium foil is approximately 0.015 mm thick. This is stored as
 construction information and does not control test-gap rounding or the Stage-2
 safety floor. The usable gap step is a separate study input. Based on the
-current 0.49--0.52 mm printed-spacer observations, 0.05 mm is the provisional
-choice to verify experimentally. With the retained two-step protection, that
-gives a 0.10 mm minimum Stage-2 planning width.
+current physical information, 0.05 mm remains a provisional choice to verify
+experimentally. The observed printed-spacer ranges do not by themselves prove
+that 0.05 mm is repeatedly buildable. With the retained two-step protection,
+0.05 mm gives a 0.10 mm minimum Stage-2 planning width.
 
 The separate, optional pre-test planner separates two jobs. The smaller main study can estimate the
 middle gap and overall variation. A safety-supported reliability instruction is
@@ -72,7 +74,9 @@ The operator chooses the output folder and base name. The app shows the complete
 
 ## Verification record
 
-- 223 MATLAB tests passed; 0 failed and 0 remained incomplete.
+- 229 MATLAB checks passed; 0 failed and 0 remained incomplete.
+- Five fresh 62-article trials covered usable steps of 0.05, 0.10, 0.15, 0.25, and 0.50 mm; every hard logic and mathematics check passed.
+- The real V1.11 MATLAB screen asked for one measured gap and completed the minimum valid three-article route.
 - Seven complete mock-laboratory routes ran 191 tests; 191 passed.
 - The final 12-scenario planner simulation recorded 8 supported scenarios accepted, 0 rejected, and 4 deliberately withheld outside the supported confidence range.
 - The final `.mlx` ran alone in a newly created empty folder.
@@ -84,13 +88,13 @@ The operator chooses the output folder and base name. The app shows the complete
 Run the complete MATLAB test suite with:
 
 ```matlab
-run('tools/run_full_test_suite.m')
+run('tools/run_v111_full_suite.m')
 ```
 
 ## Important limits
 
 - The provisional 0.05 mm usable resolution still needs repeated physical confirmation.
-- Repeated readings describe one spacer build; they cannot remove variation between separately built spacers.
+- One reading does not estimate measuring uncertainty; the saved record therefore says “not assessed.”
 - Extremely separated artificial data deserve a deeper numerical study before using this tool for safety-critical qualification.
 - The supplied V1.8 `.mlx` remains preserved locally and is identified by its recorded SHA-256 fingerprint, but it is not redistributed in this public repository.
 

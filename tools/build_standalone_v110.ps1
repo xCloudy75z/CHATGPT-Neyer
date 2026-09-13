@@ -1,11 +1,14 @@
 param(
-    [string]$ProjectRoot = (Split-Path -Parent $PSScriptRoot)
+    [string]$ProjectRoot = (Split-Path -Parent $PSScriptRoot),
+    [ValidateSet('1_10','1_11')]
+    [string]$Version = '1_10'
 )
 
 $ErrorActionPreference = 'Stop'
 $sourceRoot = Join-Path $ProjectRoot 'application\source'
 $deliveryRoot = Join-Path $ProjectRoot 'delivery'
-$destination = Join-Path $deliveryRoot 'Neyer_Gap_Test_v1_10.m'
+$destination = Join-Path $deliveryRoot "Neyer_Gap_Test_v$Version.m"
+$versionLabel = $Version.Replace('_','.')
 
 $requiredFiles = @(
     'apply_run_configuration_overrides.m',
@@ -95,8 +98,8 @@ if ($duplicates.Count -gt 0) {
     throw "Duplicate local MATLAB functions: $(($duplicates.Name | Sort-Object) -join ', ')"
 }
 
-$header = @'
-%% Neyer Gap Test v1.10
+$header = @"
+%% Neyer Gap Test v$versionLabel
 % Supported version: MATLAB R2022b.
 %
 % This one Live Script contains the complete application. Open it and press
@@ -140,14 +143,15 @@ $header = @'
 
 %% Procedure for every destructive article
 % 1. Use a new spacer setup at the reachable gap shown by the app.
-% 2. Measure that unchanged setup 4 or 5 times before the test.
-% 3. Enter every reading. The Measured mean is the actual gap used in the
-%    calculation; the ideal requested gap is not substituted for it.
+% 2. Measure the completed setup once before the test.
+% 3. Enter that measurement. It is the actual gap used in the calculation;
+%    the ideal requested gap is not substituted for it.
 % 4. Perform one test and record Interaction or No interaction.
 % 5. Do not reuse the setup after the destructive test.
 %
-% Repeated readings describe measurement uncertainty for one build. They do
-% not remove the variation between separately built articles.
+% One reading does not measure uncertainty, so the result record says that
+% measurement uncertainty was not assessed. Differences between separately
+% built articles remain part of the overall tested process.
 
 %% How the next gap is chosen
 % The early tests establish both outcomes. The narrowing stage multiplies its
@@ -176,7 +180,7 @@ $header = @'
 %% Start the application
 neyer_app;
 
-'@
+"@
 
 $parts = [System.Collections.Generic.List[string]]::new()
 $parts.Add($header.TrimEnd())

@@ -1,0 +1,4 @@
+MATLAB 2022b general recorder clean-start check passed.
+Only General_Measurement_Recorder.m was placed on the clean path.
+One measurement was accepted, saved, and read back.
+A second save to the same name was refused.
