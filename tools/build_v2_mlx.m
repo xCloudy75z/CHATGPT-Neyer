@@ -1,7 +1,7 @@
 project_root = fileparts(fileparts(mfilename('fullpath')));
 source = fullfile(project_root, 'delivery', 'Neyer_Gap_Test_v2.m');
 destination = fullfile(project_root, 'delivery', 'Neyer_Gap_Test_v2.mlx');
-evidence = fullfile(project_root, 'audit', 'v2', 'clean-start', ...
+evidence = fullfile(v2_audit_folder(project_root), 'clean-start', ...
     'v2-mlx-build.txt');
 
 if ~isfile(source)

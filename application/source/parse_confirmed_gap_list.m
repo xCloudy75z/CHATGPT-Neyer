@@ -32,6 +32,13 @@ function gaps_mm = parse_confirmed_gap_list(answer, minimum_gap_mm, maximum_gap_
                 ['Confirmed gap list: enter finite nonnegative measured gaps ' ...
                  'such as 1.00, 1.10, 2.50.']);
         end
+        shown_value = round(value, 2);
+        precision_tolerance = 1e-10 * max(1, abs(value));
+        if abs(value - shown_value) > precision_tolerance
+            error('parse_confirmed_gap_list:tooManyDecimals', ...
+                ['Confirmed gap list: enter every gap to no more than two ' ...
+                 'decimal places, such as 1.00, 1.10, 2.50.']);
+        end
         values(entry_number) = value;
     end
 

@@ -1,7 +1,7 @@
 %CAPTURE_V2_HELP Save the top of the scrollable V2 operator guide.
 projectRoot = fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(projectRoot, 'application', 'source'));
-outputFolder = fullfile(projectRoot, 'audit', 'v2', 'ui');
+outputFolder = fullfile(v2_audit_folder(projectRoot), 'ui');
 outputPath = fullfile(outputFolder, '06-help.png');
 if ~isfolder(outputFolder), mkdir(outputFolder); end
 

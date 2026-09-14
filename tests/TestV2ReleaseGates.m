@@ -7,6 +7,14 @@ classdef TestV2ReleaseGates < matlab.unittest.TestCase
         end
     end
     methods (Test)
+        function auditVersionStaysInsideItsOwnEvidenceFolder(tc)
+            root=tc.createTemporaryFolder();
+            tc.verifyEqual(v2_audit_folder(root,''),fullfile(root,'audit','v2'));
+            tc.verifyEqual(v2_audit_folder(root,'candidate-02'), ...
+                fullfile(root,'audit','v2','candidate-02'));
+            tc.verifyError(@() v2_audit_folder(root,'../previous'), ...
+                'v2Audit:badVersion');
+        end
         function exactRegularCoverage(tc)
             % Missing a dimension or repetition must shrink this independent count.
             c=v2_matrix_cases('regular');

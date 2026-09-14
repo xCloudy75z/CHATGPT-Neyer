@@ -1,0 +1,24 @@
+Neyer Gap Test V2 standalone clean-start: PASS
+MATLAB release: 2022b
+Initial clean-folder files: 1 (Neyer_Gap_Test_v2.mlx only)
+Application menu opened from the isolated MLX: yes
+Embedded source files reconstructed from MLX: 63
+Total function declarations: 164
+Script-local functions (unindented): 141
+Nested functions (indented): 23
+Outside application/source or helper dependency used: no
+Direct physical workflow results: 20
+One measurement per new setup: yes
+All direct build requests used two decimals: yes
+Direct result middle / variation: 5.3922 / 1.0412 mm
+Published replay middle / variation: 5.3922 / 1.0412 mm
+Interaction probability at 5.39 mm: 50.0837%
+Cautious supported probability at 95% confidence: 23.4306%
+Shown CSV path equalled actual CSV path: yes
+Shown HTML path equalled actual HTML path: yes
+Same-name second save rejected without replacement: yes
+Invalid regular-step message: The usable gap step must work with two-decimal build requests. Enter 0.01, 0.02, 0.05, 0.10 mm, or another whole hundredth. Do not enter the 0.015 mm foil thickness here.
+Incomplete-input message: Complete all direct-test settings before starting the test.
+Invalid confirmed-list message: Confirmed gap list: enter finite nonnegative measured gaps such as 1.00, 1.10, 2.50.
+Evidence CSV artifact: standalone-v2-results.csv
+Evidence HTML artifact: standalone-v2-results.html

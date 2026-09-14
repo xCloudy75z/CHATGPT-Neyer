@@ -1,6 +1,6 @@
 project_root = fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(project_root, 'application', 'source'));
-output_folder = fullfile(project_root, 'audit', 'v2', 'ui');
+output_folder = fullfile(v2_audit_folder(project_root), 'ui');
 output_path = fullfile(output_folder, '02-direct-inputs.png');
 if ~isfolder(output_folder)
     mkdir(output_folder);

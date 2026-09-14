@@ -1,0 +1,22 @@
+Neyer V2 tested release fingerprints
+MATLAB release: 2022b
+Neyer_Gap_Test_v1_13.mlx
+Bytes: 73466
+SHA-256: 2DE2D89EB6156E0C2F9C1F3B08C14B01E9B428993BC3B573BED53406015A222E
+Neyer_Gap_Test_v2.m
+Bytes: 291305
+SHA-256: DD37A1CCB92745FE85489620F2AACC1658064D9E44077F757779646E10ED278E
+Neyer_Gap_Test_v2.mlx
+Bytes: 79649
+SHA-256: 9CF600D241F1430EEA489C2A13A2AF9BD10CC579C5134193DAD26ECFA3A01038
+V1.13 unchanged: yes
+No build performed by fingerprint gate.
+Full transcripts rechecked against final source: 2250
+Total function declarations: 164
+Total: 323
+Passed: 323
+Failed: 0
+Incomplete: 0
+Regular studies: 1800; replays: 1800; invariant failures: 0; replay mismatches: 0
+Confirmed-list studies: 450; replays: 450; invariant failures: 0; replay mismatches: 0
+Published example middle / variation: 5.3922 / 1.0412 mm

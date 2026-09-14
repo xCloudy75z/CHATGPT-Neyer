@@ -4,7 +4,7 @@ validateattributes(shard,{'numeric'},{'scalar','integer','positive','<=',shards}
 validateattributes(shards,{'numeric'},{'scalar','integer','positive'});
 root=fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(root,'application','source'));
-if nargin<4, folder=fullfile(root,'audit','v2','matrices'); end
+if nargin<4, folder=fullfile(v2_audit_folder(root),'matrices'); end
 if ~isfolder(folder), mkdir(folder); end
 sourceFiles=[dir(fullfile(root,'application','source','*.m')); ...
     dir(fullfile(root,'tools','*v2*matrix*.m')); ...

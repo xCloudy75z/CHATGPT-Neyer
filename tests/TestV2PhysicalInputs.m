@@ -83,15 +83,11 @@ classdef TestV2PhysicalInputs < matlab.unittest.TestCase
                 [1;1.1;2.5;4.1;5.5], 'AbsTol', 1e-12);
         end
 
-        function directListModeSupportsNarrowBoundsWithoutRegularGrid(testCase)
+        function confirmedListRejectsValuesThatCannotBeShownExactly(testCase)
             answers = confirmed_list_answers('1.002, 1.008');
-            answers.minimum_gap = '1.001';
-            answers.maximum_gap = '1.009';
 
-            parsed = parse_run_inputs(answers);
-
-            testCase.verifyEqual(parsed.cfg.reachable_model.gaps_mm, ...
-                [1.002; 1.008], 'AbsTol', 1e-12);
+            testCase.verifyError(@() parse_run_inputs(answers), ...
+                'parse_confirmed_gap_list:tooManyDecimals');
         end
 
         function directListModeSetsFloorAndRestrictsRequests(testCase)
@@ -130,6 +126,14 @@ classdef TestV2PhysicalInputs < matlab.unittest.TestCase
 
             testCase.verifyError(@() parse_run_inputs(answers), ...
                 'parse_run_inputs:badPhysicalMode');
+        end
+
+        function directRunRejectsAUnitOtherThanMillimetres(testCase)
+            answers = confirmed_list_answers('1.00, 1.10');
+            answers.unit = 'in';
+
+            testCase.verifyError(@() parse_run_inputs(answers), ...
+                'parse_run_inputs:badUnit');
         end
     end
 end

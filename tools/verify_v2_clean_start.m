@@ -1,7 +1,7 @@
 %VERIFY_V2_CLEAN_START Exercise V2 with no project application source.
 projectRoot = fileparts(fileparts(mfilename('fullpath')));
 liveScript = fullfile(projectRoot, 'delivery', 'Neyer_Gap_Test_v2.mlx');
-evidenceFolder = fullfile(projectRoot, 'audit', 'v2', 'clean-start');
+evidenceFolder = fullfile(v2_audit_folder(projectRoot), 'clean-start');
 evidencePath = fullfile(evidenceFolder, 'standalone-clean-start.txt');
 temporaryFolder = tempname;
 mkdir(temporaryFolder);

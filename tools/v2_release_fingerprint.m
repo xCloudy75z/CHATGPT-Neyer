@@ -1,7 +1,7 @@
 %V2_RELEASE_FINGERPRINT Seal the tested artifacts; this never rebuilds them.
 root=fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(root,'tools')); addpath(fullfile(root,'application','source'));
-folder=fullfile(root,'audit','v2');
+folder=v2_audit_folder(root);
 suite=fileread(fullfile(folder,'full-suite-results.txt'));
 assert(contains(suite,sprintf('\nFailed: 0\n')) && contains(suite,sprintf('\nIncomplete: 0\n')));
 clean=fileread(fullfile(folder,'clean-start','standalone-clean-start.txt'));

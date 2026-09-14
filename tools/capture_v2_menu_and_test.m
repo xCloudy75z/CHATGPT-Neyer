@@ -1,7 +1,7 @@
 %CAPTURE_V2_MENU_AND_TEST Save the V2 menu and one real test request.
 project_root = fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(project_root, 'application', 'source'));
-output_folder = fullfile(project_root, 'audit', 'v2', 'ui');
+output_folder = fullfile(v2_audit_folder(project_root), 'ui');
 if ~isfolder(output_folder), mkdir(output_folder); end
 menu_path = fullfile(output_folder, '01-main-menu.png');
 test_path = fullfile(output_folder, '03-test-request.png');

@@ -118,12 +118,15 @@ function out = parse_common_direct_fields(low_text, high_text, ...
         error('parse_run_inputs:badMaxLevel', ...
             'Maximum permitted gap must be greater than the minimum gap.');
     end
+    unit_text = strtrim(unit_text);
+    if ~strcmpi(unit_text, 'mm')
+        error('parse_run_inputs:badUnit', ...
+            'Direct testing currently uses millimetres. Enter mm as the gap unit.');
+    end
     cfg = neyer_settings();
     cfg.min_level = minimum_gap;
     cfg.max_level = maximum_gap;
-    if ~isempty(strtrim(unit_text))
-        cfg.unit = strtrim(unit_text);
-    end
+    cfg.unit = 'mm';
     out = struct('params', params, 'num_parts', num_parts, 'cfg', cfg);
 end
 

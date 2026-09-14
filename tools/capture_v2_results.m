@@ -2,7 +2,7 @@ function capture_v2_results()
 %CAPTURE_V2_RESULTS Save the unfinished and calculated V2 result screens.
 projectRoot = fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(projectRoot, 'application', 'source'));
-outputFolder = fullfile(projectRoot, 'audit', 'v2', 'ui');
+outputFolder = fullfile(v2_audit_folder(projectRoot), 'ui');
 if ~isfolder(outputFolder), mkdir(outputFolder); end
 delete(findall(groot, 'Type', 'figure'));
 
