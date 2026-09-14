@@ -1,6 +1,8 @@
 function neyer_app()
 %NEYER_APP  Launch menu for the D-Optimal Sensitivity Tool (the compiled app's
-%   entry point). Five grouped buttons over the unchanged engine. [compiled-app]
+%   entry point). Five grouped buttons over the unchanged engine. Legacy
+%   internal compatibility names remain: break = Interaction; survive = No interaction.
+%   [compiled-app]
     if ~isdeployed
     end
 
