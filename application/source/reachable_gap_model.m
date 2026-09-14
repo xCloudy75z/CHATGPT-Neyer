@@ -34,7 +34,7 @@ function model = reachable_gap_model(setup, minimum_gap_mm, maximum_gap_mm)
             multiple_numbers = (first_multiple:last_multiple)';
             gaps_mm = multiple_numbers * increment_mm;
             gaps_mm(abs(gaps_mm) < numerical_tolerance) = 0;
-            instructions = compose("Set the gap to %.2f mm", gaps_mm);
+            instructions = compose("Requested gap: %.2f mm", gaps_mm);
             description = sprintf('Every %.4g mm from %.4g to %.4g mm', ...
                 increment_mm, minimum_gap_mm, maximum_gap_mm);
 
@@ -50,7 +50,9 @@ function model = reachable_gap_model(setup, minimum_gap_mm, maximum_gap_mm)
                 numerical_tolerance & supplied_gaps <= maximum_gap_mm + ...
                 numerical_tolerance);
             gaps_mm = unique_with_tolerance(supplied_gaps, numerical_tolerance);
-            instructions = compose("Use the confirmed %.2f mm setup", gaps_mm);
+            instructions = repmat( ...
+                "This requested gap came from confirmed buildable gaps.", ...
+                numel(gaps_mm), 1);
             description = sprintf('%d confirmed reachable gaps', numel(gaps_mm));
 
         case 'combinations'

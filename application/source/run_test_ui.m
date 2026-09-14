@@ -335,7 +335,9 @@ function response = gap_popup(level, k, N, reachable_model)
     requested_text = format_requested_gap(level,'mm');
     if ~isempty(reachable_model)
         [distance, recipe_row] = min(abs(reachable_model.gaps_mm(:) - level));
-        if distance <= reachable_model.comparison_tolerance_mm
+        if distance <= reachable_model.comparison_tolerance_mm && ...
+                (strcmp(reachable_model.mode, 'list') || ...
+                 strcmp(reachable_model.mode, 'combinations'))
             requested_text = sprintf('%s\n%s', requested_text, ...
                 char(reachable_model.instructions(recipe_row)));
         end

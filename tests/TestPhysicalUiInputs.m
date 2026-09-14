@@ -121,7 +121,7 @@ classdef TestPhysicalUiInputs < matlab.unittest.TestCase
         function requestedGapInstructionUsesTwoDecimalPlaces(testCase)
             message=format_requested_gap(3.645,'mm');
 
-            testCase.verifyEqual(message,'Build a gap of 3.65 mm.');
+            testCase.verifyEqual(message,'Build the requested gap: 3.65 mm');
         end
 
         function responseParsesOneMeasurement(testCase)
