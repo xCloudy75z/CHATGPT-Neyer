@@ -1,7 +1,5 @@
 function h = show_result(result)
-%SHOW_RESULT Decision-first results window with two complementary charts.
-% The bell-shaped chart explains article-to-article variation. The probability
-% chart answers how interaction chance changes as the physical gap changes.
+%SHOW_RESULT Present either an unfinished status or a calculated result.
 
     if ~(isdeployed || usejava('desktop'))
         error('show_result:noDisplay', 'The results window needs the MATLAB desktop.');
@@ -13,17 +11,104 @@ function h = show_result(result)
     end
     has_estimate = isfield(result, 'has_overlap') && result.has_overlap && ...
         isfield(result, 'mu') && isfinite(result.mu);
-    decision = result_decision_summary(result);
+    if ~has_estimate
+        h = show_unfinished_result(result);
+        return;
+    end
 
     confidence = 0.95;
     if isfield(result, 'confidence_level') && isfinite(result.confidence_level)
         confidence = result.confidence_level;
     end
 
+    h = show_calculated_result(result, unit, confidence);
+end
+
+function h = show_unfinished_result(result)
+    h = uifigure('Name', 'Neyer gap-study results', ...
+        'Position', [240 120 760 520], 'Color', [0.96 0.97 0.97]);
+    layout = uigridlayout(h, [1 1]);
+    layout.Padding = [18 18 18 18];
+
+    statusPanel = uipanel(layout, 'Title', 'Result not calculated yet', ...
+        'FontWeight', 'bold', 'BackgroundColor', [1.00 0.97 0.90]);
+    statusLayout = uigridlayout(statusPanel, [7 1]);
+    statusLayout.RowHeight = {66, 58, 38, 38, 38, 78, 42};
+    statusLayout.Padding = [22 18 22 20];
+    statusLayout.RowSpacing = 8;
+
+    uilabel(statusLayout, 'Text', [ ...
+        'The middle gap and overall variation cannot yet be calculated ' ...
+        'from these completed tests.'], 'FontSize', 20, ...
+        'FontWeight', 'bold', 'WordWrap', 'on', ...
+        'FontColor', [0.52 0.31 0.06]);
+    uilabel(statusLayout, 'Text', [ ...
+        'A calculated result needs Interaction and No interaction results ' ...
+        'close enough to show the change. No substitute answer is shown.'], ...
+        'FontSize', 13, 'WordWrap', 'on', ...
+        'FontColor', [0.20 0.24 0.26]);
+
+    [completedCount, interactionCount, noInteractionCount] = ...
+        completed_outcome_counts(result);
+    uilabel(statusLayout, 'Text', sprintf('Completed tests: %d', ...
+        completedCount), 'FontSize', 15, 'FontWeight', 'bold');
+    uilabel(statusLayout, 'Text', sprintf('Interaction observed: %s (%d)', ...
+        observed_word(interactionCount), interactionCount), 'FontSize', 14);
+    uilabel(statusLayout, 'Text', sprintf( ...
+        'No interaction observed: %s (%d)', ...
+        observed_word(noInteractionCount), noInteractionCount), 'FontSize', 14);
+
+    saveAvailable = result_save_available(result);
+    if saveAvailable
+        nextAction = [ ...
+            'Next action: save the completed results, then review the ' ...
+            'tested gaps before deciding whether another useful test can be run.'];
+    else
+        nextAction = [ ...
+            'Next action: return to the test and record at least one ' ...
+            'completed outcome.'];
+    end
+    uilabel(statusLayout, 'Text', nextAction, 'FontSize', 14, ...
+        'FontWeight', 'bold', 'WordWrap', 'on', ...
+        'FontColor', [0.18 0.22 0.24]);
+
+    saveButton = uibutton(statusLayout, 'Text', 'Save results...');
+    if saveAvailable
+        saveButton.ButtonPushedFcn = @(~, ~) save_from_window(result, h);
+    else
+        saveButton.Enable = 'off';
+    end
+end
+
+function [completedCount, interactionCount, noInteractionCount] = ...
+        completed_outcome_counts(result)
+    completedCount = 0;
+    interactionCount = 0;
+    noInteractionCount = 0;
+    if ~isfield(result, 'successes') || isempty(result.successes)
+        return;
+    end
+    outcomes = logical(result.successes(:));
+    completedCount = numel(outcomes);
+    interactionCount = sum(outcomes);
+    noInteractionCount = completedCount - interactionCount;
+end
+
+function word = observed_word(count)
+    if count > 0
+        word = 'Yes';
+    else
+        word = 'No';
+    end
+end
+
+function h = show_calculated_result(result, unit, confidence)
+    decision = result_decision_summary(result);
+
     h = uifigure('Name', 'Neyer gap-study results', ...
         'Position', [60 50 1240 760], 'Color', [0.96 0.97 0.97]);
     layout = uigridlayout(h, [3 3]);
-    layout.RowHeight = {118, '1x', 190};
+    layout.RowHeight = {118, '1x', 130};
     layout.ColumnWidth = {340, '1x', '1x'};
     layout.Padding = [14 14 14 14];
     layout.RowSpacing = 10;
@@ -44,7 +129,8 @@ function h = show_result(result)
     else
         decisionPanel.BackgroundColor = [1.00 0.96 0.87];
         decisionTitle = 'Supported operating instruction: Not established';
-        decisionText = decision.explanation;
+        decisionText = strrep(char(decision.explanation), ...
+            'fitted result', 'calculated result');
         decisionColor = [0.52 0.31 0.06];
     end
     decisionLayout = uigridlayout(decisionPanel, [2 1]);
@@ -55,48 +141,39 @@ function h = show_result(result)
     uilabel(decisionLayout, 'Text', decisionText, 'FontSize', 12, ...
         'WordWrap', 'on', 'FontColor', [0.18 0.22 0.24]);
 
-    factsPanel = uipanel(layout, 'Title', 'What the fitted result means', ...
+    factsPanel = uipanel(layout, 'Title', 'What the calculated result means', ...
         'FontWeight', 'bold');
     factsPanel.Layout.Row = 2;
     factsPanel.Layout.Column = 1;
-    if has_estimate
-        gA = uigridlayout(factsPanel, [9 1]);
-        gA.RowHeight   = {54, 30, 42, 30, 8, 55, 74, '1x', 4};
-        gA.Padding = [10 10 10 8];
-        gA.RowSpacing = 3;
-        uilabel(gA, 'Text', sprintf( ...
-            'Middle gap (about 50%% interaction): %.2f %s', result.mu, unit), ...
-            'FontSize', 17, 'FontWeight', 'bold', 'WordWrap', 'on');
-        uilabel(gA, 'Text', format_confidence_range(confidence, ...
-            result.mu_lo, result.mu_hi, unit), ...
-            'FontSize', 12, 'WordWrap', 'on');
-        uilabel(gA, 'Text', sprintf('Overall variation: %.2f %s', ...
-            result.sigma, unit), 'FontSize', 16, 'FontWeight', 'bold');
-        uilabel(gA, 'Text', format_confidence_range(confidence, ...
-            result.sigma_lo, result.sigma_hi, unit), ...
-            'FontSize', 12, 'WordWrap', 'on');
-        uilabel(gA, 'Text', '');
-        uilabel(gA, 'Text', [ ...
-            'Overall variation describes how much the entire tested process ' ...
-            'varies from article to article around the middle gap.'], ...
-            'FontSize', 12, 'WordWrap', 'on', 'FontColor', [0.25 0.30 0.32]);
-        uilabel(gA, 'Text', [ ...
-            'Important: the middle gap is a 50/50 estimate. It is not the ' ...
-            'reliable operating gap shown in the decision above.'], ...
-            'FontSize', 12, 'WordWrap', 'on', 'FontColor', [0.52 0.31 0.06]);
-        uilabel(gA, 'Text', sprintf([ ...
-            'Direction: smaller gaps make Interaction more likely; larger ' ...
-            'gaps make No interaction more likely. Based on %d tests.'], ...
-            result.n), 'FontSize', 12, 'WordWrap', 'on');
-        uilabel(gA, 'Text', '');
-    else
-        gA = uigridlayout(factsPanel, [1 1]);
-        uilabel(gA, 'Text', [ ...
-            'No fitted middle gap has been established from these results. ' ...
-            'Both outcomes must occur close enough to show the change. You ' ...
-            'can still save every completed test and review it later.'], ...
-            'FontSize', 15, 'FontWeight', 'bold', 'WordWrap', 'on');
-    end
+    gA = uigridlayout(factsPanel, [9 1]);
+    gA.RowHeight   = {54, 30, 42, 30, 8, 55, 74, '1x', 4};
+    gA.Padding = [10 10 10 8];
+    gA.RowSpacing = 3;
+    uilabel(gA, 'Text', sprintf( ...
+        'Middle gap (about 50%% interaction): %.2f %s', result.mu, unit), ...
+        'FontSize', 17, 'FontWeight', 'bold', 'WordWrap', 'on');
+    uilabel(gA, 'Text', format_confidence_range(confidence, ...
+        result.mu_lo, result.mu_hi, unit), ...
+        'FontSize', 12, 'WordWrap', 'on');
+    uilabel(gA, 'Text', sprintf('Overall variation: %.2f %s', ...
+        result.sigma, unit), 'FontSize', 16, 'FontWeight', 'bold');
+    uilabel(gA, 'Text', format_confidence_range(confidence, ...
+        result.sigma_lo, result.sigma_hi, unit), ...
+        'FontSize', 12, 'WordWrap', 'on');
+    uilabel(gA, 'Text', '');
+    uilabel(gA, 'Text', [ ...
+        'Overall variation describes how much the entire tested process ' ...
+        'varies from article to article around the middle gap.'], ...
+        'FontSize', 12, 'WordWrap', 'on', 'FontColor', [0.25 0.30 0.32]);
+    uilabel(gA, 'Text', [ ...
+        'Important: the middle gap is a 50/50 estimate. It is not the ' ...
+        'reliable operating gap shown in the decision above.'], ...
+        'FontSize', 12, 'WordWrap', 'on', 'FontColor', [0.52 0.31 0.06]);
+    uilabel(gA, 'Text', sprintf([ ...
+        'Direction: smaller gaps make Interaction more likely; larger ' ...
+        'gaps make No interaction more likely. Based on %d tests.'], ...
+        result.n), 'FontSize', 12, 'WordWrap', 'on');
+    uilabel(gA, 'Text', '');
 
     distributionAxes = uiaxes(layout);
     distributionAxes.Layout.Row = 2;
@@ -104,31 +181,26 @@ function h = show_result(result)
     probabilityAxes = uiaxes(layout);
     probabilityAxes.Layout.Row = 2;
     probabilityAxes.Layout.Column = 3;
-    if has_estimate
-        try
-            compactSettings = neyer_settings();
-            compactSettings.compact = true;
-            draw_distribution(distributionAxes, result, compactSettings);
-        catch
-            title(distributionAxes, 'Variation chart unavailable');
-        end
-        try
-            curveSettings = neyer_settings();
-            if isfield(result, 'study_plan') && isstruct(result.study_plan)
-                if isfield(result.study_plan, 'minimum_gap_mm')
-                    curveSettings.min_level = result.study_plan.minimum_gap_mm;
-                end
-                if isfield(result.study_plan, 'maximum_gap_mm')
-                    curveSettings.max_level = result.study_plan.maximum_gap_mm;
-                end
+    try
+        compactSettings = neyer_settings();
+        compactSettings.compact = true;
+        draw_distribution(distributionAxes, result, compactSettings);
+    catch
+        title(distributionAxes, 'Variation chart unavailable');
+    end
+    try
+        curveSettings = neyer_settings();
+        if isfield(result, 'study_plan') && isstruct(result.study_plan)
+            if isfield(result.study_plan, 'minimum_gap_mm')
+                curveSettings.min_level = result.study_plan.minimum_gap_mm;
             end
-            draw_interaction_curve(probabilityAxes, result, curveSettings);
-        catch
-            title(probabilityAxes, 'Probability chart unavailable');
+            if isfield(result.study_plan, 'maximum_gap_mm')
+                curveSettings.max_level = result.study_plan.maximum_gap_mm;
+            end
         end
-    else
-        title(distributionAxes, 'No result yet');
-        title(probabilityAxes, 'No result yet');
+        draw_interaction_curve(probabilityAxes, result, curveSettings);
+    catch
+        title(probabilityAxes, 'Probability chart unavailable');
     end
 
     calculatorPanel = uipanel(layout, 'Title', ...
@@ -141,7 +213,8 @@ function h = show_result(result)
     calculatorLayout.RowSpacing = 8;
     uilabel(calculatorLayout, 'Text', [ ...
         'This does not change the planned operating instruction. Enter a gap ' ...
-        'to see the best estimated chance and its cautious confidence-backed minimum.'], ...
+        'to see the best estimated chance and the ' ...
+        'cautious minimum supported by the data.'], ...
         'FontSize', 12, 'WordWrap', 'on');
 
     controls = uigridlayout(calculatorLayout, [1 7]);
@@ -149,9 +222,8 @@ function h = show_result(result)
     controls.Padding = [0 4 0 4];
     controls.ColumnSpacing = 8;
     uilabel(controls, 'Text', 'Gap:', 'HorizontalAlignment', 'right');
-    defaultGap = 0;
-    if has_estimate, defaultGap = round(result.mu, 2); end
-    gapEdit = uieditfield(controls, 'numeric', 'Value', defaultGap);
+    gapEdit = uieditfield(controls, 'numeric', ...
+        'Value', round(result.mu, 2));
     uilabel(controls, 'Text', unit);
     outcomeDrop = uidropdown(controls, ...
         'Items', {'Interaction', 'No interaction'});
@@ -161,21 +233,12 @@ function h = show_result(result)
     saveButton.Layout.Column = 6;
     outputLabel.Layout.Column = 7;
 
-    if has_estimate
-        calculateButton.ButtonPushedFcn = @(~, ~) calculate_probability( ...
-            result, unit, confidence, gapEdit, outcomeDrop, outputLabel);
-    else
-        calculateButton.Enable = 'off';
-    end
+    calculateButton.ButtonPushedFcn = @(~, ~) calculate_probability( ...
+        result, unit, confidence, gapEdit, outcomeDrop, outputLabel);
     if result_save_available(result)
         saveButton.ButtonPushedFcn = @(~, ~) save_from_window(result, h);
     else
         saveButton.Enable = 'off';
-    end
-    if ~has_estimate && result_save_available(result)
-        outputLabel.Text = 'No fitted answer yet. The completed test data can still be saved.';
-    elseif ~has_estimate
-        outputLabel.Text = 'No completed tests are available to save.';
     end
 end
 
@@ -195,9 +258,10 @@ function calculate_probability(result, unit, confidence, gapEdit, outcomeDrop, o
         end
         cautious = min(answer.bound_percent, answer.percent);
         outputLabel.Text = sprintf([ ...
-            'At %.2f %s: best estimated chance %.4g%%; cautious minimum %.4g%% ' ...
-            'at %.4g%% confidence.'], gap, unit, answer.percent, cautious, ...
-            100 * confidence);
+            'At %.2f %s: best estimated chance %.4g%%; ' ...
+            'cautious minimum supported by the data %.4g%% at %.4g%% confidence.'], ...
+            gap, unit, ...
+            answer.percent, cautious, 100 * confidence);
     catch err
         outputLabel.Text = sprintf('Could not calculate: %s', err.message);
     end
