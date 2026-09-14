@@ -9,7 +9,13 @@ function out = parse_run_inputs(answers)
 %   Returns
 %   struct with .params, .num_parts, .cfg. Validates by reusing check_inputs so
 %   the popup cannot accept anything the engine would reject. Blank min_level =
-%   no floor (-Inf). Throws a named error on any bad field. [addendum POPUP]
+%   no floor (-Inf). A named struct from the direct-test UI is also accepted;
+%   it can describe either a regular usable step or a confirmed measured-gap
+%   list. Throws a named error on any bad field. [addendum POPUP]
+    if isstruct(answers) && isscalar(answers)
+        out = parse_named_answers(answers);
+        return;
+    end
     if ~(iscell(answers) && any(numel(answers) == [7 8 9]))
         error('parse_run_inputs:badShape', ...
               'Expected all physical test settings.');
@@ -92,6 +98,62 @@ function out = parse_run_inputs(answers)
         cfg.reachable_model = reachable_gap_model(regular_setup, ml, max_level);
     end
     out = struct('params', params, 'num_parts', num_parts, 'cfg', cfg);
+end
+
+function out = parse_named_answers(answers)
+% Keep the existing cell parser as the single source of the direct-test
+% number and foil validation rules. The named form only supplies the physical
+% setup choice that the new UI exposes.
+    required_fields = {'low_guess', 'high_guess', 'variation_guess', ...
+        'maximum_tests', 'minimum_gap', 'maximum_gap', 'unit', ...
+        'physical_mode', 'regular_step', 'confirmed_gaps', 'foil_thickness'};
+    if ~all(isfield(answers, required_fields))
+        error('parse_run_inputs:badNamedShape', ...
+            'Complete all direct-test settings before starting the test.');
+    end
+    mode = lower(strtrim(named_text(answers.physical_mode)));
+    shared_answers = {named_text(answers.low_guess), ...
+        named_text(answers.high_guess), named_text(answers.variation_guess), ...
+        named_text(answers.maximum_tests), named_text(answers.minimum_gap), ...
+        named_text(answers.maximum_gap), named_text(answers.unit)};
+
+    if contains(mode, 'confirmed') && contains(mode, 'list')
+        % The legacy parser gives common direct settings their established
+        % validation. 0.01 is a temporary valid regular step and is replaced
+        % below by the floor proved from the validated confirmed list.
+        out = parse_run_inputs([shared_answers, {'0.01', ...
+            named_text(answers.foil_thickness)}]);
+        gaps_mm = parse_confirmed_gap_list(named_text(answers.confirmed_gaps), ...
+            out.cfg.min_level, out.cfg.max_level);
+        out.cfg.reachable_model = reachable_gap_model( ...
+            struct('mode', 'list', 'gaps_mm', gaps_mm), out.cfg.min_level, ...
+            out.cfg.max_level);
+        confirmed_step = min(diff(gaps_mm));
+        out.cfg.usable_resolution = confirmed_step;
+        % The Neyer core reads level_increment for its Stage-2 sigma floor.
+        % In list mode it must equal the smallest confirmed adjacent gap, not
+        % a fictional regular grid step; actual requests still come only from
+        % reachable_model, so no intermediate setting is invented.
+        out.cfg.level_increment = confirmed_step;
+    elseif contains(mode, 'regular')
+        out = parse_run_inputs([shared_answers, {named_text(answers.regular_step), ...
+            named_text(answers.foil_thickness)}]);
+    else
+        error('parse_run_inputs:badPhysicalMode', ...
+            ['Physical setup: choose Regular usable step or Confirmed gap ' ...
+             'list.']);
+    end
+end
+
+function text = named_text(value)
+    if ischar(value)
+        text = value;
+    elseif isstring(value) && isscalar(value)
+        text = char(value);
+    else
+        error('parse_run_inputs:badNamedValue', ...
+            'Enter text for every direct-test setting.');
+    end
 end
 
 function throw_plain_input_error(input_error)

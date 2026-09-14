@@ -35,6 +35,7 @@ $requiredFiles = @(
     'one_sided_profile_threshold.m',
     'operating_gap_coverage.m',
     'parse_physical_response.m',
+    'parse_confirmed_gap_list.m',
     'parse_run_inputs.m',
     'pick_next_level.m',
     'pl_opts.m',
