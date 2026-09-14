@@ -70,12 +70,12 @@ function out = parse_named_answers(answers)
             % fictional regular grid; requests still come only from the list.
             out.cfg.level_increment = confirmed_step;
 
-        case 'regular usable step'
+        case 'regular gap step'
             out = apply_regular_setup(out, named_text(answers.regular_step), true);
 
         otherwise
             error('parse_run_inputs:badPhysicalMode', ...
-                ['Physical setup: choose Regular usable step or Confirmed gap ' ...
+                ['Physical setup: choose Regular gap step or Confirmed gap ' ...
                  'list.']);
     end
     out = apply_foil_thickness(out, named_text(answers.foil_thickness));
@@ -165,9 +165,9 @@ end
 function mode = normalize_physical_mode(value)
     mode = lower(strtrim(value));
     mode = regexprep(mode, '\s+', ' ');
-    if ~ismember(mode, {'confirmed gap list', 'regular usable step'})
+    if ~ismember(mode, {'confirmed gap list', 'regular gap step'})
         error('parse_run_inputs:badPhysicalMode', ...
-            ['Physical setup: choose Regular usable step or Confirmed gap ' ...
+            ['Physical setup: choose Regular gap step or Confirmed gap ' ...
              'list.']);
     end
 end

@@ -114,7 +114,7 @@ classdef TestV2PhysicalInputs < matlab.unittest.TestCase
 
         function namedRegularModeRetainsLegacyStepBehavior(testCase)
             answers = confirmed_list_answers('');
-            answers.physical_mode = 'Regular usable step';
+            answers.physical_mode = 'Regular gap step';
             answers.regular_step = '0.10';
 
             parsed = parse_run_inputs(answers);
