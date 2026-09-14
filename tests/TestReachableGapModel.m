@@ -55,6 +55,20 @@ classdef TestReachableGapModel < matlab.unittest.TestCase
                 '1 0.50 mm spacer');
         end
 
+        function plannerRejectsUnverifiedFoilRecipe(testCase)
+            testCase.verifyError(@()validate_planner_components( ...
+                {'Foil layer','0.50 mm spacer'},[0.015 0.50],[10 2]), ...
+                'validate_planner_components:foilNotReady');
+        end
+
+        function plannerAcceptsMeasuredPrintedSpacerRecipe(testCase)
+            setup = validate_planner_components( ...
+                {'0.50 mm spacer','1 mm spacer'},[0.486 1.118333],[4 2]);
+            testCase.verifyEqual(setup.mode,'combinations');
+            testCase.verifyEqual(setup.component_mm,[0.486 1.118333], ...
+                'AbsTol',1e-12);
+        end
+
         function interactionRoundsDownAndNoInteractionRoundsUp(testCase)
             model = reachable_gap_model(struct('mode', 'regular', ...
                 'increment_mm', 0.10), 0, 10);

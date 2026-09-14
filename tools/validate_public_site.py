@@ -25,12 +25,14 @@ FORBIDDEN_TEXT = (
     "load the saved plan",
     "C:\\Users\\",
     "localhost",
+    "measurement uncertainty",
+    "not assessed",
 )
 REQUIRED_TEXT = (
     "middle gap",
     "overall variation",
     "reliable operating gap",
-    "229",
+    "236",
     "191",
     "63",
     "0.015 mm",
@@ -38,9 +40,9 @@ REQUIRED_TEXT = (
     "does not use the pre-test planner",
     "maximum allowed",
     "one measured gap",
-    "not assessed",
+    "foil recipes are unavailable",
 )
-EXACT_NUMERIC_EVIDENCE = ("229", "191", "63")
+EXACT_NUMERIC_EVIDENCE = ("236", "191", "63")
 FORBIDDEN_PATH_PATTERN = re.compile(r"(?:file:|[a-z]:[\\/]+users[\\/])", re.IGNORECASE)
 
 SCREENSHOT_NAMES = (
@@ -51,8 +53,8 @@ SCREENSHOT_NAMES = (
     "v110-05-requested-gap.png",
     "v110-06-results.png",
     "v110-07-help.png",
-    "v111-05-one-measured-gap.png",
-    "v111-07-help.png",
+    "v112-05-one-measured-gap.png",
+    "v112-07-help.png",
 )
 
 CSS_RESOURCE_PATTERN = re.compile(
@@ -160,8 +162,8 @@ def _local_target(page: Path, site_root: Path, value: str) -> tuple[Path | None,
 def _fingerprint_pairs(site_root: Path, repository_root: Path) -> list[tuple[Path, Path]]:
     pairs = [
         (
-            site_root / "downloads" / "Neyer_Gap_Test_v1_11.mlx",
-            repository_root / "delivery" / "Neyer_Gap_Test_v1_11.mlx",
+            site_root / "downloads" / "Neyer_Gap_Test_v1_12.mlx",
+            repository_root / "delivery" / "Neyer_Gap_Test_v1_12.mlx",
         ),
         (
             site_root / "downloads" / "General_Measurement_Recorder.m",
@@ -174,6 +176,22 @@ def _fingerprint_pairs(site_root: Path, repository_root: Path) -> list[tuple[Pat
             repository_root / "assets" / "screenshots" / name,
         )
         for name in SCREENSHOT_NAMES
+    )
+    evidence_pairs = {
+        "v112-full-suite-results.txt": "audit/v112/full-suite-results.txt",
+        "v112-test-matrix.md": "audit/v112/test-matrix.md",
+        "v112-five-trial-audit.txt": "audit/direct-62-trials/five-trial-audit.txt",
+        "v112-standalone-clean-start.txt": "audit/v112/standalone-clean-start.txt",
+        "v112-general-recorder-clean-start.txt": "audit/v112/general-recorder-clean-start.txt",
+        "v112-spacer-sample-summary.md": "audit/v112/spacer-sample-summary.md",
+        "v112-spacer-sample-readings.csv": "audit/v112/spacer-sample-readings.csv",
+    }
+    pairs.extend(
+        (
+            site_root / "evidence-files" / public_name,
+            repository_root / reviewed_name,
+        )
+        for public_name, reviewed_name in evidence_pairs.items()
     )
     return pairs
 

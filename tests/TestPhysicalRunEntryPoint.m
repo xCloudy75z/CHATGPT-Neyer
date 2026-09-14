@@ -122,7 +122,7 @@ classdef TestPhysicalRunEntryPoint < matlab.unittest.TestCase
             testCase.verifyEqual(result.foil_thickness,0.015,'AbsTol',1e-12);
         end
 
-        function physicalResultMarksMeasurementUncertaintyNotAssessed(testCase)
+        function physicalResultKeepsOneReadingWithoutRedundantUncertaintyField(testCase)
             params=struct('avg_low',0,'avg_high',10,'spread_guess',1);
             cfg=neyer_settings(); cfg.usable_resolution=0.05;
             response=@(gap,~)struct('outcome',true, ...
@@ -131,8 +131,7 @@ classdef TestPhysicalRunEntryPoint < matlab.unittest.TestCase
             [result,~]=run_physical_test(params,3,response,cfg);
 
             testCase.verifyEqual(result.measurement_count,ones(3,1));
-            testCase.verifyEqual(result.measurement_uncertainty, ...
-                repmat({'not assessed'},3,1));
+            testCase.verifyFalse(isfield(result,'measurement_uncertainty'));
         end
     end
 end

@@ -26,8 +26,8 @@ New-Item -ItemType Directory -Path $siteRoot -Force | Out-Null
 
 $copies = @(
     [PSCustomObject]@{
-        Source = "delivery/Neyer_Gap_Test_v1_11.mlx"
-        Destination = "site/downloads/Neyer_Gap_Test_v1_11.mlx"
+        Source = "delivery/Neyer_Gap_Test_v1_12.mlx"
+        Destination = "site/downloads/Neyer_Gap_Test_v1_12.mlx"
     },
     [PSCustomObject]@{
         Source = "delivery/General_Measurement_Recorder.m"
@@ -62,32 +62,40 @@ $copies = @(
         Destination = "site/assets/screens/v110-07-help.png"
     },
     [PSCustomObject]@{
-        Source = "assets/screenshots/v111-05-one-measured-gap.png"
-        Destination = "site/assets/screens/v111-05-one-measured-gap.png"
+        Source = "assets/screenshots/v112-05-one-measured-gap.png"
+        Destination = "site/assets/screens/v112-05-one-measured-gap.png"
     },
     [PSCustomObject]@{
-        Source = "assets/screenshots/v111-07-help.png"
-        Destination = "site/assets/screens/v111-07-help.png"
+        Source = "assets/screenshots/v112-07-help.png"
+        Destination = "site/assets/screens/v112-07-help.png"
     },
     [PSCustomObject]@{
-        Source = "audit/v111/full-suite-results.txt"
-        Destination = "site/evidence-files/v111-full-suite-results.txt"
+        Source = "audit/v112/full-suite-results.txt"
+        Destination = "site/evidence-files/v112-full-suite-results.txt"
     },
     [PSCustomObject]@{
-        Source = "audit/v111/test-matrix.md"
-        Destination = "site/evidence-files/v111-test-matrix.md"
+        Source = "audit/v112/test-matrix.md"
+        Destination = "site/evidence-files/v112-test-matrix.md"
     },
     [PSCustomObject]@{
         Source = "audit/direct-62-trials/five-trial-audit.txt"
-        Destination = "site/evidence-files/v111-five-trial-audit.txt"
+        Destination = "site/evidence-files/v112-five-trial-audit.txt"
     },
     [PSCustomObject]@{
-        Source = "audit/v111/standalone-clean-start.txt"
-        Destination = "site/evidence-files/v111-standalone-clean-start.txt"
+        Source = "audit/v112/standalone-clean-start.txt"
+        Destination = "site/evidence-files/v112-standalone-clean-start.txt"
     },
     [PSCustomObject]@{
-        Source = "audit/v111/general-recorder-clean-start.txt"
-        Destination = "site/evidence-files/v111-general-recorder-clean-start.txt"
+        Source = "audit/v112/general-recorder-clean-start.txt"
+        Destination = "site/evidence-files/v112-general-recorder-clean-start.txt"
+    },
+    [PSCustomObject]@{
+        Source = "audit/v112/spacer-sample-summary.md"
+        Destination = "site/evidence-files/v112-spacer-sample-summary.md"
+    },
+    [PSCustomObject]@{
+        Source = "audit/v112/spacer-sample-readings.csv"
+        Destination = "site/evidence-files/v112-spacer-sample-readings.csv"
     }
 )
 
@@ -109,4 +117,4 @@ foreach ($copy in $copies) {
     Copy-Item -LiteralPath $source.FullName -Destination $destinationPath -Force
 }
 
-Write-Output "Prepared 16 verified public release files."
+Write-Output "Prepared 18 verified public release files."

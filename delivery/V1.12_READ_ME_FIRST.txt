@@ -1,0 +1,30 @@
+NEYER GAP TEST V1.12 — START HERE
+
+Main tool
+---------
+Open Neyer_Gap_Test_v1_12.mlx in MATLAB R2022b and press Run once.
+The Live Script contains the complete tool. It does not need outside functions.
+
+Physical test rule
+------------------
+1. Prepare a new setup at the two-decimal gap requested by the app.
+2. Measure that completed setup once.
+3. Enter the one actual measured gap.
+4. Perform the test and choose Interaction or No interaction.
+5. Do not reuse that setup for another destructive test.
+
+The requested gap and actual measured gap are stored separately. The actual
+measured gap is used in the calculation.
+
+Spacer sample now recorded
+--------------------------
+Ten spacers from each labelled size were measured three times. The sample
+averages are 0.486 mm, 1.1183 mm, and 2.0703 mm for the 0.5, 1, and 2 mm
+groups. These values describe the larger batches; individual spacer IDs are
+not required. Measure the complete setup once before each actual test.
+
+Foil limitation
+---------------
+The foil is approximately 0.015 mm per layer, but measured foil-stack values
+and the practical maximum layer count are not available yet. Foil-based build
+recipes therefore remain disabled rather than being guessed.

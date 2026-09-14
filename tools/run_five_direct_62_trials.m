@@ -19,6 +19,15 @@ true_overall_variation = 0.50;
 build_standard_deviation = 0.02;
 reading_standard_deviation = 0.01;
 readings_per_build = 1;
+release_name = 'V1.12';
+release_path = fullfile(project_root,'delivery','Neyer_Gap_Test_v1_12.mlx');
+if ~isfile(release_path)
+    error('run_five_direct_62_trials:missingRelease', ...
+        'Build the V1.12 Live Script before running the five release trials.');
+end
+release_sha256 = sha256_file(release_path);
+executed_at = char(datetime('now','TimeZone','Asia/Dubai', ...
+    'Format','yyyy-MM-dd HH:mm:ss Z'));
 
 summary_rows = repmat(empty_summary_row(), numel(usable_steps), 1);
 trajectory_rows = repmat(empty_trajectory_row(), ...
@@ -136,7 +145,8 @@ writetable(summary_table, summary_path);
 writetable(trajectory_table, trajectory_path);
 write_plain_audit(audit_path, summary_table, true_middle, ...
     true_overall_variation, build_standard_deviation, ...
-    reading_standard_deviation, readings_per_build);
+    reading_standard_deviation, readings_per_build,release_name, ...
+    executed_at,release_sha256,trial_seeds);
 write_comparison_plot(plot_path, summary_table, true_middle, ...
     true_overall_variation);
 
@@ -348,11 +358,16 @@ audit = struct('all_hard_checks_passed', all_hard_checks_passed, ...
 end
 
 function write_plain_audit(path, summary, true_middle, true_variation, ...
-        build_standard_deviation, reading_standard_deviation, readings_per_build)
+        build_standard_deviation, reading_standard_deviation, readings_per_build, ...
+        release_name,executed_at,release_sha256,trial_seeds)
 file_id = fopen(path, 'w');
 assert(file_id >= 0, 'Could not create the five-trial audit file.');
 cleanup = onCleanup(@() fclose(file_id)); %#ok<NASGU>
 fprintf(file_id, 'Five direct Run-a-Test trials: logic and mathematics audit\n');
+fprintf(file_id, 'Release: %s\n',release_name);
+fprintf(file_id, 'Executed: %s\n',executed_at);
+fprintf(file_id, 'V1.12 Live Script SHA-256: %s\n',release_sha256);
+fprintf(file_id, 'Seeds: %d through %d\n',trial_seeds(1),trial_seeds(end));
 fprintf(file_id, 'MATLAB release: %s\n', version('-release'));
 fprintf(file_id, 'Pre-Test Planner used: NO\n');
 fprintf(file_id, 'Tests requested per trial: 62\n');
@@ -391,6 +406,16 @@ fprintf(file_id, ['\nConfidence coverage is reported, not used as a hard pass ru
     'A correct 95%% method can miss the true value in an occasional single run.\n']);
 fprintf(file_id, ['Five runs audit the recorded logic and calculations; they do not ' ...
     'by themselves prove long-run performance for every material or spacer system.\n']);
+end
+
+function hash_text = sha256_file(path)
+file_id = fopen(path,'r');
+assert(file_id >= 0,'Could not read the V1.12 Live Script for fingerprinting.');
+cleanup = onCleanup(@()fclose(file_id)); %#ok<NASGU>
+bytes = fread(file_id,Inf,'*uint8');
+digest = java.security.MessageDigest.getInstance('SHA-256');
+digest.update(bytes);
+hash_text = upper(reshape(dec2hex(typecast(digest.digest(),'uint8'),2).',1,[]));
 end
 
 function write_comparison_plot(path, summary, true_middle, true_variation)

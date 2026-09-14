@@ -1,8 +1,7 @@
 function output = General_Measurement_Recorder(action, varargin)
 %GENERAL_MEASUREMENT_RECORDER Record one measurement for each general item.
 %   Run GENERAL_MEASUREMENT_RECORDER with no inputs for the guided recorder.
-%   Each saved row contains one measurement. Because repeatability is not
-%   evaluated, measurement uncertainty is reported as "not assessed".
+%   Each saved row contains the one measurement entered for that item.
 
     if nargin == 0
         output = run_recorder_ui();
@@ -62,8 +61,7 @@ function record = make_record(sample_id, nominal_size, measured_size, unit, note
         'unit',strtrim(char(unit)), ...
         'recorded_at',recorded_at, ...
         'note',char(note), ...
-        'measurement_count',1, ...
-        'measurement_uncertainty','not assessed');
+        'measurement_count',1);
 end
 
 function csv_text = records_to_csv(records)
@@ -72,7 +70,7 @@ function csv_text = records_to_csv(records)
             'Add at least one measurement before saving.');
     end
     header = ['sample ID,nominal size,measured size,unit,date and time,note,' ...
-        'measurement count,measurement uncertainty'];
+        'measurement count'];
     rows = cell(numel(records),1);
     for record_index = 1:numel(records)
         record = records(record_index);
@@ -85,8 +83,7 @@ function csv_text = records_to_csv(records)
             csv_text_field(record.unit), ...
             csv_text_field(char(shown_time)), ...
             csv_text_field(record.note), ...
-            '1', ...
-            'not assessed'}, ',');
+            '1'}, ',');
     end
     csv_text = strjoin([{header};rows], sprintf('\n'));
 end

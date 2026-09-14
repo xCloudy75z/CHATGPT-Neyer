@@ -1,6 +1,6 @@
 param(
     [string]$ProjectRoot = (Split-Path -Parent $PSScriptRoot),
-    [ValidateSet('1_10','1_11')]
+    [ValidateSet('1_10','1_11','1_12')]
     [string]$Version = '1_10'
 )
 
@@ -70,6 +70,7 @@ $requiredFiles = @(
     'show_manual.m',
     'show_result.m',
     'usable_resolution_for_plan.m',
+    'validate_planner_components.m',
     'validate_study_plan_safety.m',
     'validate_plan_inputs.m'
 )
@@ -130,8 +131,14 @@ $header = @"
 
 %% Physical gap settings
 % Define settings from measured physical capability, not from the foil label.
-% The current aluminium foil value of about 0.015 mm and the printed-spacer
-% observations are unconfirmed starting information. The planner can use a
+% The current aluminium foil value of about 0.015 mm is unconfirmed starting
+% information. Ten spacers from each printed size were sampled with three
+% readings per spacer. Their batch-average thicknesses were 0.486, 1.1183,
+% and 2.0703 mm for the 0.5, 1, and 2 mm labels. These sample averages describe
+% the batches; the application does not require individual spacer IDs.
+% Foil recipes are unavailable until measured foil stacks and a practical
+% maximum layer count are confirmed. Do not use 0.015 mm as a recipe step.
+% The planner can use a
 % regular step such as 0.05, 0.10, 0.15, or 0.50 mm, a list of measured gaps,
 % or combinations of measured spacer components and maximum counts.
 %
@@ -149,9 +156,8 @@ $header = @"
 % 4. Perform one test and record Interaction or No interaction.
 % 5. Do not reuse the setup after the destructive test.
 %
-% One reading does not measure uncertainty, so the result record says that
-% measurement uncertainty was not assessed. Differences between separately
-% built articles remain part of the overall tested process.
+% Differences between separately built articles remain part of the overall
+% tested process.
 
 %% How the next gap is chosen
 % The early tests establish both outcomes. The narrowing stage multiplies its

@@ -209,7 +209,7 @@ def evidence_page_problems(repository_root, markup):
     text = visible_text(markup)
     result_list_count, result_items = evidence_result_structure(markup)
     records = (
-        ("audit/v111/full-suite-results.txt", "complete MATLAB checks", ""),
+        ("audit/v112/full-suite-results.txt", "complete MATLAB checks", ""),
         ("audit/overnight/full-test-summary.txt", "mock-laboratory checks", " across {} routes"),
         ("audit/overnight/final-review-regressions.txt", "focused final-review safety regressions", ""),
     )
@@ -317,10 +317,10 @@ class PublicSiteValidatorTests(unittest.TestCase):
             root = Path(directory)
             audit = root / "audit" / "overnight"
             audit.mkdir(parents=True)
-            current_audit = root / "audit" / "v111"
+            current_audit = root / "audit" / "v112"
             current_audit.mkdir(parents=True)
             (current_audit / "full-suite-results.txt").write_text(
-                (REPOSITORY_ROOT / "audit" / "v111" / "full-suite-results.txt").read_text(
+                (REPOSITORY_ROOT / "audit" / "v112" / "full-suite-results.txt").read_text(
                     encoding="utf-8"
                 ),
                 encoding="utf-8",
@@ -441,9 +441,9 @@ class PublicSiteValidatorTests(unittest.TestCase):
         expected_screens = (
             ("v110-01-main-menu.png", "1. Main menu.", "main menu"),
             ("v110-04-test-inputs.png", "2. Test inputs.", "test-settings"),
-            ("v111-05-one-measured-gap.png", "3. Requested gap and outcome.", "one measured-gap field"),
+            ("v112-05-one-measured-gap.png", "3. Requested gap and outcome.", "one measured-gap field"),
             ("v110-06-results.png", "4. Results.", "results screen"),
-            ("v111-07-help.png", "5. Help and boundary protection.", "operator guide"),
+            ("v112-07-help.png", "5. Help and boundary protection.", "operator guide"),
         )
         self.assertEqual(5, len(parser.figures))
         for figure, (name, caption, alt_marker) in zip(parser.figures, expected_screens):
@@ -459,7 +459,6 @@ class PublicSiteValidatorTests(unittest.TestCase):
             "newly built setup",
             "Measure that setup once",
             "actual measured gap",
-            "not assessed",
             "two decimal places",
             "Interaction",
             "No interaction",
@@ -477,7 +476,7 @@ class PublicSiteValidatorTests(unittest.TestCase):
             encoding="utf-8"
         )
         self.assertIn("MATLAB R2022b", home_page)
-        self.assertIn('href="downloads/Neyer_Gap_Test_v1_11.mlx"', home_page)
+        self.assertIn('href="downloads/Neyer_Gap_Test_v1_12.mlx"', home_page)
         self.assertIn('href="downloads/General_Measurement_Recorder.m"', home_page)
 
     def test_fingerprint_mismatch_names_both_relative_release_paths(self):
@@ -485,8 +484,8 @@ class PublicSiteValidatorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             site = root / "site"
-            public_copy = site / "downloads" / "Neyer_Gap_Test_v1_11.mlx"
-            reviewed_copy = root / "delivery" / "Neyer_Gap_Test_v1_11.mlx"
+            public_copy = site / "downloads" / "Neyer_Gap_Test_v1_12.mlx"
+            reviewed_copy = root / "delivery" / "Neyer_Gap_Test_v1_12.mlx"
             public_copy.parent.mkdir(parents=True)
             reviewed_copy.parent.mkdir(parents=True)
             public_copy.write_bytes(b"changed public release")
@@ -495,8 +494,27 @@ class PublicSiteValidatorTests(unittest.TestCase):
             problems = validate_site(site, root)
 
         self.assertIn(
-            "fingerprint mismatch: downloads/Neyer_Gap_Test_v1_11.mlx "
-            "!= delivery/Neyer_Gap_Test_v1_11.mlx",
+            "fingerprint mismatch: downloads/Neyer_Gap_Test_v1_12.mlx "
+            "!= delivery/Neyer_Gap_Test_v1_12.mlx",
+            problems,
+        )
+
+    def test_fingerprint_mismatch_covers_published_evidence(self):
+        """Catches evidence pages that publish files different from the audited files."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            public_copy = root / "site" / "evidence-files" / "v112-spacer-sample-readings.csv"
+            reviewed_copy = root / "audit" / "v112" / "spacer-sample-readings.csv"
+            public_copy.parent.mkdir(parents=True)
+            reviewed_copy.parent.mkdir(parents=True)
+            public_copy.write_bytes(b"changed public evidence")
+            reviewed_copy.write_bytes(b"reviewed evidence")
+
+            problems = validate_site(root / "site", root)
+
+        self.assertIn(
+            "fingerprint mismatch: evidence-files/v112-spacer-sample-readings.csv "
+            "!= audit/v112/spacer-sample-readings.csv",
             problems,
         )
 
@@ -507,7 +525,7 @@ class PublicSiteValidatorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             expected = {
-                "delivery/Neyer_Gap_Test_v1_11.mlx": b"standalone release",
+                "delivery/Neyer_Gap_Test_v1_12.mlx": b"standalone release",
                 "delivery/General_Measurement_Recorder.m": b"measurement recorder",
             }
             expected.update(
@@ -521,17 +539,19 @@ class PublicSiteValidatorTests(unittest.TestCase):
                         "v110-05-requested-gap.png",
                         "v110-06-results.png",
                         "v110-07-help.png",
-                        "v111-05-one-measured-gap.png",
-                        "v111-07-help.png",
+                        "v112-05-one-measured-gap.png",
+                        "v112-07-help.png",
                     )
                 }
             )
             evidence_paths = {
-                "audit/v111/full-suite-results.txt": "site/evidence-files/v111-full-suite-results.txt",
-                "audit/v111/test-matrix.md": "site/evidence-files/v111-test-matrix.md",
-                "audit/direct-62-trials/five-trial-audit.txt": "site/evidence-files/v111-five-trial-audit.txt",
-                "audit/v111/standalone-clean-start.txt": "site/evidence-files/v111-standalone-clean-start.txt",
-                "audit/v111/general-recorder-clean-start.txt": "site/evidence-files/v111-general-recorder-clean-start.txt",
+                "audit/v112/full-suite-results.txt": "site/evidence-files/v112-full-suite-results.txt",
+                "audit/v112/test-matrix.md": "site/evidence-files/v112-test-matrix.md",
+                "audit/direct-62-trials/five-trial-audit.txt": "site/evidence-files/v112-five-trial-audit.txt",
+                "audit/v112/standalone-clean-start.txt": "site/evidence-files/v112-standalone-clean-start.txt",
+                "audit/v112/general-recorder-clean-start.txt": "site/evidence-files/v112-general-recorder-clean-start.txt",
+                "audit/v112/spacer-sample-summary.md": "site/evidence-files/v112-spacer-sample-summary.md",
+                "audit/v112/spacer-sample-readings.csv": "site/evidence-files/v112-spacer-sample-readings.csv",
             }
             for source_path in evidence_paths:
                 expected[source_path] = source_path.encode("ascii")
@@ -562,7 +582,7 @@ class PublicSiteValidatorTests(unittest.TestCase):
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertEqual(b"keep", preserved.read_bytes())
             public_paths = {
-                "delivery/Neyer_Gap_Test_v1_11.mlx": "site/downloads/Neyer_Gap_Test_v1_11.mlx",
+                "delivery/Neyer_Gap_Test_v1_12.mlx": "site/downloads/Neyer_Gap_Test_v1_12.mlx",
                 "delivery/General_Measurement_Recorder.m": "site/downloads/General_Measurement_Recorder.m",
             }
             public_paths.update(
@@ -576,8 +596,8 @@ class PublicSiteValidatorTests(unittest.TestCase):
                         "v110-05-requested-gap.png",
                         "v110-06-results.png",
                         "v110-07-help.png",
-                        "v111-05-one-measured-gap.png",
-                        "v111-07-help.png",
+                        "v112-05-one-measured-gap.png",
+                        "v112-07-help.png",
                     )
                 }
             )
@@ -616,7 +636,7 @@ class PublicSiteValidatorTests(unittest.TestCase):
 
             self.assertNotEqual(0, result.returncode)
             self.assertIn(
-                "Required reviewed source is missing: delivery/Neyer_Gap_Test_v1_11.mlx",
+                "Required reviewed source is missing: delivery/Neyer_Gap_Test_v1_12.mlx",
                 result.stderr,
             )
             self.assertEqual(b"keep", preserved.read_bytes())
@@ -627,7 +647,7 @@ class PublicSiteValidatorTests(unittest.TestCase):
         script = REPOSITORY_ROOT / "tools" / "prepare_public_site.ps1"
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / "delivery" / "Neyer_Gap_Test_v1_11.mlx").mkdir(parents=True)
+            (root / "delivery" / "Neyer_Gap_Test_v1_12.mlx").mkdir(parents=True)
             preserved = root / "site" / "keep-this-public-file.txt"
             preserved.parent.mkdir(parents=True)
             preserved.write_bytes(b"keep")
@@ -650,7 +670,7 @@ class PublicSiteValidatorTests(unittest.TestCase):
 
             self.assertNotEqual(0, result.returncode)
             self.assertIn(
-                "Required reviewed source is not a file: delivery/Neyer_Gap_Test_v1_11.mlx",
+                "Required reviewed source is not a file: delivery/Neyer_Gap_Test_v1_12.mlx",
                 result.stderr,
             )
             self.assertEqual(b"keep", preserved.read_bytes())
@@ -715,10 +735,10 @@ class PublicSiteValidatorTests(unittest.TestCase):
     def test_requires_exact_numeric_evidence_totals(self):
         root = self.make_site(
             "middle gap overall variation reliable operating gap "
-            "2290 1910 630 0.015 mm two decimal places"
+            "2360 1910 630 0.015 mm two decimal places"
         )
         problems = "\n".join(validate_site(root, root))
-        self.assertIn("missing required wording: 229", problems)
+        self.assertIn("missing required wording: 236", problems)
         self.assertIn("missing required wording: 191", problems)
         self.assertIn("missing required wording: 63", problems)
 

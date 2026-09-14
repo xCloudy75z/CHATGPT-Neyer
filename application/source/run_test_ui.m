@@ -213,7 +213,7 @@ function response = gap_popup(level, k, N, reachable_model)
         'Placeholder','Example: 2.507');
     reading_edit.Layout.Row=3; reading_edit.Layout.Column=2;
     note_text=['Measure this new setup once. That measured gap will be used ' ...
-        'in the calculation. Measurement uncertainty is not assessed here.'];
+        'in the calculation.'];
     note=uilabel(gl,'Text',note_text,'FontSize',14,'WordWrap','on', ...
         'HorizontalAlignment','center');
     note.Layout.Row=4; note.Layout.Column=[1 2];

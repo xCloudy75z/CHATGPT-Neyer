@@ -1,0 +1,4 @@
+MATLAB 2022b one-reading direct UI check passed.
+The physical screen requested one measured gap.
+The example contained one value: 2.507.
+A measured gap of 5.007 was accepted once per setup in the smallest valid three-article run, and the result screen opened.

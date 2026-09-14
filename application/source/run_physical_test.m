@@ -57,8 +57,6 @@ function [result, record] = run_physical_test(params, num_parts, outcome_fn, cfg
     record.resolution_sigma_floor = usable_resolution * ...
         cfg.resolution_sigma_floor_factor;
     record.measurement_count=ones(numel(record.measurements),1);
-    record.measurement_uncertainty=repmat({'not assessed'}, ...
-        numel(record.measurements),1);
     result.raw_requested_levels=record.raw_requested_levels;
     result.requested_levels=record.requested_levels;
     result.requested_instructions=record.requested_instructions;
@@ -68,7 +66,6 @@ function [result, record] = run_physical_test(params, num_parts, outcome_fn, cfg
     result.resolution_sigma_floor_factor=record.resolution_sigma_floor_factor;
     result.resolution_sigma_floor=record.resolution_sigma_floor;
     result.measurement_count=record.measurement_count;
-    result.measurement_uncertainty=record.measurement_uncertainty;
     result.checkpoint_decisions=record.checkpoint_decisions;
 
     function response = physical_response(gap, k)

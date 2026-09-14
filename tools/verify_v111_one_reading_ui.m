@@ -5,7 +5,7 @@ setappdata(groot,'v111_one_reading_ui_checked',false);
 setappdata(groot,'v111_one_reading_ui_error', ...
     'The one-reading workflow did not finish.');
 setappdata(groot,'v111_ui_screen_path',fullfile(project_root,'assets', ...
-    'screenshots','v111-05-one-measured-gap.png'));
+    'screenshots','v112-05-one-measured-gap.png'));
 
 ui_timer = timer('StartDelay',0.25,'ExecutionMode','fixedSpacing', ...
     'Period',0.25,'TasksToExecute',80, ...
@@ -24,8 +24,12 @@ if ~getappdata(groot,'v111_one_reading_ui_checked')
     error('verify_v111_one_reading_ui:notCompleted','%s', ...
         getappdata(groot,'v111_one_reading_ui_error'));
 end
+result_figure = findall(groot,'Type','figure', ...
+    'Name','Neyer gap-study results');
+assert(numel(result_figure) == 1, ...
+    'The completed three-article workflow did not leave one result screen open.');
 
-evidence_path = fullfile(project_root,'audit','v111','one-reading-ui.txt');
+evidence_path = fullfile(project_root,'audit','v112','one-reading-ui.txt');
 file_id = fopen(evidence_path,'w');
 assert(file_id >= 0,'Could not record the one-reading UI evidence.');
 fprintf(file_id,'MATLAB %s one-reading direct UI check passed.\n', ...
@@ -35,6 +39,7 @@ fprintf(file_id,'The example contained one value: 2.507.\n');
 fprintf(file_id,['A measured gap of 5.007 was accepted once per setup ' ...
     'in the smallest valid three-article run, and the result screen opened.\n']);
 fclose(file_id);
+delete(result_figure);
 exit(0);
 
 function stop_and_delete_timer(timer_object)

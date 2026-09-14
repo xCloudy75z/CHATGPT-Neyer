@@ -17,7 +17,7 @@ classdef TestMeasurementRecord < matlab.unittest.TestCase
             testCase.verifyEqual(record.nominal_size, 2.00, 'AbsTol', 1e-12);
             testCase.verifyEqual(record.measured_size, 2.07, 'AbsTol', 1e-12);
             testCase.verifyEqual(record.measurement_count, 1);
-            testCase.verifyEqual(record.measurement_uncertainty, 'not assessed');
+            testCase.verifyFalse(isfield(record, 'measurement_uncertainty'));
         end
 
         function rejectsMoreThanOneMeasurement(testCase)
@@ -36,7 +36,7 @@ classdef TestMeasurementRecord < matlab.unittest.TestCase
             end
         end
 
-        function csvContainsOneReadingAndClearUncertainty(testCase)
+        function csvContainsOneReadingWithoutRedundantUncertaintyColumn(testCase)
             record = General_Measurement_Recorder('newrecord', ...
                 'part-01', 2.00, 2.07, 'mm', 'first check', ...
                 datetime(2026, 9, 13, 8, 30, 0));
@@ -45,9 +45,10 @@ classdef TestMeasurementRecord < matlab.unittest.TestCase
 
             expected = sprintf([ ...
                 'sample ID,nominal size,measured size,unit,date and time,note,' ...
-                'measurement count,measurement uncertainty\n' ...
-                'part-01,2,2.07,mm,2026-09-13 08:30:00,first check,1,not assessed']);
+                'measurement count\n' ...
+                'part-01,2,2.07,mm,2026-09-13 08:30:00,first check,1']);
             testCase.verifyEqual(csvText, expected);
+            testCase.verifyFalse(contains(lower(csvText), 'not assessed'));
         end
 
         function saveRefusesToReplaceExistingFile(testCase)

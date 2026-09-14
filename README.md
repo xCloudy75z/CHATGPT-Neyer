@@ -19,7 +19,7 @@ It includes plain-language guides to the [method](https://xcloudy75z.github.io/C
 
 ## Start here
 
-1. Download [Neyer_Gap_Test_v1_11.mlx](delivery/Neyer_Gap_Test_v1_11.mlx).
+1. Download [Neyer_Gap_Test_v1_12.mlx](delivery/Neyer_Gap_Test_v1_12.mlx).
 2. Open it in MATLAB R2022b.
 3. Press **Run** once.
 4. Select **Run the published example**. The expected display is a middle gap of 5.39 mm and an overall variation of 1.04 mm.
@@ -37,8 +37,14 @@ For every destructive test, prepare a new setup at the reachable gap shown by th
 
 The physical build instruction always uses two decimal places. The one physical
 measurement retains the precision entered and is used in the calculation.
-Because one reading cannot show measurement repeatability, the saved record
-says that measurement uncertainty was not assessed.
+
+Ten spacers from each labelled size were sampled with three readings per
+spacer. Their typical batch thicknesses were 0.486 mm, 1.118 mm, and 2.070 mm
+for the 0.5, 1, and 2 mm groups. These are batch planning values; the remaining
+200–300 spacers per size do not need individual IDs. One typical spacer from
+each group gives an unrounded sum of 3.674667 mm, displayed directly as
+3.67 mm and matching the earlier 3.67 mm complete-build
+measurement when shown to two decimal places.
 
 The current aluminium foil is approximately 0.015 mm thick. This is stored as
 construction information and does not control test-gap rounding or the Stage-2
@@ -74,9 +80,9 @@ The operator chooses the output folder and base name. The app shows the complete
 
 ## Verification record
 
-- 229 MATLAB checks passed; 0 failed and 0 remained incomplete.
+- 236 MATLAB checks passed; 0 failed and 0 remained incomplete.
 - Five fresh 62-article trials covered usable steps of 0.05, 0.10, 0.15, 0.25, and 0.50 mm; every hard logic and mathematics check passed.
-- The real V1.11 MATLAB screen asked for one measured gap and completed the minimum valid three-article route.
+- The real V1.12 MATLAB screen asked for one measured gap and completed the minimum valid three-article route.
 - Seven complete mock-laboratory routes ran 191 tests; 191 passed.
 - The final 12-scenario planner simulation recorded 8 supported scenarios accepted, 0 rejected, and 4 deliberately withheld outside the supported confidence range.
 - The final `.mlx` ran alone in a newly created empty folder.
@@ -88,13 +94,13 @@ The operator chooses the output folder and base name. The app shows the complete
 Run the complete MATLAB test suite with:
 
 ```matlab
-run('tools/run_v111_full_suite.m')
+run('tools/run_v112_full_suite.m')
 ```
 
 ## Important limits
 
 - The provisional 0.05 mm usable resolution still needs repeated physical confirmation.
-- One reading does not estimate measuring uncertainty; the saved record therefore says “not assessed.”
+- Foil-based build recipes remain disabled until foil-stack measurements and the practical maximum layer count are supplied.
 - Extremely separated artificial data deserve a deeper numerical study before using this tool for safety-critical qualification.
 - The supplied V1.8 `.mlx` remains preserved locally and is identified by its recorded SHA-256 fingerprint, but it is not redistributed in this public repository.
 

@@ -70,7 +70,6 @@ try
     if ~isempty(result_figure)
         setappdata(groot,'v111_one_reading_ui_checked',true);
         setappdata(groot,'v111_one_reading_ui_error','');
-        delete(result_figure);
         return;
     end
     figure_names = strings(0,1);
