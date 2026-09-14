@@ -6,6 +6,7 @@ $ErrorActionPreference = 'Stop'
 $sourceRoot = Join-Path $ProjectRoot 'application\source'
 $deliveryRoot = Join-Path $ProjectRoot 'delivery'
 $destination = Join-Path $deliveryRoot 'Neyer_Gap_Test_v2.m'
+$utf8Strict = [System.Text.UTF8Encoding]::new($false, $true)
 
 # This is the verified V1.13 application-source inventory. Keep it explicit so
 # a source-file addition or removal cannot silently change the V2 delivery.
@@ -87,9 +88,24 @@ if ($missing.Count -gt 0 -or $unexpected.Count -gt 0) {
     throw "Standalone list mismatch. Missing: $($missing -join ', '). Unexpected: $($unexpected -join ', ')."
 }
 
+$sourceTexts = @{}
+foreach ($fileName in $requiredFiles) {
+    $sourcePath = Join-Path $sourceRoot $fileName
+    $fileText = [System.IO.File]::ReadAllText($sourcePath, $utf8Strict)
+    # Separate source files may safely own same-named local helpers. A single
+    # MATLAB script cannot, so namespace only the confirmed-list bounds helper
+    # while assembling; its implementation and every call remain unchanged.
+    if ($fileName -eq 'parse_confirmed_gap_list.m') {
+        $fileText = [regex]::Replace($fileText,
+            '(?<![A-Za-z0-9_])validate_bounds(?![A-Za-z0-9_])',
+            'validate_confirmed_gap_bounds')
+    }
+    $sourceTexts[$fileName] = $fileText
+}
+
 $functionPattern = '(?m)^\s*function\s+(?:(?:\[[^\]]+\]|[A-Za-z]\w*)\s*=\s*)?([A-Za-z]\w*)'
 $declarations = foreach ($fileName in $requiredFiles) {
-    $fileText = Get-Content -Raw -LiteralPath (Join-Path $sourceRoot $fileName)
+    $fileText = $sourceTexts[$fileName]
     foreach ($match in [regex]::Matches($fileText, $functionPattern)) {
         [pscustomobject]@{ Name = $match.Groups[1].Value; File = $fileName }
     }
@@ -191,7 +207,11 @@ neyer_app;
 $parts = [System.Collections.Generic.List[string]]::new()
 $parts.Add($header.TrimEnd())
 foreach ($fileName in $requiredFiles) {
-    $parts.Add((Get-Content -Raw -LiteralPath (Join-Path $sourceRoot $fileName)).Trim())
+    $parts.Add((@(
+        "% === BEGIN EMBEDDED SOURCE: $fileName ==="
+        $sourceTexts[$fileName].Trim()
+        "% === END EMBEDDED SOURCE: $fileName ==="
+    ) -join "`r`n"))
 }
 $output = ($parts -join "`r`n`r`n") + "`r`n"
 [System.IO.File]::WriteAllText($destination, $output,

@@ -84,6 +84,7 @@
 %% Start the application
 neyer_app;
 
+% === BEGIN EMBEDDED SOURCE: apply_run_configuration_overrides.m ===
 function updated = apply_run_configuration_overrides(current, overrides)
 %APPLY_RUN_CONFIGURATION_OVERRIDES Apply advanced settings without a stale gap list.
 % Direct UI callers normally pass no overrides. Programmatic callers may do
@@ -123,9 +124,11 @@ function updated = apply_run_configuration_overrides(current, overrides)
             updated.min_level, updated.max_level);
     end
 end
+% === END EMBEDDED SOURCE: apply_run_configuration_overrides.m ===
 
+% === BEGIN EMBEDDED SOURCE: best_fit.m ===
 function [mu, sigma, ll] = best_fit(levels, successes, mu0, sigma0)
-%BEST_FIT  Worker #2 â€” maximum-likelihood fit of the bell-curve (mu, sigma).
+%BEST_FIT  Worker #2 — maximum-likelihood fit of the bell-curve (mu, sigma).
 %
 %   [mu, sigma] = BEST_FIT(levels, successes, mu0, sigma0) returns the average
 %   and spread that best explain the results so far, by maximising the
@@ -149,17 +152,17 @@ function [mu, sigma, ll] = best_fit(levels, successes, mu0, sigma0)
 %     ll         the maximised log-likelihood (handy for diagnostics).
 %
 %   Notes tied to the brief:
-%     * The bell curve is NOT recomputed here â€” every probability comes from
+%     * The bell curve is NOT recomputed here — every probability comes from
 %       worker #1 (shape_model), so the shape stays in one file. [sec.4]
 %     * The optimiser searches over (mu, log sigma) so the spread can never go
-%       to zero or negative â€” sigma = exp(theta) is positive by construction.
+%       to zero or negative — sigma = exp(theta) is positive by construction.
 %       This is the "keep spread positive / reparameterise" guard. [sec.8 #4]
 %     * A finite, meaningful optimum exists only once successes and failures
 %       overlap (the Silvapulle condition). Detecting that and deciding when
 %       to call best_fit is worker #4 / worker #6; clipping wild early fits is
 %       worker #5. best_fit itself just maximises the likelihood it is given.
 %       [sec.8 #2, #3]
-%     * Uses base fminsearch (Nelder-Mead) â€” no toolbox dependency.
+%     * Uses base fminsearch (Nelder-Mead) — no toolbox dependency.
 
     levels    = levels(:);
     successes = logical(successes(:));
@@ -191,9 +194,11 @@ function nll = neg_loglik(theta, levels, successes)
     sigma = exp(theta(2));           % positive by construction
     nll   = -loglik(levels, successes, mu, sigma);
 end
+% === END EMBEDDED SOURCE: best_fit.m ===
 
+% === BEGIN EMBEDDED SOURCE: check_inputs.m ===
 function check_inputs(params, num_parts)
-%CHECK_INPUTS  Worker #7 â€” refuse bad starting guesses up front.
+%CHECK_INPUTS  Worker #7 — refuse bad starting guesses up front.
 %
 %   CHECK_INPUTS(params, num_parts) validates the run configuration and throws a
 %   clear error if anything is wrong, so the method never starts from a
@@ -254,7 +259,9 @@ function check_scalar(v, name)
               '%s must be a finite real scalar.', name);
     end
 end
+% === END EMBEDDED SOURCE: check_inputs.m ===
 
+% === BEGIN EMBEDDED SOURCE: check_study_checkpoint.m ===
 function decision = check_study_checkpoint(result, plan, checkpoint_name)
 %CHECK_STUDY_CHECKPOINT Decide whether the declared study checkpoint is enough.
 % An incomplete statistical study is not called a failed physical test.
@@ -429,9 +436,11 @@ function [name, available] = following_checkpoint(plan, checkpoint_name)
         available = false;
     end
 end
+% === END EMBEDDED SOURCE: check_study_checkpoint.m ===
 
+% === BEGIN EMBEDDED SOURCE: choose_stage.m ===
 function [x_next, est] = choose_stage(levels, successes, params, cfg, reachable_levels)
-%CHOOSE_STAGE  Worker #6 â€” the method's brain (the three-stage traffic cop).
+%CHOOSE_STAGE  Worker #6 — the method's brain (the three-stage traffic cop).
 %
 %   [x_next, est] = CHOOSE_STAGE(levels, successes, params, cfg) decides which
 %   stage the test is in and returns the next level to test, plus the estimate
@@ -596,7 +605,9 @@ function [mu0, sigma0] = start_guess(levels, sl, fl, sg)
     mu0    = (max(fl) + min(sl)) / 2;          % centre of the overlap region
     sigma0 = max(sg, (max(levels) - min(levels)) / 4);
 end
+% === END EMBEDDED SOURCE: choose_stage.m ===
 
+% === BEGIN EMBEDDED SOURCE: draw_distribution.m ===
 function draw_distribution(ax, result, cfg)
 %DRAW_DISTRIBUTION  Draw the fitted distribution of critical interaction gaps.
 %   markers into a given axes handle `ax`. Base plotting only (works for a normal
@@ -810,7 +821,9 @@ function strip_patch(ax, x1, x2, ylo, yhi, col)
     if ~(isfinite(x1) && isfinite(x2)) || x2 <= x1, return; end
     patch(ax, [x1 x2 x2 x1], [ylo ylo yhi yhi], col, 'EdgeColor', 'none');
 end
+% === END EMBEDDED SOURCE: draw_distribution.m ===
 
+% === BEGIN EMBEDDED SOURCE: draw_interaction_curve.m ===
 function draw_interaction_curve(ax,result,cfg)
 %DRAW_INTERACTION_CURVE Show how interaction probability falls as gap grows.
     if nargin<3 || isempty(cfg), cfg=neyer_settings(); end
@@ -853,7 +866,9 @@ function edge_line(ax,x,color,label)
     text(ax,x,54,label,'Color',color,'HorizontalAlignment','center', ...
         'VerticalAlignment','bottom','FontSize',9);
 end
+% === END EMBEDDED SOURCE: draw_interaction_curve.m ===
 
+% === BEGIN EMBEDDED SOURCE: estimate_study_plan.m ===
 function plan = estimate_study_plan(clean, reachable_model)
 %ESTIMATE_STUDY_PLAN Produce a transparent requirements-first preparation plan.
 % This is a pre-test estimate. It is not a final reliability claim and its
@@ -1060,7 +1075,9 @@ function sigma_mm = adjust_previous_information(sigma_mm, clean)
             sigma_mm = clean.previous_sigma_mm;
     end
 end
+% === END EMBEDDED SOURCE: estimate_study_plan.m ===
 
+% === BEGIN EMBEDDED SOURCE: estimate_supported_targets.m ===
 function answer = estimate_supported_targets(clean, reachable_model, fixed_kind)
 %ESTIMATE_SUPPORTED_TARGETS Estimate what a fixed article supply may support.
 % One user choice remains fixed. The other value is estimated from the same
@@ -1177,7 +1194,9 @@ function answer = estimate_supported_targets(clean, reachable_model, fixed_kind)
             'This is a pre-test expectation, not a final claim. Real evidence ' ...
             'must be checked after the study.']);
 end
+% === END EMBEDDED SOURCE: estimate_supported_targets.m ===
 
+% === BEGIN EMBEDDED SOURCE: find_root.m ===
 function xb = find_root(R, x0, dir, thr, cap, floorval)
 %FIND_ROOT  Bracket-then-bisect one-sided root of R(x)=thr, on side `dir` of x0.
 %   R(x0)~0 and R rises away from x0. Returns NaN if not bracketed within `cap`
@@ -1207,7 +1226,9 @@ function xb = find_root(R, x0, dir, thr, cap, floorval)
     end
     xb = 0.5*(lo + hi);
 end
+% === END EMBEDDED SOURCE: find_root.m ===
 
+% === BEGIN EMBEDDED SOURCE: fit_sigma0.m ===
 function s0 = fit_sigma0(levels)
 %FIT_SIGMA0  A positive starting spread for best_fit, derived from the data.
 %   Used by the reliability-at-confidence units (Mode A/B) to seed best_fit's
@@ -1219,7 +1240,9 @@ function s0 = fit_sigma0(levels)
         s0 = max((max(lv) - min(lv)) / 4, 1);
     end
 end
+% === END EMBEDDED SOURCE: fit_sigma0.m ===
 
+% === BEGIN EMBEDDED SOURCE: format_confidence_range.m ===
 function text = format_confidence_range(confidence, lower_limit, upper_limit, unit)
 %FORMAT_CONFIDENCE_RANGE Describe incomplete limits without displaying NaN.
     if nargin < 4 || isempty(unit), unit = 'mm'; end
@@ -1242,15 +1265,19 @@ function text = limit_text(value, unit, side)
         text = sprintf('%s limit not established', side);
     end
 end
+% === END EMBEDDED SOURCE: format_confidence_range.m ===
 
+% === BEGIN EMBEDDED SOURCE: format_requested_gap.m ===
 function message = format_requested_gap(level, unit)
 %FORMAT_REQUESTED_GAP Build the operator instruction with two decimals.
 %   Internal calculations and measured readings retain their full precision;
 %   only the physical build instruction is deliberately simplified.
     if nargin < 2 || isempty(unit), unit = 'mm'; end
-    message = sprintf('Build a gap of %.2f %s.',level,unit);
+    message = sprintf('Build the requested gap: %.2f %s',level,unit);
 end
+% === END EMBEDDED SOURCE: format_requested_gap.m ===
 
+% === BEGIN EMBEDDED SOURCE: format_result_text.m ===
 function s = format_result_text(result)
 %FORMAT_RESULT_TEXT  Pure: turn a report `result` into the plain-language popup text.
 %   s = FORMAT_RESULT_TEXT(result) returns a multi-line char array, reusing the
@@ -1293,9 +1320,11 @@ function s = format_result_text(result)
     lines = [decision_lines(:); result_lines(:)];
     s = strjoin(lines, sprintf('\n'));
 end
+% === END EMBEDDED SOURCE: format_result_text.m ===
 
+% === BEGIN EMBEDDED SOURCE: has_overlap.m ===
 function tf = has_overlap(levels, successes)
-%HAS_OVERLAP  Worker #4 â€” the Silvapulle condition (Stage 2 -> Stage 3 gate).
+%HAS_OVERLAP  Worker #4 — the Silvapulle condition (Stage 2 -> Stage 3 gate).
 %
 %   tf = HAS_OVERLAP(levels, successes) answers yes/no: have interaction and
 %   no-interaction results started to interleave? Until they do, there is
@@ -1341,7 +1370,9 @@ function tf = has_overlap(levels, successes)
     % than at least one non-interaction.
     tf = max(success_levels) > min(failure_levels);
 end
+% === END EMBEDDED SOURCE: has_overlap.m ===
 
+% === BEGIN EMBEDDED SOURCE: height_for_reliability.m ===
 function res = height_for_reliability(levels, successes, tail, R, C)
 %HEIGHT_FOR_RELIABILITY  Mode A: the conservative height for a target reliability.
 %   res = HEIGHT_FOR_RELIABILITY(levels, successes, tail, R, C)
@@ -1388,7 +1419,9 @@ function res = height_for_reliability(levels, successes, tail, R, C)
         res.bound  = find_root(Rq, res.height, +1, c1, cap, +Inf);
     end
 end
+% === END EMBEDDED SOURCE: height_for_reliability.m ===
 
+% === BEGIN EMBEDDED SOURCE: info_terms.m ===
 function [j0, j1, j2] = info_terms(x, mu, sigma)
 %INFO_TERMS  Fisher information building blocks J0, J1, J2 (Eq.3).
 %
@@ -1417,7 +1450,9 @@ function [j0, j1, j2] = info_terms(x, mu, sigma)
     j1 = base .* s.z;
     j2 = base .* s.z.^2;
 end
+% === END EMBEDDED SOURCE: info_terms.m ===
 
+% === BEGIN EMBEDDED SOURCE: load_study_plan.m ===
 function [plan, loaded_path] = load_study_plan(selected_path)
 %LOAD_STUDY_PLAN Reopen a supported human-readable JSON study plan.
 
@@ -1483,7 +1518,9 @@ function path = absolute_load_path(selected_path)
         path = fullfile(pwd, path);
     end
 end
+% === END EMBEDDED SOURCE: load_study_plan.m ===
 
+% === BEGIN EMBEDDED SOURCE: loglik.m ===
 function ll = loglik(levels, successes, mu, sigma)
 %LOGLIK  Log-likelihood of the bell-curve sensitivity model (Eq.1), one home.
 %
@@ -1503,7 +1540,9 @@ function ll = loglik(levels, successes, mu, sigma)
     Q   = max(s.Q,   realmin);
     ll  = sum(log(Phi(successes))) + sum(log(Q(~successes)));
 end
+% === END EMBEDDED SOURCE: loglik.m ===
 
+% === BEGIN EMBEDDED SOURCE: lr_confidence.m ===
 function ci = lr_confidence(levels, successes, mu0, sigma0, cfg)
 %LR_CONFIDENCE  Likelihood-ratio (profile) confidence bounds.
 %
@@ -1567,30 +1606,35 @@ function L = prof_sigma(levels, successes, s, mu0)
     mhat = fminsearch(f, mu0, pl_opts());
     L = -f(mhat);
 end
+% === END EMBEDDED SOURCE: lr_confidence.m ===
 
+% === BEGIN EMBEDDED SOURCE: neyer_app.m ===
 function neyer_app()
 %NEYER_APP  Launch menu for the D-Optimal Sensitivity Tool (the compiled app's
-%   entry point). Five grouped buttons over the unchanged engine. [compiled-app]
+%   entry point). Five grouped buttons over the unchanged engine. Legacy
+%   internal compatibility names remain: break = Interaction; survive = No interaction.
+%   [compiled-app]
     if ~isdeployed
     end
 
     state.result = [];      % most recent run, for the Reliability button
-    fig = uifigure('Name', 'Neyer Gap Test', 'Position', [300 160 480 500], ...
+    fig = uifigure('Name', 'Neyer Gap Test V2', 'Position', [300 160 480 500], ...
         'Color', [247 249 250] / 255);
     gl = uigridlayout(fig, [8 1]);
-    gl.RowHeight  = {44, 42, 58, 58, 48, 12, 48, 48};
+    gl.RowHeight  = {44, 54, 58, 58, 48, 12, 48, 48};
     gl.Padding    = [26 20 26 20];
     gl.RowSpacing = 10;
 
-    title = uilabel(gl, 'Text', 'Neyer Gap Test', 'FontSize', 20, ...
+    title = uilabel(gl, 'Text', 'Neyer Gap Test V2', 'FontSize', 20, ...
                     'FontWeight', 'bold', 'HorizontalAlignment', 'left', ...
                     'FontColor', [33 49 58] / 255);
     title.Layout.Row = 1;
 
     guide = uilabel(gl, 'Text', ...
-        'Run a Test works independently. The planner is optional and separate.', ...
+        ['Run a test directly, or use the separate planner first. ' ...
+         'The planner is optional.'], ...
         'FontSize', 13, 'FontWeight', 'bold', ...
-        'FontColor', [35 108 142] / 255);
+        'FontColor', [35 108 142] / 255, 'WordWrap', 'on');
     guide.Layout.Row = 2;
 
     uibutton(gl, 'Text', 'Pre-Test Planner (separate)', 'FontSize', 16, ...
@@ -1673,7 +1717,9 @@ function neyer_app()
         end
     end
 end
+% === END EMBEDDED SOURCE: neyer_app.m ===
 
+% === BEGIN EMBEDDED SOURCE: neyer_settings.m ===
 function s = neyer_settings()
 %NEYER_SETTINGS  The single home for every constant the method uses.
 %
@@ -1692,7 +1738,7 @@ function s = neyer_settings()
     % reproduce Neyer Table 1 (offsets 0.2,0.4,0.8,1.6,3.2 = 2*sigma_guess
     % doubling); for the paper's inputs 2*sigma_guess also equals
     % (mu_max-mu_min)/4. brief sec.3 Stage 1 / sec.7.
-    s.stage1_reach_sigmas = 2;             % RECOMMENDATION (first reach = 2*sigma_guess)
+    s.stage1_reach_sigmas = 2;             % PAPER (Neyer 1994 Figure 2: first reach = 2*sigma_guess)
     s.stage1_growth       = 2;             % PAPER ("roughly doubling the stride each step")
 
     % --- Stage 2: shrink the assumed spread a little each gap-closing step ---
@@ -1785,7 +1831,9 @@ function s = neyer_settings()
     % --- Display unit for heights (label only; no conversion) ----------------
     s.unit = 'mm';   % RECOMMENDATION ('mm'/'cm'/'m'/'km' or any short label)
 end
+% === END EMBEDDED SOURCE: neyer_settings.m ===
 
+% === BEGIN EMBEDDED SOURCE: one_sided_profile_threshold.m ===
 function threshold = one_sided_profile_threshold(confidence)
 %ONE_SIDED_PROFILE_THRESHOLD Monotonic likelihood threshold for a lower bound.
 % At 50% confidence the cautious boundary is the best estimate. A requested
@@ -1799,7 +1847,9 @@ function threshold = one_sided_profile_threshold(confidence)
     signed_distance = shape_model(confidence, 'quantile');
     threshold = max(signed_distance, 0)^2;
 end
+% === END EMBEDDED SOURCE: one_sided_profile_threshold.m ===
 
+% === BEGIN EMBEDDED SOURCE: operating_gap_coverage.m ===
 function coverage = operating_gap_coverage(raw_boundary_mm, ...
         true_boundary_mm, outcome, reachable_model)
 %OPERATING_GAP_COVERAGE Judge the final reachable instruction, not a hidden raw value.
@@ -1824,7 +1874,9 @@ function coverage = operating_gap_coverage(raw_boundary_mm, ...
             'The required result must be Interaction or No interaction.');
     end
 end
+% === END EMBEDDED SOURCE: operating_gap_coverage.m ===
 
+% === BEGIN EMBEDDED SOURCE: parse_physical_response.m ===
 function response = parse_physical_response(measurement_text, outcome)
 %PARSE_PHYSICAL_RESPONSE Convert one measured gap and outcome to a response.
 %   Exactly one finite, real, nonnegative gap measurement is required.
@@ -1853,70 +1905,231 @@ function response = parse_physical_response(measurement_text, outcome)
     end
     response = struct('outcome',outcome,'measurements',readings);
 end
+% === END EMBEDDED SOURCE: parse_physical_response.m ===
 
+% === BEGIN EMBEDDED SOURCE: parse_confirmed_gap_list.m ===
+function gaps_mm = parse_confirmed_gap_list(answer, minimum_gap_mm, maximum_gap_mm)
+%PARSE_CONFIRMED_GAP_LIST Validate a comma-separated list of measured gaps.
+% A confirmed list is deliberately stricter than a convenient numeric vector:
+% every entry must be a finite nonnegative measurement, and at least two
+% distinct entries must remain within the permitted direct-test range.
+
+    validate_confirmed_gap_bounds(minimum_gap_mm, maximum_gap_mm);
+    text = answer_text(answer);
+    if contains(text, ';')
+        error('parse_confirmed_gap_list:badFormat', ...
+            ['Confirmed gap list: separate measured gaps with commas, for ' ...
+             'example 1.00, 1.10, 2.50.']);
+    end
+
+    entries = strsplit(text, ',', 'CollapseDelimiters', false);
+    values = zeros(numel(entries), 1);
+    for entry_number = 1:numel(entries)
+        entry = strtrim(entries{entry_number});
+        if isempty(entry)
+            error('parse_confirmed_gap_list:badEntry', ...
+                ['Confirmed gap list: enter a measured nonnegative number ' ...
+                 'for every comma-separated gap.']);
+        end
+        if ~isempty(regexp(entry, '\s', 'once'))
+            error('parse_confirmed_gap_list:badFormat', ...
+                ['Confirmed gap list: separate measured gaps with commas, ' ...
+                 'not spaces.']);
+        end
+        value = str2double(entry);
+        if ~(isscalar(value) && isreal(value) && isfinite(value) && value >= 0)
+            error('parse_confirmed_gap_list:badEntry', ...
+                ['Confirmed gap list: enter finite nonnegative measured gaps ' ...
+                 'such as 1.00, 1.10, 2.50.']);
+        end
+        values(entry_number) = value;
+    end
+
+    % Confirmed means inside the stated bounds exactly. The reachable-model
+    % tolerance is useful for collapsing equivalent constructed gaps, but it
+    % must not admit a value that is strictly outside the operator's range.
+    values = values(values >= minimum_gap_mm & values <= maximum_gap_mm);
+    if numel(values) < 2
+        error('parse_confirmed_gap_list:notEnoughGaps', ...
+            ['Confirmed gap list: enter at least two different measured ' ...
+             'gaps inside the permitted range.']);
+    end
+    try
+        model = reachable_gap_model(struct('mode', 'list', 'gaps_mm', values), ...
+            minimum_gap_mm, maximum_gap_mm);
+    catch input_error
+        if strcmp(input_error.identifier, 'reachable_gap_model:noReachableGaps')
+            error('parse_confirmed_gap_list:notEnoughGaps', ...
+                ['Confirmed gap list: enter at least two different measured ' ...
+                 'gaps inside the permitted range.']);
+        end
+        rethrow(input_error);
+    end
+    gaps_mm = model.gaps_mm;
+    if numel(gaps_mm) < 2
+        error('parse_confirmed_gap_list:notEnoughGaps', ...
+            ['Confirmed gap list: enter at least two different measured ' ...
+             'gaps inside the permitted range.']);
+    end
+end
+
+function validate_confirmed_gap_bounds(minimum_gap_mm, maximum_gap_mm)
+    if ~(isnumeric(minimum_gap_mm) && isscalar(minimum_gap_mm) && ...
+            isreal(minimum_gap_mm) && isfinite(minimum_gap_mm) && ...
+            isnumeric(maximum_gap_mm) && isscalar(maximum_gap_mm) && ...
+            isreal(maximum_gap_mm) && isfinite(maximum_gap_mm) && ...
+            maximum_gap_mm > minimum_gap_mm)
+        error('parse_confirmed_gap_list:badBounds', ...
+            'The permitted minimum and maximum gaps must be valid numbers.');
+    end
+end
+
+function text = answer_text(answer)
+    if ischar(answer)
+        text = answer;
+    elseif isstring(answer) && isscalar(answer)
+        text = char(answer);
+    else
+        error('parse_confirmed_gap_list:badEntry', ...
+            ['Confirmed gap list: enter comma-separated measured gap numbers, ' ...
+             'for example 1.00, 1.10, 2.50.']);
+    end
+    text = strtrim(text);
+end
+% === END EMBEDDED SOURCE: parse_confirmed_gap_list.m ===
+
+% === BEGIN EMBEDDED SOURCE: parse_run_inputs.m ===
 function out = parse_run_inputs(answers)
-%PARSE_RUN_INPUTS  Pure core of the settings popup: strings -> validated {params,num_parts,cfg}.
-%   out = PARSE_RUN_INPUTS(answers), answers a 9-cell array of strings
-%   {lo, hi, spread_guess, num_parts, min_level, max_level, unit,
-%   usable_resolution, foil_thickness}. The older 7- and 8-cell layouts are
-%   still accepted for compatibility. Foil thickness is construction
-%   information only. The
-%   usable resolution controls physical requests and the Stage-2 safety floor.
-%   Returns
-%   struct with .params, .num_parts, .cfg. Validates by reusing check_inputs so
-%   the popup cannot accept anything the engine would reject. Blank min_level =
-%   no floor (-Inf). Throws a named error on any bad field. [addendum POPUP]
+%PARSE_RUN_INPUTS Convert direct-test answers into validated engine settings.
+% The established 7/8/9-cell layouts remain available for older tools. The
+% direct-test UI may instead pass a named struct for regular or confirmed-list
+% physical capability.
+
+    if isstruct(answers) && isscalar(answers)
+        out = parse_named_answers(answers);
+        return;
+    end
     if ~(iscell(answers) && any(numel(answers) == [7 8 9]))
         error('parse_run_inputs:badShape', ...
               'Expected all physical test settings.');
     end
-    lo = str2double(answers{1});
-    hi = str2double(answers{2});
-    sg = str2double(answers{3});
-    num_parts = str2double(answers{4});
-    ml_str = strtrim(answers{5});
-    if isempty(ml_str)
-        ml = -Inf;                        % blank = no floor
+
+    if numel(answers) == 9
+        maximum_gap = answers{6};
+        unit = answers{7};
+        resolution = answers{8};
+        foil = answers{9};
+        require_finite_minimum = true;
+        build_regular_model = true;
+        has_foil = true;
     else
-        ml = str2double(ml_str);
+        defaults = neyer_settings();
+        maximum_gap = num2str(defaults.max_level, '%.17g');
+        unit = answers{6};
+        resolution = answers{7};
+        foil = '';
+        require_finite_minimum = false;
+        build_regular_model = false;
+        has_foil = numel(answers) == 8;
+        if has_foil, foil = answers{8}; end
     end
-    if ~(isscalar(ml) && isreal(ml) && ~isnan(ml) && ml < Inf)
+
+    out = parse_common_direct_fields(answers{1}, answers{2}, answers{3}, ...
+        answers{4}, answers{5}, maximum_gap, unit, require_finite_minimum);
+    out = apply_regular_setup(out, resolution, build_regular_model);
+    if has_foil
+        out = apply_foil_thickness(out, foil);
+    end
+end
+
+function out = parse_named_answers(answers)
+    required_fields = {'low_guess', 'high_guess', 'variation_guess', ...
+        'maximum_tests', 'minimum_gap', 'maximum_gap', 'unit', ...
+        'physical_mode', 'regular_step', 'confirmed_gaps', 'foil_thickness'};
+    if ~all(isfield(answers, required_fields))
+        error('parse_run_inputs:badNamedShape', ...
+            'Complete all direct-test settings before starting the test.');
+    end
+    mode = normalize_physical_mode(named_text(answers.physical_mode));
+    out = parse_common_direct_fields(named_text(answers.low_guess), ...
+        named_text(answers.high_guess), named_text(answers.variation_guess), ...
+        named_text(answers.maximum_tests), named_text(answers.minimum_gap), ...
+        named_text(answers.maximum_gap), named_text(answers.unit), true);
+
+    switch mode
+        case 'confirmed gap list'
+            gaps_mm = parse_confirmed_gap_list( ...
+                named_text(answers.confirmed_gaps), out.cfg.min_level, ...
+                out.cfg.max_level);
+            out.cfg.reachable_model = reachable_gap_model( ...
+                struct('mode', 'list', 'gaps_mm', gaps_mm), ...
+                out.cfg.min_level, out.cfg.max_level);
+            confirmed_step = min(diff(gaps_mm));
+            out.cfg.usable_resolution = confirmed_step;
+            % The Neyer core reads level_increment for its Stage-2 sigma floor.
+            % In list mode it equals the smallest confirmed adjacent gap, not a
+            % fictional regular grid; requests still come only from the list.
+            out.cfg.level_increment = confirmed_step;
+
+        case 'regular gap step'
+            out = apply_regular_setup(out, named_text(answers.regular_step), true);
+
+        otherwise
+            error('parse_run_inputs:badPhysicalMode', ...
+                ['Physical setup: choose Regular gap step or Confirmed gap ' ...
+                 'list.']);
+    end
+    out = apply_foil_thickness(out, named_text(answers.foil_thickness));
+end
+
+function out = parse_common_direct_fields(low_text, high_text, ...
+        variation_text, maximum_tests_text, minimum_gap_text, maximum_gap_text, ...
+        unit_text, require_finite_minimum)
+% Shared number, permitted-range, unit, and core-method validation. It does
+% not construct a physical model, so confirmed-list parsing never builds an
+% unrelated regular grid.
+    lo = str2double(low_text);
+    hi = str2double(high_text);
+    sg = str2double(variation_text);
+    num_parts = str2double(maximum_tests_text);
+    minimum_gap_text = strtrim(minimum_gap_text);
+    if isempty(minimum_gap_text)
+        minimum_gap = -Inf;
+    else
+        minimum_gap = str2double(minimum_gap_text);
+    end
+    if ~(isscalar(minimum_gap) && isreal(minimum_gap) && ...
+            ~isnan(minimum_gap) && minimum_gap < Inf)
         error('parse_run_inputs:badMinLevel', ...
               'Minimum gap must be a number.');
     end
     params = struct('avg_low', lo, 'avg_high', hi, 'spread_guess', sg);
     try
-        check_inputs(params, num_parts);  % keep one set of mathematical rules
+        check_inputs(params, num_parts);
     catch input_error
         throw_plain_input_error(input_error);
     end
+    if require_finite_minimum && ~isfinite(minimum_gap)
+        error('parse_run_inputs:badMinLevel', ...
+            'Enter the smallest physical gap permitted for this test.');
+    end
+    maximum_gap = str2double(maximum_gap_text);
+    if ~(isscalar(maximum_gap) && isreal(maximum_gap) && ...
+            isfinite(maximum_gap) && maximum_gap > minimum_gap)
+        error('parse_run_inputs:badMaxLevel', ...
+            'Maximum permitted gap must be greater than the minimum gap.');
+    end
     cfg = neyer_settings();
-    cfg.min_level = ml;
-    if numel(answers) == 9
-        if ~isfinite(ml)
-            error('parse_run_inputs:badMinLevel', ...
-                'Enter the smallest physical gap permitted for this test.');
-        end
-        max_level = str2double(answers{6});
-        if ~(isscalar(max_level) && isreal(max_level) && ...
-                isfinite(max_level) && max_level > ml)
-            error('parse_run_inputs:badMaxLevel', ...
-                'Maximum permitted gap must be greater than the minimum gap.');
-        end
-        unit_index = 7;
-        resolution_index = 8;
-        foil_index = 9;
-    else
-        max_level = cfg.max_level;
-        unit_index = 6;
-        resolution_index = 7;
-        foil_index = 8;
+    cfg.min_level = minimum_gap;
+    cfg.max_level = maximum_gap;
+    if ~isempty(strtrim(unit_text))
+        cfg.unit = strtrim(unit_text);
     end
-    cfg.max_level = max_level;
-    if ~isempty(strtrim(answers{unit_index}))
-        cfg.unit = strtrim(answers{unit_index});
-    end
-    usable_resolution = str2double(answers{resolution_index});
+    out = struct('params', params, 'num_parts', num_parts, 'cfg', cfg);
+end
+
+function out = apply_regular_setup(out, resolution_text, build_model)
+    usable_resolution = str2double(resolution_text);
     if ~(isscalar(usable_resolution) && isreal(usable_resolution) && ...
             isfinite(usable_resolution) && usable_resolution > 0)
         error('parse_run_inputs:badLevelIncrement', ...
@@ -1930,24 +2143,45 @@ function out = parse_run_inputs(answers)
              'Enter 0.01, 0.02, 0.05, 0.10 mm, or another whole hundredth. ' ...
              'Do not enter the 0.015 mm foil thickness here.']);
     end
-    cfg.usable_resolution = usable_resolution;
-    cfg.level_increment = usable_resolution; % compatibility with the Neyer core
-
-    if numel(answers) >= foil_index
-        foil_thickness = str2double(answers{foil_index});
-        if ~(isscalar(foil_thickness) && isreal(foil_thickness) && ...
-                isfinite(foil_thickness) && foil_thickness > 0)
-            error('parse_run_inputs:badFoilThickness', ...
-                'Foil thickness must be a positive number, for example 0.015 mm.');
-        end
-        cfg.foil_thickness = foil_thickness;
-    end
-    if numel(answers) == 9
+    out.cfg.usable_resolution = usable_resolution;
+    out.cfg.level_increment = usable_resolution;
+    if build_model
         regular_setup = struct('mode', 'regular', ...
             'increment_mm', usable_resolution);
-        cfg.reachable_model = reachable_gap_model(regular_setup, ml, max_level);
+        out.cfg.reachable_model = reachable_gap_model(regular_setup, ...
+            out.cfg.min_level, out.cfg.max_level);
     end
-    out = struct('params', params, 'num_parts', num_parts, 'cfg', cfg);
+end
+
+function out = apply_foil_thickness(out, foil_text)
+    foil_thickness = str2double(foil_text);
+    if ~(isscalar(foil_thickness) && isreal(foil_thickness) && ...
+            isfinite(foil_thickness) && foil_thickness > 0)
+        error('parse_run_inputs:badFoilThickness', ...
+            'Foil thickness must be a positive number, for example 0.015 mm.');
+    end
+    out.cfg.foil_thickness = foil_thickness;
+end
+
+function mode = normalize_physical_mode(value)
+    mode = lower(strtrim(value));
+    mode = regexprep(mode, '\s+', ' ');
+    if ~ismember(mode, {'confirmed gap list', 'regular gap step'})
+        error('parse_run_inputs:badPhysicalMode', ...
+            ['Physical setup: choose Regular gap step or Confirmed gap ' ...
+             'list.']);
+    end
+end
+
+function text = named_text(value)
+    if ischar(value)
+        text = value;
+    elseif isstring(value) && isscalar(value)
+        text = char(value);
+    else
+        error('parse_run_inputs:badNamedValue', ...
+            'Enter text for every direct-test setting.');
+    end
 end
 
 function throw_plain_input_error(input_error)
@@ -1972,9 +2206,11 @@ function throw_plain_input_error(input_error)
             rethrow(input_error);
     end
 end
+% === END EMBEDDED SOURCE: parse_run_inputs.m ===
 
+% === BEGIN EMBEDDED SOURCE: pick_next_level.m ===
 function [x_next, det_max] = pick_next_level(levels, mu, sigma, cfg, side_pref)
-%PICK_NEXT_LEVEL  Worker #3 â€” the D-optimal picker (the method's heart).
+%PICK_NEXT_LEVEL  Worker #3 — the D-optimal picker (the method's heart).
 %
 %   x = PICK_NEXT_LEVEL(levels, mu, sigma) returns the single next test level
 %   that sharpens the current estimate the most: the level that maximises the
@@ -2056,14 +2292,18 @@ function [I00, I01, I11] = info_sum(levels, mu, sigma)
     I01 = sum(j1);
     I11 = sum(j2);
 end
+% === END EMBEDDED SOURCE: pick_next_level.m ===
 
+% === BEGIN EMBEDDED SOURCE: pl_opts.m ===
 function opts = pl_opts()
 %PL_OPTS  Shared optimiser options for profile-likelihood inner maximisation.
 %   Base optimset only (no toolbox). Used by lr_confidence and the
 %   reliability-at-confidence units (Mode A/B, planner).  [addendum LR / RAC]
     opts = optimset('TolX', 1e-8, 'TolFun', 1e-10, 'MaxFunEvals', 1e4, 'MaxIter', 1e4);
 end
+% === END EMBEDDED SOURCE: pl_opts.m ===
 
+% === BEGIN EMBEDDED SOURCE: plan_prep.m ===
 function res = plan_prep(params, R, C, cfg)
 %PLAN_PREP  Pre-lab planner: how many parts to prepare + where to start.
 %   res = PLAN_PREP(params, R, C) prints a plain-language prep summary and returns
@@ -2081,7 +2321,9 @@ function res = plan_prep(params, R, C, cfg)
     fprintf('For contrast, counting failures directly would need about %d parts.\n', res.n_bogey);
     fprintf('This is the count and starting height only - the tool picks every height after that.\n\n');
 end
+% === END EMBEDDED SOURCE: plan_prep.m ===
 
+% === BEGIN EMBEDDED SOURCE: plan_prep_message.m ===
 function msg = plan_prep_message(pr, u)
 %PLAN_PREP_MESSAGE  Plain-language popup text for the pre-test planner.
 %   msg = PLAN_PREP_MESSAGE(pr, u) turns a plan_prep_numbers result `pr` into a
@@ -2136,7 +2378,9 @@ function msg = plan_prep_message(pr, u)
         'so the method uses the available tests efficiently.'], ...
         pr.n_parts, pr.start_height, u, 100*pr.R, 100*pr.C, pr.n_bogey);
 end
+% === END EMBEDDED SOURCE: plan_prep_message.m ===
 
+% === BEGIN EMBEDDED SOURCE: plan_prep_numbers.m ===
 function res = plan_prep_numbers(params, R, C, cfg)
 %PLAN_PREP_NUMBERS  Pure core of the pre-lab planner: parts count + first height.
 %   res = PLAN_PREP_NUMBERS(params, R, C, cfg) returns how many parts to prepare
@@ -2168,7 +2412,9 @@ function res = plan_prep_numbers(params, R, C, cfg)
                  'n_floor', p.n_floor, 'n_bogey', p.n_bogey, ...
                  'floor_reason', p.floor_reason);
 end
+% === END EMBEDDED SOURCE: plan_prep_numbers.m ===
 
+% === BEGIN EMBEDDED SOURCE: plan_samples.m ===
 function res = plan_samples(tail, R, C, cfg, basis)
 %PLAN_SAMPLES  Estimate how many parts to test for a reliability at a confidence.
 %   res = PLAN_SAMPLES(tail, R, C, cfg, basis)
@@ -2297,7 +2543,9 @@ function required_count = required_count_for_accuracy(sigma, absolute_k, ...
     end
     required_count = upper_count;
 end
+% === END EMBEDDED SOURCE: plan_samples.m ===
 
+% === BEGIN EMBEDDED SOURCE: plot_result.m ===
 function h = plot_result(result, cfg, savepath)
 %PLOT_RESULT  Draw the interaction-probability and transition-gap views.
 %
@@ -2323,7 +2571,9 @@ function h = plot_result(result, cfg, savepath)
         print(h, savepath, '-dpng');
     end
 end
+% === END EMBEDDED SOURCE: plot_result.m ===
 
+% === BEGIN EMBEDDED SOURCE: pretest_planner_ui.m ===
 function selected_plan = pretest_planner_ui()
 %PRETEST_PLANNER_UI Guided preparation worksheet for a Neyer gap study.
 % Calculations live in tested pure functions. This window only collects
@@ -2778,7 +3028,9 @@ function selected_plan = pretest_planner_ui()
         uiresume(figure_handle);
     end
 end
+% === END EMBEDDED SOURCE: pretest_planner_ui.m ===
 
+% === BEGIN EMBEDDED SOURCE: prof_quantile.m ===
 function L = prof_quantile(levels, successes, q, ksig, sigma0)
 %PROF_QUANTILE  Profiled log-likelihood with the level q = mu + ksig*sigma held
 %   fixed: substitute mu = q - ksig*sigma and maximise over sigma>0 (via log sigma).
@@ -2787,7 +3039,9 @@ function L = prof_quantile(levels, successes, q, ksig, sigma0)
     that = fminsearch(f, log(sigma0), pl_opts());
     L = -f(that);
 end
+% === END EMBEDDED SOURCE: prof_quantile.m ===
 
+% === BEGIN EMBEDDED SOURCE: reachable_gap_model.m ===
 function model = reachable_gap_model(setup, minimum_gap_mm, maximum_gap_mm)
 %REACHABLE_GAP_MODEL List the physical gaps the equipment can construct.
 % The returned gaps retain their real numerical values. User-facing build
@@ -2824,7 +3078,7 @@ function model = reachable_gap_model(setup, minimum_gap_mm, maximum_gap_mm)
             multiple_numbers = (first_multiple:last_multiple)';
             gaps_mm = multiple_numbers * increment_mm;
             gaps_mm(abs(gaps_mm) < numerical_tolerance) = 0;
-            instructions = compose("Set the gap to %.2f mm", gaps_mm);
+            instructions = compose("Requested gap: %.2f mm", gaps_mm);
             description = sprintf('Every %.4g mm from %.4g to %.4g mm', ...
                 increment_mm, minimum_gap_mm, maximum_gap_mm);
 
@@ -2840,7 +3094,9 @@ function model = reachable_gap_model(setup, minimum_gap_mm, maximum_gap_mm)
                 numerical_tolerance & supplied_gaps <= maximum_gap_mm + ...
                 numerical_tolerance);
             gaps_mm = unique_with_tolerance(supplied_gaps, numerical_tolerance);
-            instructions = compose("Use the confirmed %.2f mm setup", gaps_mm);
+            instructions = repmat( ...
+                "This requested gap came from confirmed buildable gaps.", ...
+                numel(gaps_mm), 1);
             description = sprintf('%d confirmed reachable gaps', numel(gaps_mm));
 
         case 'combinations'
@@ -2962,7 +3218,9 @@ function recipe = describe_recipe(counts, names)
         recipe = char(strjoin(pieces, ' + '));
     end
 end
+% === END EMBEDDED SOURCE: reachable_gap_model.m ===
 
+% === BEGIN EMBEDDED SOURCE: reliability_at_height.m ===
 function res = reliability_at_height(levels, successes, tail, x, C)
 %RELIABILITY_AT_HEIGHT  Mode B: reliability at a fixed height, with a conservative
 %   lower bound at confidence C.
@@ -3043,7 +3301,9 @@ function m = one_in_n(r)
         m = NaN;
     end
 end
+% === END EMBEDDED SOURCE: reliability_at_height.m ===
 
+% === BEGIN EMBEDDED SOURCE: reliability_query.m ===
 function q = reliability_query(result, tail, action, value, C)
 %RELIABILITY_QUERY  Plain-language gap, probability, and confidence calculator.
 %   Interactive:  reliability_query(result)         -- guided menu.
@@ -3229,9 +3489,11 @@ function s = thousands(x)
     end
     s = out;
 end
+% === END EMBEDDED SOURCE: reliability_query.m ===
 
+% === BEGIN EMBEDDED SOURCE: report.m ===
 function result = report(record, cfg)
-%REPORT  Worker #9 â€” present the final middle gap, overall variation, and confidence.
+%REPORT  Worker #9 — present the final middle gap, overall variation, and confidence.
 %
 %   result = REPORT(record, cfg) takes the finished run (from run_loop) and
 %   produces the headline answer: the best-fit middle gap and width over all
@@ -3415,7 +3677,9 @@ function result = report(record, cfg)
     end
     fprintf('\nNote: the edge gaps are less certain than the middle gap.\n\n');
 end
+% === END EMBEDDED SOURCE: report.m ===
 
+% === BEGIN EMBEDDED SOURCE: result_decision_summary.m ===
 function summary = result_decision_summary(result)
 %RESULT_DECISION_SUMMARY Turn a fitted result into a safe, plain-language decision.
 % A fitted curve alone is an estimate. A usable operating instruction is shown
@@ -3596,7 +3860,9 @@ function value = field_or_nan(value_struct, field_name)
         value = value_struct.(field_name);
     end
 end
+% === END EMBEDDED SOURCE: result_decision_summary.m ===
 
+% === BEGIN EMBEDDED SOURCE: result_output_paths.m ===
 function paths = result_output_paths(base)
 %RESULT_OUTPUT_PATHS  Return the CSV and HTML paths for a chosen base name.
 %   A user may choose a name with or without an extension. The tool always
@@ -3608,7 +3874,9 @@ function paths = result_output_paths(base)
     paths = struct('csv', fullfile(folder, [name '.csv']), ...
                    'html', fullfile(folder, [name '.html']));
 end
+% === END EMBEDDED SOURCE: result_output_paths.m ===
 
+% === BEGIN EMBEDDED SOURCE: result_save_available.m ===
 function available = result_save_available(result)
 %RESULT_SAVE_AVAILABLE True when at least one completed test can be saved.
     available = isstruct(result) && isfield(result, 'levels') && ...
@@ -3617,7 +3885,9 @@ function available = result_save_available(result)
         ~isempty(result.levels) && ...
         numel(result.levels) == numel(result.successes);
 end
+% === END EMBEDDED SOURCE: result_save_available.m ===
 
+% === BEGIN EMBEDDED SOURCE: results_to_csv_text.m ===
 function txt = results_to_csv_text(result)
 %RESULTS_TO_CSV_TEXT  Build a CSV report (as text) from a run's result struct.
 %   txt = RESULTS_TO_CSV_TEXT(result) returns spreadsheet-friendly CSV text:
@@ -3705,7 +3975,9 @@ function text = csv_number(value)
     end
     text=sprintf('%.17g',value);
 end
+% === END EMBEDDED SOURCE: results_to_csv_text.m ===
 
+% === BEGIN EMBEDDED SOURCE: results_to_html.m ===
 function txt = results_to_html(result, img_b64)
 %RESULTS_TO_HTML Build a self-contained report, including unfinished studies.
 % The report always preserves completed physical tests. A fitted estimate is
@@ -3893,7 +4165,9 @@ function values = field_vector(value_struct, field_name)
         values = value_struct.(field_name)(:);
     end
 end
+% === END EMBEDDED SOURCE: results_to_html.m ===
 
+% === BEGIN EMBEDDED SOURCE: round_reachable_gap.m ===
 function [gap_mm, status] = round_reachable_gap(raw_gap_mm, outcome, model, previous_gap_mm)
 %ROUND_REACHABLE_GAP Move a mathematical limit to a physically safe setting.
 % Interaction moves down (same gap or smaller). No interaction moves up
@@ -3960,7 +4234,9 @@ function [gap_mm, status] = round_reachable_gap(raw_gap_mm, outcome, model, prev
         'instruction', model.instructions(chosen_row), ...
         'raw_gap_mm', raw_gap_mm);
 end
+% === END EMBEDDED SOURCE: round_reachable_gap.m ===
 
+% === BEGIN EMBEDDED SOURCE: run_demo.m ===
 function d = run_demo()
 %RUN_DEMO Replay Neyer's published example in decreasing-gap terminology.
 %   The paper's increasing-response outcomes are mirrored so true means
@@ -3984,9 +4260,11 @@ function d = run_demo()
     d.is_match       = abs(result.mu - d.expected_mu) <= tol && ...
                        abs(result.sigma - d.expected_sigma) <= tol;
 end
+% === END EMBEDDED SOURCE: run_demo.m ===
 
+% === BEGIN EMBEDDED SOURCE: run_loop.m ===
 function record = run_loop(params, num_parts, outcome_fn, cfg)
-%RUN_LOOP  Worker #8 â€” the conductor of the test.
+%RUN_LOOP  Worker #8 — the conductor of the test.
 %
 %   record = RUN_LOOP(params, num_parts, outcome_fn, cfg) runs the sensitivity
 %   test for num_parts items: at each step it asks choose_stage (worker #6) for
@@ -4350,7 +4628,9 @@ function snapshot = make_snapshot(levels, successes, est_mu, est_sigma, ...
         'N', count, 'requested_N', count, ...
         'status', status, 'stop_reason', stop_reason);
 end
+% === END EMBEDDED SOURCE: run_loop.m ===
 
+% === BEGIN EMBEDDED SOURCE: run_physical_test.m ===
 function [result, record] = run_physical_test(params, num_parts, outcome_fn, cfg)
 %RUN_PHYSICAL_TEST Run a gap test using an explicitly chosen usable resolution.
 %
@@ -4430,7 +4710,9 @@ function [result, record] = run_physical_test(params, num_parts, outcome_fn, cfg
         end
     end
 end
+% === END EMBEDDED SOURCE: run_physical_test.m ===
 
+% === BEGIN EMBEDDED SOURCE: run_test.m ===
 function [result, record] = run_test(params, num_parts, outcome_fn, cfg)
 %RUN_TEST  The only entry point: check -> run -> report.
 %
@@ -4476,13 +4758,17 @@ function r = ask_operator(level, k)
                      k, level);
     r = logical(input(prompt));
 end
+% === END EMBEDDED SOURCE: run_test.m ===
 
+% === BEGIN EMBEDDED SOURCE: run_test_ui.m ===
 function result = run_test_ui(cfg0, loaded_plan)
 %RUN_TEST_UI  Run a Neyer test through large, readable pop-up windows (MATLAB
 %   desktop only): settings, then the reachable gap, one measured gap, and
 %   interaction outcome for each test. Physical validation lives in
 %   parse_run_inputs and run_physical_test.
-    if ~(isdeployed || usejava('desktop'))
+    capture_inputs = isappdata(groot, 'NeyerV2CaptureDirectInputs') && ...
+        getappdata(groot, 'NeyerV2CaptureDirectInputs');
+    if ~(isdeployed || usejava('desktop') || capture_inputs)
         error('run_test_ui:noDisplay', ...
               'run_test_ui needs the MATLAB desktop; in a script use run_test instead.');
     end
@@ -4527,60 +4813,112 @@ end
 % =================================================================================
 function parsed = ask_settings_ui(loaded_plan)
 %ASK_SETTINGS_UI  Large, readable settings window. Returns a parsed struct or [].
-    labels = {'Low guess for the middle gap (mm):', ...
-              'High guess for the middle gap (mm):', ...
-              'Rough guess of the overall variation (mm):', ...
-              'Maximum allowed number of destructive tests:', ...
-              'Minimum permitted gap (mm):', ...
-              'Maximum permitted gap (mm):', ...
-              'Gap unit:', ...
-              'Usable gap step for this study (mm):', ...
-              'Approximate foil thickness (mm, information only):'};
-    defs = {'0','10','1','20','0','10','mm','0.05','0.015'};
-    planned_message = [ ...
-        'No Pre-Test Planner is used. The article number is the maximum ' ...
-        'allowed, not a confidence-based stopping promise.'];
+    defaults = struct('low_guess', '0', 'high_guess', '10', ...
+        'variation_guess', '1', 'maximum_tests', '20', ...
+        'minimum_gap', '0', 'maximum_gap', '10', 'unit', 'mm', ...
+        'regular_step', '0.05', 'confirmed_gaps', '', ...
+        'foil_thickness', '0.015');
+    planned_message = ['No Pre-Test Planner result is required. ' ...
+        'Start this direct run with the entries below.'];
     if nargin >= 1 && ~isempty(loaded_plan)
         if all(isfield(loaded_plan, {'interaction_gap_mm', ...
                 'no_interaction_gap_mm', 'estimated_sigma_mm', ...
                 'main_articles', 'minimum_gap_mm'}))
-            defs{1} = sprintf('%.6g', loaded_plan.interaction_gap_mm);
-            defs{2} = sprintf('%.6g', loaded_plan.no_interaction_gap_mm);
-            defs{3} = sprintf('%.6g', loaded_plan.estimated_sigma_mm);
-            defs{4} = sprintf('%d', loaded_plan.main_articles);
-            defs{5} = sprintf('%.6g', loaded_plan.minimum_gap_mm);
+            defaults.low_guess = sprintf('%.6g', loaded_plan.interaction_gap_mm);
+            defaults.high_guess = sprintf('%.6g', loaded_plan.no_interaction_gap_mm);
+            defaults.variation_guess = sprintf('%.6g', loaded_plan.estimated_sigma_mm);
+            defaults.maximum_tests = sprintf('%d', loaded_plan.main_articles);
+            defaults.minimum_gap = sprintf('%.6g', loaded_plan.minimum_gap_mm);
             planned_message = sprintf('Planned checkpoint: Main study - %d articles', ...
                 loaded_plan.main_articles);
             if isfield(loaded_plan, 'maximum_gap_mm')
-                defs{6} = sprintf('%.6g', loaded_plan.maximum_gap_mm);
+                defaults.maximum_gap = sprintf('%.6g', loaded_plan.maximum_gap_mm);
             end
-            defs{8} = sprintf('%.6g', usable_resolution_for_plan( ...
-                loaded_plan, str2double(defs{8})));
+            defaults.regular_step = sprintf('%.6g', usable_resolution_for_plan( ...
+                loaded_plan, str2double(defaults.regular_step)));
         end
     end
 
-    fig = uifigure('Name', 'Neyer gap test - inputs', 'Position', [280 45 720 750]);
-    gl  = uigridlayout(fig, [11 2]);
-    gl.RowHeight     = {70, 46, 46, 46, 46, 46, 46, 46, 46, 46, 54};
-    gl.ColumnWidth   = {'1x', 190};
-    gl.Padding       = [28 24 28 24];
-    gl.RowSpacing    = 12;
-    gl.ColumnSpacing = 16;
+    fig = uifigure('Name', 'Neyer gap test - inputs', ...
+        'Position', [220 45 860 820], 'Color', [0.97 0.98 0.98]);
+    gl = uigridlayout(fig, [12 1]);
+    gl.RowHeight = {56, 52, 52, 62, 52, 52, 52, 48, 68, 76, 52, 48};
+    gl.ColumnWidth = {'1x'};
+    gl.Padding = [28 18 28 18];
+    gl.RowSpacing = 7;
 
     ttl = uilabel(gl, 'Text', ['Run a Test directly  |  ' planned_message], ...
-        'FontSize', 17, 'FontWeight', 'bold', 'WordWrap', 'on');
-    ttl.Layout.Row = 1; ttl.Layout.Column = [1 2];
+        'FontSize', 18, 'FontWeight', 'bold', 'WordWrap', 'on', ...
+        'FontColor', [0.12 0.20 0.24]);
+    ttl.Layout.Row = 1;
 
-    edits = gobjects(1, 9);
-    for i = 1:9
-        lb = uilabel(gl, 'Text', labels{i}, 'FontSize', 15, 'WordWrap', 'on');
-        lb.Layout.Row = i + 1; lb.Layout.Column = 1;
-        edits(i) = uieditfield(gl, 'text', 'Value', defs{i}, 'FontSize', 16);
-        edits(i).Layout.Row = i + 1; edits(i).Layout.Column = 2;
-    end
+    low_guess = add_text_input(gl, 2, ...
+        'Low guess for the middle gap (mm)', ...
+        ['Your smallest reasonable guess for the gap where Interaction and ' ...
+         'No interaction are equally likely. This starts the search; it is not a limit.'], ...
+        'low_guess', 'low_guess_help', defaults.low_guess);
+    high_guess = add_text_input(gl, 3, ...
+        'High guess for the middle gap (mm)', ...
+        ['Your largest reasonable guess for the gap where Interaction and ' ...
+         'No interaction are equally likely.'], ...
+        'high_guess', 'high_guess_help', defaults.high_guess);
+    variation_guess = add_text_input(gl, 4, ...
+        'Rough guess of the overall variation (mm)', ...
+        ['A rough starting guess, not the final answer: about how wide the change ' ...
+         'is from mostly Interaction to mostly No interaction.'], ...
+        'variation_guess', 'variation_guess_help', defaults.variation_guess);
+    maximum_tests = add_text_input(gl, 5, ...
+        'Maximum allowed number of destructive tests', ...
+        ['The most new articles this direct run may consume. It is a maximum, ' ...
+         'not a promise that a confidence level will be reached.'], ...
+        'maximum_tests', 'maximum_tests_help', defaults.maximum_tests);
+    minimum_gap = add_text_input(gl, 6, ...
+        'Minimum permitted gap (mm)', ...
+        'The smallest gap the study is allowed to request.', ...
+        'minimum_gap', 'minimum_gap_help', defaults.minimum_gap);
+    maximum_gap = add_text_input(gl, 7, ...
+        'Maximum permitted gap (mm)', ...
+        'The largest useful gap the study is allowed to request.', ...
+        'maximum_gap', 'maximum_gap_help', defaults.maximum_gap);
+    unit = add_text_input(gl, 8, ...
+        'Gap unit', ...
+        'The unit used for every gap entry and request in this run.', ...
+        'unit', 'unit_help', defaults.unit);
+    physical_mode = add_dropdown_input(gl, 9, ...
+        'How can you build the test gaps?', ...
+        ['Choose the method that matches what can actually be built. ' ...
+         'Only the selected entry below will be used.'], ...
+        'physical_mode', 'physical_mode_help', ...
+        {'Regular gap step', 'Confirmed gap list'}, ...
+        'Regular gap step');
+
+    physical_entries = uigridlayout(gl, [2 1]);
+    physical_entries.Layout.Row = 10;
+    physical_entries.RowHeight = {76, 0};
+    physical_entries.ColumnWidth = {'1x'};
+    physical_entries.Padding = [0 0 0 0];
+    physical_entries.RowSpacing = 0;
+    regular_step = add_text_input(physical_entries, 1, ...
+        'Regular gap step (mm)', ...
+        ['Use this only when every multiple of this step can genuinely be built ' ...
+         'inside the permitted range, such as 0.05 mm or 0.10 mm.'], ...
+        'regular_step', 'regular_step_help', defaults.regular_step);
+    confirmed_gaps = add_text_input(physical_entries, 2, ...
+        'Confirmed gap list', ...
+        ['Enter only measured gaps already confirmed as buildable, separated by ' ...
+         'commas, such as 1.00, 1.10, 2.50.'], ...
+        'confirmed_gaps', 'confirmed_gaps_help', defaults.confirmed_gaps);
+    set_input_state(confirmed_gaps, false);
+    physical_mode.field.ValueChangedFcn = @(~, ~) update_physical_mode();
+
+    foil_thickness = add_text_input(gl, 11, ...
+        'Approximate foil thickness (mm)', ...
+        ['Construction information only. It does not set the usable gap step ' ...
+         'or change the calculation.'], ...
+        'foil_thickness', 'foil_thickness_help', defaults.foil_thickness);
 
     bp = uigridlayout(gl, [1 2]);
-    bp.Layout.Row = 11; bp.Layout.Column = [1 2];
+    bp.Layout.Row = 12;
     bp.ColumnWidth = {'1x', '1x'}; bp.Padding = [0 6 0 0]; bp.ColumnSpacing = 16;
     uibutton(bp, 'Text', 'Start test', 'FontSize', 16, 'FontWeight', 'bold', ...
              'BackgroundColor', [0.20 0.42 0.40], 'FontColor', [1 1 1], ...
@@ -4594,8 +4932,18 @@ function parsed = ask_settings_ui(loaded_plan)
     if isvalid(fig), delete(fig); end
 
     function startTest()
-        answers = cell(1, 9);
-        for j = 1:9, answers{j} = edits(j).Value; end
+        answers = struct( ...
+            'low_guess', low_guess.field.Value, ...
+            'high_guess', high_guess.field.Value, ...
+            'variation_guess', variation_guess.field.Value, ...
+            'maximum_tests', maximum_tests.field.Value, ...
+            'minimum_gap', minimum_gap.field.Value, ...
+            'maximum_gap', maximum_gap.field.Value, ...
+            'unit', unit.field.Value, ...
+            'physical_mode', physical_mode.field.Value, ...
+            'regular_step', regular_step.field.Value, ...
+            'confirmed_gaps', confirmed_gaps.field.Value, ...
+            'foil_thickness', foil_thickness.field.Value);
         try
             store.parsed = parse_run_inputs(answers);
             if ~isempty(loaded_plan)
@@ -4615,10 +4963,84 @@ function parsed = ask_settings_ui(loaded_plan)
             uialert(fig, e.message, 'Please fix your inputs');
         end
     end
+    function update_physical_mode()
+        use_regular = strcmp(physical_mode.field.Value, 'Regular gap step');
+        set_input_state(regular_step, use_regular);
+        set_input_state(confirmed_gaps, ~use_regular);
+        if use_regular
+            physical_entries.RowHeight = {76, 0};
+        else
+            physical_entries.RowHeight = {0, 76};
+        end
+    end
     function cancelTest()
         store.parsed = [];
         uiresume(fig);
     end
+end
+
+function controls = add_text_input(parent, row, question, explanation, ...
+        tag, help_tag, value)
+    group = uigridlayout(parent, [2 2]);
+    group.Layout.Row = row;
+    group.RowHeight = {23, '1x'};
+    group.ColumnWidth = {'1x', 218};
+    group.Padding = [0 0 0 0];
+    group.RowSpacing = 1;
+    group.ColumnSpacing = 18;
+    controls.label = uilabel(group, 'Text', question, 'FontSize', 14, ...
+        'FontWeight', 'bold', 'FontColor', [0.12 0.20 0.24], ...
+        'Tag', [tag '_label']);
+    controls.label.Layout.Row = 1;
+    controls.label.Layout.Column = 1;
+    controls.help = uilabel(group, 'Text', explanation, 'FontSize', 11, ...
+        'FontColor', [0.34 0.40 0.43], 'WordWrap', 'on', ...
+        'VerticalAlignment', 'top', 'Tag', help_tag);
+    controls.help.Layout.Row = 2;
+    controls.help.Layout.Column = 1;
+    controls.field = uieditfield(group, 'text', 'Value', value, ...
+        'FontSize', 15, 'Tag', tag);
+    controls.field.Layout.Row = [1 2];
+    controls.field.Layout.Column = 2;
+end
+
+function controls = add_dropdown_input(parent, row, question, explanation, ...
+        tag, help_tag, items, value)
+    group = uigridlayout(parent, [2 2]);
+    group.Layout.Row = row;
+    group.RowHeight = {25, '1x'};
+    group.ColumnWidth = {'1x', 218};
+    group.Padding = [0 0 0 0];
+    group.RowSpacing = 1;
+    group.ColumnSpacing = 18;
+    controls.label = uilabel(group, 'Text', question, 'FontSize', 15, ...
+        'FontWeight', 'bold', 'FontColor', [0.12 0.20 0.24], ...
+        'Tag', [tag '_label']);
+    controls.label.Layout.Row = 1;
+    controls.label.Layout.Column = 1;
+    controls.help = uilabel(group, 'Text', explanation, 'FontSize', 11, ...
+        'FontColor', [0.34 0.40 0.43], 'WordWrap', 'on', ...
+        'VerticalAlignment', 'top', 'Tag', help_tag);
+    controls.help.Layout.Row = 2;
+    controls.help.Layout.Column = 1;
+    controls.field = uidropdown(group, 'Items', items, 'Value', value, ...
+        'FontSize', 14, 'Tag', tag);
+    controls.field.Layout.Row = [1 2];
+    controls.field.Layout.Column = 2;
+end
+
+function set_input_state(controls, is_active)
+    if is_active
+        visible = 'on';
+        enabled = 'on';
+    else
+        visible = 'off';
+        enabled = 'off';
+    end
+    controls.label.Visible = visible;
+    controls.help.Visible = visible;
+    controls.field.Visible = visible;
+    controls.field.Enable = enabled;
 end
 
 function approved = ask_reserve_ui(decision)
@@ -4676,7 +5098,9 @@ function response = gap_popup(level, k, N, reachable_model)
     requested_text = format_requested_gap(level,'mm');
     if ~isempty(reachable_model)
         [distance, recipe_row] = min(abs(reachable_model.gaps_mm(:) - level));
-        if distance <= reachable_model.comparison_tolerance_mm
+        if distance <= reachable_model.comparison_tolerance_mm && ...
+                (strcmp(reachable_model.mode, 'list') || ...
+                 strcmp(reachable_model.mode, 'combinations'))
             requested_text = sprintf('%s\n%s', requested_text, ...
                 char(reachable_model.instructions(recipe_row)));
         end
@@ -4735,9 +5159,11 @@ function model = reachable_model_or_empty(cfg)
         model = [];
     end
 end
+% === END EMBEDDED SOURCE: run_test_ui.m ===
 
+% === BEGIN EMBEDDED SOURCE: sanity_clamp.m ===
 function [mu_c, sigma_c] = sanity_clamp(mu, sigma, levels, cfg)
-%SANITY_CLAMP  Worker #5 â€” rein in wild best-fits on few results.
+%SANITY_CLAMP  Worker #5 — rein in wild best-fits on few results.
 %
 %   [mu_c, sigma_c] = SANITY_CLAMP(mu, sigma, levels, cfg) keeps an estimate
 %   physically sensible when only a handful of results are in:
@@ -4786,7 +5212,9 @@ function [mu_c, sigma_c] = sanity_clamp(mu, sigma, levels, cfg)
         sigma_c = min(sigma, rng);
     end
 end
+% === END EMBEDDED SOURCE: sanity_clamp.m ===
 
+% === BEGIN EMBEDDED SOURCE: save_results_files.m ===
 function paths = save_results_files(base, csv_text, html_text)
 %SAVE_RESULTS_FILES  Write CSV + HTML report text to <base>.csv / <base>.html.
 %   paths = SAVE_RESULTS_FILES(base, csv_text, html_text) writes the two files
@@ -4813,7 +5241,9 @@ function write_text(p, txt)
     fwrite(fid, txt);
     fclose(fid);
 end
+% === END EMBEDDED SOURCE: save_results_files.m ===
 
+% === BEGIN EMBEDDED SOURCE: save_study_plan.m ===
 function saved_path = save_study_plan(plan, selected_path)
 %SAVE_STUDY_PLAN Save a human-readable study plan without replacing a file.
 % The caller chooses the complete destination. The exact path is returned so
@@ -4909,7 +5339,9 @@ function path = absolute_save_path(selected_path)
         path = fullfile(pwd, path);
     end
 end
+% === END EMBEDDED SOURCE: save_study_plan.m ===
 
+% === BEGIN EMBEDDED SOURCE: select_reachable_request.m ===
 function [requested_gap_mm, status] = select_reachable_request( ...
         raw_gap_mm, reachable_model, previous_requested_gaps, allow_repeat, ...
         strict_outside_interval)
@@ -4974,7 +5406,9 @@ function [requested_gap_mm, status] = select_reachable_request( ...
         'display_gap', string(sprintf('%.2f mm', requested_gap_mm)), ...
         'instruction', reachable_model.instructions(chosen_row));
 end
+% === END EMBEDDED SOURCE: select_reachable_request.m ===
 
+% === BEGIN EMBEDDED SOURCE: select_operating_gap.m ===
 function [gap_mm, status] = select_operating_gap(raw_boundary_mm, outcome, model)
 %SELECT_OPERATING_GAP Add one reachable physical step in the safe direction.
 % The confidence boundary is first rounded in the safe direction. The final
@@ -5005,9 +5439,11 @@ function [gap_mm, status] = select_operating_gap(raw_boundary_mm, outcome, model
         'One extra reachable setting was added in the safe direction to ' ...
         'protect against differences in a newly built spacer setup.'];
 end
+% === END EMBEDDED SOURCE: select_operating_gap.m ===
 
+% === BEGIN EMBEDDED SOURCE: shape_model.m ===
 function s = shape_model(x, mu, sigma)
-%SHAPE_MODEL  Worker #1 â€” the bell curve (the ONLY place the shape lives).
+%SHAPE_MODEL  Worker #1 — the bell curve (the ONLY place the shape lives).
 %
 %   s = SHAPE_MODEL(x, mu, sigma) evaluates the assumed response shape at one
 %   or more physical gaps x, for interaction thresholds that follow a bell
@@ -5062,7 +5498,7 @@ function s = shape_model(x, mu, sigma)
         return;
     end
 
-    % Spread must be positive â€” z divides by it. Defensive guard; full input
+    % Spread must be positive — z divides by it. Defensive guard; full input
     % validation is worker #7 (check_inputs).  [brief sec.8 item 4]
     if ~(isscalar(mu) && isscalar(sigma))
         error('shape_model:scalarParams', 'mu and sigma must be scalars.');
@@ -5086,82 +5522,182 @@ function s = shape_model(x, mu, sigma)
 
     s = struct('z', z, 'phi', phi, 'Phi', Phi, 'Q', Q, 'p', Phi);
 end
+% === END EMBEDDED SOURCE: shape_model.m ===
 
+% === BEGIN EMBEDDED SOURCE: show_manual.m ===
 function show_manual()
-%SHOW_MANUAL Show the embedded gap-study operator guide.
-    f=uifigure('Name','Neyer Gap Test - Help','Position',[340 180 720 620]);
-    gl=uigridlayout(f,[1 1]); gl.Padding=[10 10 10 10];
-    ta=uitextarea(gl,'Value',manual_lines(),'Editable','off');
-    ta.FontName='Consolas';
+%SHOW_MANUAL Show the scrollable gap-study operator guide.
+
+    color.graphite = [33 49 58] / 255;
+    color.blue = [35 108 142] / 255;
+    color.white = [247 249 250] / 255;
+    color.paper = [1 1 1];
+    fontName = 'Arial';
+
+    figureHandle = uifigure('Name', 'Neyer Gap Test - Help', ...
+        'Position', [250 70 900 760], 'Color', color.white);
+    page = uigridlayout(figureHandle, [2 1]);
+    page.RowHeight = {76, '1x'};
+    page.Padding = [22 16 22 18];
+    page.RowSpacing = 10;
+
+    heading = uigridlayout(page, [2 1]);
+    heading.RowHeight = {38, 28};
+    heading.Padding = [4 0 4 0];
+    heading.RowSpacing = 2;
+    uilabel(heading, 'Text', 'Neyer Gap Test V2 - operator guide', ...
+        'FontName', fontName, 'FontSize', 22, 'FontWeight', 'bold', ...
+        'FontColor', color.graphite);
+    uilabel(heading, 'Text', ...
+        'Read the short sections below. Use the scroll bar to continue.', ...
+        'FontName', fontName, 'FontSize', 13, ...
+        'FontColor', color.blue);
+
+    sections = help_sections();
+    helpLayout = uigridlayout(page, [numel(sections) 1]);
+    helpLayout.Tag = 'help_scroll_layout';
+    helpLayout.Scrollable = 'on';
+    helpLayout.RowHeight = {145, 380, 220, 280, 210, 145, 175, 290, 220};
+    helpLayout.ColumnWidth = {'1x'};
+    helpLayout.Padding = [4 4 16 8];
+    helpLayout.RowSpacing = 12;
+
+    for sectionNumber = 1:numel(sections)
+        panel = uipanel(helpLayout, 'Title', sections(sectionNumber).title, ...
+            'Tag', 'help_section', 'FontName', fontName, 'FontSize', 15, ...
+            'FontWeight', 'bold', 'ForegroundColor', color.graphite, ...
+            'BackgroundColor', color.paper);
+        panel.Layout.Row = sectionNumber;
+        panel.Layout.Column = 1;
+        panelGrid = uigridlayout(panel, [1 1]);
+        panelGrid.Padding = [16 10 16 12];
+        paragraph = uilabel(panelGrid, 'Text', sections(sectionNumber).text, ...
+            'Tag', 'help_paragraph', 'FontName', fontName, 'FontSize', 13, ...
+            'FontColor', color.graphite, 'WordWrap', 'on', ...
+            'VerticalAlignment', 'top');
+        paragraph.Layout.Row = 1;
+        paragraph.Layout.Column = 1;
+    end
 end
 
-function lines=manual_lines()
-    lines={
-      'NEYER GAP TEST - OPERATOR GUIDE'
-      ''
-      'PURPOSE'
-      'This tool estimates how interaction changes as the physical gap changes.'
-      'Smaller gaps make interaction more likely. Larger gaps make it less likely.'
-      'The main results are the middle gap (about 50% interaction) and the'
-      'overall variation (how gradual or sudden that change is).'
-      ''
-      'BEFORE STARTING'
-      '- Enter low and high guesses for the middle gap.'
-      '- Enter a rough overall-variation guess.'
-      '- Enter the number of destructive tests available.'
-      '- Enter the permitted minimum gap and the usable gap step for this study.'
-      '- Foil thickness is construction information; it does not set the safety floor.'
-      '- Foil recipes are unavailable until measured stacks and a practical layer limit are confirmed.'
-      '- Use 0 to 10 mm as the study boundaries unless the approved setup changes.'
-      ''
-      'FOR EVERY TEST'
-      '1. Build a new spacer setup at the requested reachable gap.'
-      '2. Measure the completed setup once.'
-      '3. Enter that measured gap; it is used by the statistical calculation.'
-      '4. Perform one test and select Interaction or No interaction.'
-      '5. The spacer setup is not reused after the destructive test.'
-      ''
-      'IMPORTANT DISTINCTION'
-      'The requested build gap is always shown with two decimal places.'
-      'The one measured gap is the actual gap used in the statistical model.'
-      'If the same reachable gap is requested again, build and measure a new setup.'
-      'The Stage-2 planning width cannot fall below two usable gap steps.'
-      ''
-      'BOUNDARY PROTECTION'
-      'An unexpected outcome at 0 or 10 mm is repeated once for confirmation.'
-      'If it happens twice, the study pauses and saves the data for review.'
-      'A boundary pause does not mean that the specimen test failed.'
-      ''
-      'READING THE RESULTS'
-      '- Middle gap: the estimated gap with about 50% interaction chance.'
-      '- Overall variation: how much the full tested process varies around the middle.'
-      '- High-interaction gap: a smaller-gap reliability point.'
-      '- Negligible-interaction gap: a larger-gap reliability point.'
-      '- Values outside 0 to 10 mm are outside the tested range, not build settings.'
-      ''
-      'CONFIDENCE AND PROBABILITY'
-      'Probability describes the expected outcome at a gap.'
-      'Confidence describes how certain the estimate is from the available data.'
-      'These are different quantities and should be reported separately.'
-      ''
-      'RECORDED SUPPORT LIMITS'
-      '- The main study can estimate the middle gap and overall variation.'
-      '- A safety-supported reliability setting needs at least 400 independent articles.'
-      '- Reserve articles are used only after the user approves each checkpoint.'
-      '- Confidence of 50% or less is exploratory; no supported setting is issued.'
-      '- Confidence above 95% can be calculated but is outside recorded validation.'
-      ''
-      'SELF-CHECK'
-      'Run the published example. It must report middle 5.3922 and overall variation 1.0412 - MATCH.'
-      ''
-      'Method: Neyer (1994) D-optimal sensitivity test.'
-    };
+function sections = help_sections()
+    sections(1) = section('What the tool answers', sprintf([ ...
+        'This tool estimates how the chance of Interaction changes as the ' ...
+        'physical gap changes. Smaller gaps make Interaction more likely; ' ...
+        'larger gaps make No interaction more likely.\n\n' ...
+        'Its main calculated answers are the middle gap (about 50%% ' ...
+        'Interaction) and the overall variation (how gradual or sudden the ' ...
+        'change is across similar articles). It can also report the estimated ' ...
+        'chance of an outcome at one gap.']));
+
+    sections(2) = section('What each direct input means', sprintf([ ...
+        'Low middle-gap guess - the smallest reasonable starting location ' ...
+        'of the 50/50 change. It is not the minimum test limit.\n\n' ...
+        'High middle-gap guess - the largest reasonable starting location ' ...
+        'of the 50/50 change.\n\n' ...
+        'Rough overall-variation guess - a first estimate of how gradually ' ...
+        'results change. Use 1 mm if only a broad first estimate is known.\n\n' ...
+        'Maximum tests - the most new articles this run may use. It is not a ' ...
+        'promise of confidence.\n\n' ...
+        'Minimum permitted gap - the smallest gap the study may request. ' ...
+        'Maximum permitted gap - the largest useful gap it may request.\n\n' ...
+        'Unit - the distance unit used for every gap and variation value.\n\n' ...
+        'How can you build the test gaps? - choose Regular gap step or ' ...
+        'Confirmed gap list as explained in the next section.\n\n' ...
+        'Foil thickness - construction information only. It does not set the ' ...
+        'minimum gap or the usable step.\n\n' ...
+        'No Pre-Test Planner result is required. Direct Run a Test is ' ...
+        'independent from the separate Pre-Test Planner and does not read or ' ...
+        'update a saved plan.']));
+
+    sections(3) = section('Regular step versus confirmed list', sprintf([ ...
+        'Regular gap step: choose this only when every multiple of the step ' ...
+        'inside the permitted range can genuinely be built. Example: a ' ...
+        '0.05 mm step means the tool may request any available 0.05 mm step.\n\n' ...
+        'Confirmed gap list: choose this for a known set of measured, buildable ' ...
+        'gaps. Enter each allowed value once, separated by commas; for example, ' ...
+        '1.00, 1.10, 2.50. The tool requests only a value from that list.\n\n' ...
+        'These are alternatives. Direct testing does not accept ' ...
+        'spacer-combination recipes; only use physical settings already known ' ...
+        'to be buildable.']));
+
+    sections(4) = section('What to do for each new setup', sprintf([ ...
+        '1. Build the requested gap shown on screen. The request uses two ' ...
+        'decimal places, such as 5.00 mm; it is a build instruction, not the ' ...
+        'measured gap.\n\n' ...
+        '2. Measure the completed new setup once. Enter that one reading as ' ...
+        'the measured gap. The calculation uses this measured value. Do not ' ...
+        'average several readings for the setup.\n\n' ...
+        '3. Perform one test on one new article. Select Interaction if the ' ...
+        'defined interaction occurred; otherwise select No interaction.\n\n' ...
+        '4. Treat the article and spacer setup as consumed by the destructive ' ...
+        'test. If the same requested gap appears later, build another new ' ...
+        'setup and take one new reading. Do not reuse the earlier value.']));
+
+    sections(5) = section( ...
+            'How to read unfinished and calculated results', sprintf([ ...
+        'An unfinished result means the completed tests do not yet show both ' ...
+        'outcomes close enough to calculate the change. The screen shows the ' ...
+        'counts and a next action instead of blank charts or invented numbers. ' ...
+        'Completed data can still be saved.\n\n' ...
+        'A calculated result shows the middle gap and overall variation. The ' ...
+        'middle gap is an about-50%% Interaction estimate, not automatically ' ...
+        'an operating setting. Values outside the permitted range are reported ' ...
+        'as outside the tested range, never as build instructions.']));
+
+    sections(6) = section('Probability versus confidence', sprintf([ ...
+        'Probability describes the estimated chance of Interaction or No ' ...
+        'interaction at a chosen physical gap.\n\n' ...
+        'Confidence describes how strongly the completed evidence supports ' ...
+        'an estimate. It does not mean the chance that the next article has ' ...
+        'that outcome. Report probability and confidence separately.']));
+
+    sections(7) = section('Saving and reopening', sprintf([ ...
+        'Save results... creates matching CSV data and an HTML report under ' ...
+        'one base name. The app shows both destinations before saving. If ' ...
+        'either file already exists, nothing is overwritten; choose a new name.\n\n' ...
+        'While the main menu remains open, Review latest results reopens the ' ...
+        'most recent run. Saved CSV and HTML files are permanent records for ' ...
+        'review outside the app; they are not resumable test sessions.']));
+
+    sections(8) = section( ...
+            'Limits and the separate fixed-gap qualification concept', strjoin({ ...
+        'If one unexpected boundary result occurs at the minimum or maximum ' ...
+        'permitted gap, the tool asks for one confirmation at that same gap ' ...
+        'using a fresh setup. If it happens twice, the study pauses and keeps ' ...
+        'the data for review. A pause is not a specimen outcome or a software ' ...
+        'failure.', ...
+        'The main study estimates the middle gap and overall variation. A ' ...
+        'safety-supported reliability setting needs at least 400 independent articles. ' ...
+        'Confidence of 50% or less is exploratory; no supported setting is issued. ' ...
+        'Confidence above 95% can be calculated but is outside recorded validation.', ...
+        'A fixed-gap qualification is a different study: first choose one gap, ' ...
+        'then test a separately justified number of new, independent articles ' ...
+        'at that fixed setting. This tool does not turn the changing-gap study ' ...
+        'into that qualification or supply a universal qualification count.'}, ...
+        [newline newline]));
+
+    sections(9) = section('Method and traceability', sprintf([ ...
+        'Stage 1 means the early search that moves outward to find where the ' ...
+        'outcome changes. Stage 2 means the later search that concentrates ' ...
+        'tests around that change.\n\n' ...
+        'MLE means maximum-likelihood estimation: the calculation that finds ' ...
+        'the middle gap and overall variation most consistent with the recorded ' ...
+        'tests. D-optimal means the rule that chooses a useful next gap to add ' ...
+        'the most information expected from one more test.\n\n' ...
+        'These names provide traceability to the Neyer (1994) sensitivity-test ' ...
+        'method. Operators can follow the earlier sections without using these ' ...
+        'internal names.']));
 end
 
+function value = section(titleText, bodyText)
+    value = struct('title', titleText, 'text', bodyText);
+end
+% === END EMBEDDED SOURCE: show_manual.m ===
+
+% === BEGIN EMBEDDED SOURCE: show_result.m ===
 function h = show_result(result)
-%SHOW_RESULT Decision-first results window with two complementary charts.
-% The bell-shaped chart explains article-to-article variation. The probability
-% chart answers how interaction chance changes as the physical gap changes.
+%SHOW_RESULT Present either an unfinished status or a calculated result.
 
     if ~(isdeployed || usejava('desktop'))
         error('show_result:noDisplay', 'The results window needs the MATLAB desktop.');
@@ -5173,17 +5709,104 @@ function h = show_result(result)
     end
     has_estimate = isfield(result, 'has_overlap') && result.has_overlap && ...
         isfield(result, 'mu') && isfinite(result.mu);
-    decision = result_decision_summary(result);
+    if ~has_estimate
+        h = show_unfinished_result(result);
+        return;
+    end
 
     confidence = 0.95;
     if isfield(result, 'confidence_level') && isfinite(result.confidence_level)
         confidence = result.confidence_level;
     end
 
+    h = show_calculated_result(result, unit, confidence);
+end
+
+function h = show_unfinished_result(result)
+    h = uifigure('Name', 'Neyer gap-study results', ...
+        'Position', [240 120 760 520], 'Color', [0.96 0.97 0.97]);
+    layout = uigridlayout(h, [1 1]);
+    layout.Padding = [18 18 18 18];
+
+    statusPanel = uipanel(layout, 'Title', 'Result not calculated yet', ...
+        'FontWeight', 'bold', 'BackgroundColor', [1.00 0.97 0.90]);
+    statusLayout = uigridlayout(statusPanel, [7 1]);
+    statusLayout.RowHeight = {66, 58, 38, 38, 38, 78, 42};
+    statusLayout.Padding = [22 18 22 20];
+    statusLayout.RowSpacing = 8;
+
+    uilabel(statusLayout, 'Text', [ ...
+        'The middle gap and overall variation cannot yet be calculated ' ...
+        'from these completed tests.'], 'FontSize', 20, ...
+        'FontWeight', 'bold', 'WordWrap', 'on', ...
+        'FontColor', [0.52 0.31 0.06]);
+    uilabel(statusLayout, 'Text', [ ...
+        'A calculated result needs Interaction and No interaction results ' ...
+        'close enough to show the change. No substitute answer is shown.'], ...
+        'FontSize', 13, 'WordWrap', 'on', ...
+        'FontColor', [0.20 0.24 0.26]);
+
+    [completedCount, interactionCount, noInteractionCount] = ...
+        completed_outcome_counts(result);
+    uilabel(statusLayout, 'Text', sprintf('Completed tests: %d', ...
+        completedCount), 'FontSize', 15, 'FontWeight', 'bold');
+    uilabel(statusLayout, 'Text', sprintf('Interaction observed: %s (%d)', ...
+        observed_word(interactionCount), interactionCount), 'FontSize', 14);
+    uilabel(statusLayout, 'Text', sprintf( ...
+        'No interaction observed: %s (%d)', ...
+        observed_word(noInteractionCount), noInteractionCount), 'FontSize', 14);
+
+    saveAvailable = result_save_available(result);
+    if saveAvailable
+        nextAction = [ ...
+            'Next action: save the completed results, then review the ' ...
+            'tested gaps before deciding whether another useful test can be run.'];
+    else
+        nextAction = [ ...
+            'Next action: return to the test and record at least one ' ...
+            'completed outcome.'];
+    end
+    uilabel(statusLayout, 'Text', nextAction, 'FontSize', 14, ...
+        'FontWeight', 'bold', 'WordWrap', 'on', ...
+        'FontColor', [0.18 0.22 0.24]);
+
+    saveButton = uibutton(statusLayout, 'Text', 'Save results...');
+    if saveAvailable
+        saveButton.ButtonPushedFcn = @(~, ~) save_from_window(result, h);
+    else
+        saveButton.Enable = 'off';
+    end
+end
+
+function [completedCount, interactionCount, noInteractionCount] = ...
+        completed_outcome_counts(result)
+    completedCount = 0;
+    interactionCount = 0;
+    noInteractionCount = 0;
+    if ~isfield(result, 'successes') || isempty(result.successes)
+        return;
+    end
+    outcomes = logical(result.successes(:));
+    completedCount = numel(outcomes);
+    interactionCount = sum(outcomes);
+    noInteractionCount = completedCount - interactionCount;
+end
+
+function word = observed_word(count)
+    if count > 0
+        word = 'Yes';
+    else
+        word = 'No';
+    end
+end
+
+function h = show_calculated_result(result, unit, confidence)
+    decision = result_decision_summary(result);
+
     h = uifigure('Name', 'Neyer gap-study results', ...
         'Position', [60 50 1240 760], 'Color', [0.96 0.97 0.97]);
     layout = uigridlayout(h, [3 3]);
-    layout.RowHeight = {118, '1x', 190};
+    layout.RowHeight = {118, '1x', 130};
     layout.ColumnWidth = {340, '1x', '1x'};
     layout.Padding = [14 14 14 14];
     layout.RowSpacing = 10;
@@ -5204,7 +5827,8 @@ function h = show_result(result)
     else
         decisionPanel.BackgroundColor = [1.00 0.96 0.87];
         decisionTitle = 'Supported operating instruction: Not established';
-        decisionText = decision.explanation;
+        decisionText = strrep(char(decision.explanation), ...
+            'fitted result', 'calculated result');
         decisionColor = [0.52 0.31 0.06];
     end
     decisionLayout = uigridlayout(decisionPanel, [2 1]);
@@ -5215,48 +5839,39 @@ function h = show_result(result)
     uilabel(decisionLayout, 'Text', decisionText, 'FontSize', 12, ...
         'WordWrap', 'on', 'FontColor', [0.18 0.22 0.24]);
 
-    factsPanel = uipanel(layout, 'Title', 'What the fitted result means', ...
+    factsPanel = uipanel(layout, 'Title', 'What the calculated result means', ...
         'FontWeight', 'bold');
     factsPanel.Layout.Row = 2;
     factsPanel.Layout.Column = 1;
-    if has_estimate
-        gA = uigridlayout(factsPanel, [9 1]);
-        gA.RowHeight   = {54, 30, 42, 30, 8, 55, 74, '1x', 4};
-        gA.Padding = [10 10 10 8];
-        gA.RowSpacing = 3;
-        uilabel(gA, 'Text', sprintf( ...
-            'Middle gap (about 50%% interaction): %.2f %s', result.mu, unit), ...
-            'FontSize', 17, 'FontWeight', 'bold', 'WordWrap', 'on');
-        uilabel(gA, 'Text', format_confidence_range(confidence, ...
-            result.mu_lo, result.mu_hi, unit), ...
-            'FontSize', 12, 'WordWrap', 'on');
-        uilabel(gA, 'Text', sprintf('Overall variation: %.2f %s', ...
-            result.sigma, unit), 'FontSize', 16, 'FontWeight', 'bold');
-        uilabel(gA, 'Text', format_confidence_range(confidence, ...
-            result.sigma_lo, result.sigma_hi, unit), ...
-            'FontSize', 12, 'WordWrap', 'on');
-        uilabel(gA, 'Text', '');
-        uilabel(gA, 'Text', [ ...
-            'Overall variation describes how much the entire tested process ' ...
-            'varies from article to article around the middle gap.'], ...
-            'FontSize', 12, 'WordWrap', 'on', 'FontColor', [0.25 0.30 0.32]);
-        uilabel(gA, 'Text', [ ...
-            'Important: the middle gap is a 50/50 estimate. It is not the ' ...
-            'reliable operating gap shown in the decision above.'], ...
-            'FontSize', 12, 'WordWrap', 'on', 'FontColor', [0.52 0.31 0.06]);
-        uilabel(gA, 'Text', sprintf([ ...
-            'Direction: smaller gaps make Interaction more likely; larger ' ...
-            'gaps make No interaction more likely. Based on %d tests.'], ...
-            result.n), 'FontSize', 12, 'WordWrap', 'on');
-        uilabel(gA, 'Text', '');
-    else
-        gA = uigridlayout(factsPanel, [1 1]);
-        uilabel(gA, 'Text', [ ...
-            'No fitted middle gap has been established from these results. ' ...
-            'Both outcomes must occur close enough to show the change. You ' ...
-            'can still save every completed test and review it later.'], ...
-            'FontSize', 15, 'FontWeight', 'bold', 'WordWrap', 'on');
-    end
+    gA = uigridlayout(factsPanel, [9 1]);
+    gA.RowHeight   = {54, 30, 42, 30, 8, 55, 74, '1x', 4};
+    gA.Padding = [10 10 10 8];
+    gA.RowSpacing = 3;
+    uilabel(gA, 'Text', sprintf( ...
+        'Middle gap (about 50%% interaction): %.2f %s', result.mu, unit), ...
+        'FontSize', 17, 'FontWeight', 'bold', 'WordWrap', 'on');
+    uilabel(gA, 'Text', format_confidence_range(confidence, ...
+        result.mu_lo, result.mu_hi, unit), ...
+        'FontSize', 12, 'WordWrap', 'on');
+    uilabel(gA, 'Text', sprintf('Overall variation: %.2f %s', ...
+        result.sigma, unit), 'FontSize', 16, 'FontWeight', 'bold');
+    uilabel(gA, 'Text', format_confidence_range(confidence, ...
+        result.sigma_lo, result.sigma_hi, unit), ...
+        'FontSize', 12, 'WordWrap', 'on');
+    uilabel(gA, 'Text', '');
+    uilabel(gA, 'Text', [ ...
+        'Overall variation describes how much the entire tested process ' ...
+        'varies from article to article around the middle gap.'], ...
+        'FontSize', 12, 'WordWrap', 'on', 'FontColor', [0.25 0.30 0.32]);
+    uilabel(gA, 'Text', [ ...
+        'Important: the middle gap is a 50/50 estimate. It is not the ' ...
+        'reliable operating gap shown in the decision above.'], ...
+        'FontSize', 12, 'WordWrap', 'on', 'FontColor', [0.52 0.31 0.06]);
+    uilabel(gA, 'Text', sprintf([ ...
+        'Direction: smaller gaps make Interaction more likely; larger ' ...
+        'gaps make No interaction more likely. Based on %d tests.'], ...
+        result.n), 'FontSize', 12, 'WordWrap', 'on');
+    uilabel(gA, 'Text', '');
 
     distributionAxes = uiaxes(layout);
     distributionAxes.Layout.Row = 2;
@@ -5264,31 +5879,26 @@ function h = show_result(result)
     probabilityAxes = uiaxes(layout);
     probabilityAxes.Layout.Row = 2;
     probabilityAxes.Layout.Column = 3;
-    if has_estimate
-        try
-            compactSettings = neyer_settings();
-            compactSettings.compact = true;
-            draw_distribution(distributionAxes, result, compactSettings);
-        catch
-            title(distributionAxes, 'Variation chart unavailable');
-        end
-        try
-            curveSettings = neyer_settings();
-            if isfield(result, 'study_plan') && isstruct(result.study_plan)
-                if isfield(result.study_plan, 'minimum_gap_mm')
-                    curveSettings.min_level = result.study_plan.minimum_gap_mm;
-                end
-                if isfield(result.study_plan, 'maximum_gap_mm')
-                    curveSettings.max_level = result.study_plan.maximum_gap_mm;
-                end
+    try
+        compactSettings = neyer_settings();
+        compactSettings.compact = true;
+        draw_distribution(distributionAxes, result, compactSettings);
+    catch
+        title(distributionAxes, 'Variation chart unavailable');
+    end
+    try
+        curveSettings = neyer_settings();
+        if isfield(result, 'study_plan') && isstruct(result.study_plan)
+            if isfield(result.study_plan, 'minimum_gap_mm')
+                curveSettings.min_level = result.study_plan.minimum_gap_mm;
             end
-            draw_interaction_curve(probabilityAxes, result, curveSettings);
-        catch
-            title(probabilityAxes, 'Probability chart unavailable');
+            if isfield(result.study_plan, 'maximum_gap_mm')
+                curveSettings.max_level = result.study_plan.maximum_gap_mm;
+            end
         end
-    else
-        title(distributionAxes, 'No result yet');
-        title(probabilityAxes, 'No result yet');
+        draw_interaction_curve(probabilityAxes, result, curveSettings);
+    catch
+        title(probabilityAxes, 'Probability chart unavailable');
     end
 
     calculatorPanel = uipanel(layout, 'Title', ...
@@ -5301,7 +5911,8 @@ function h = show_result(result)
     calculatorLayout.RowSpacing = 8;
     uilabel(calculatorLayout, 'Text', [ ...
         'This does not change the planned operating instruction. Enter a gap ' ...
-        'to see the best estimated chance and its cautious confidence-backed minimum.'], ...
+        'to see the best estimated chance and the ' ...
+        'cautious minimum supported by the data.'], ...
         'FontSize', 12, 'WordWrap', 'on');
 
     controls = uigridlayout(calculatorLayout, [1 7]);
@@ -5309,9 +5920,8 @@ function h = show_result(result)
     controls.Padding = [0 4 0 4];
     controls.ColumnSpacing = 8;
     uilabel(controls, 'Text', 'Gap:', 'HorizontalAlignment', 'right');
-    defaultGap = 0;
-    if has_estimate, defaultGap = round(result.mu, 2); end
-    gapEdit = uieditfield(controls, 'numeric', 'Value', defaultGap);
+    gapEdit = uieditfield(controls, 'numeric', ...
+        'Value', round(result.mu, 2));
     uilabel(controls, 'Text', unit);
     outcomeDrop = uidropdown(controls, ...
         'Items', {'Interaction', 'No interaction'});
@@ -5321,21 +5931,12 @@ function h = show_result(result)
     saveButton.Layout.Column = 6;
     outputLabel.Layout.Column = 7;
 
-    if has_estimate
-        calculateButton.ButtonPushedFcn = @(~, ~) calculate_probability( ...
-            result, unit, confidence, gapEdit, outcomeDrop, outputLabel);
-    else
-        calculateButton.Enable = 'off';
-    end
+    calculateButton.ButtonPushedFcn = @(~, ~) calculate_probability( ...
+        result, unit, confidence, gapEdit, outcomeDrop, outputLabel);
     if result_save_available(result)
         saveButton.ButtonPushedFcn = @(~, ~) save_from_window(result, h);
     else
         saveButton.Enable = 'off';
-    end
-    if ~has_estimate && result_save_available(result)
-        outputLabel.Text = 'No fitted answer yet. The completed test data can still be saved.';
-    elseif ~has_estimate
-        outputLabel.Text = 'No completed tests are available to save.';
     end
 end
 
@@ -5355,9 +5956,10 @@ function calculate_probability(result, unit, confidence, gapEdit, outcomeDrop, o
         end
         cautious = min(answer.bound_percent, answer.percent);
         outputLabel.Text = sprintf([ ...
-            'At %.2f %s: best estimated chance %.4g%%; cautious minimum %.4g%% ' ...
-            'at %.4g%% confidence.'], gap, unit, answer.percent, cautious, ...
-            100 * confidence);
+            'At %.2f %s: best estimated chance %.4g%%; ' ...
+            'cautious minimum supported by the data %.4g%% at %.4g%% confidence.'], ...
+            gap, unit, ...
+            answer.percent, cautious, 100 * confidence);
     catch err
         outputLabel.Text = sprintf('Could not calculate: %s', err.message);
     end
@@ -5410,7 +6012,9 @@ function close_and_delete(fileId, imagePath)
     if fileId >= 0, fclose(fileId); end
     if isfile(imagePath), delete(imagePath); end
 end
+% === END EMBEDDED SOURCE: show_result.m ===
 
+% === BEGIN EMBEDDED SOURCE: usable_resolution_for_plan.m ===
 function usable_resolution_mm = usable_resolution_for_plan(plan, default_mm)
 %USABLE_RESOLUTION_FOR_PLAN Choose a two-decimal test step for a loaded plan.
 % Component thicknesses and irregular reachable gaps do not prove the test
@@ -5445,7 +6049,9 @@ function yes = is_two_decimal_step(value)
         isfinite(value) && value > 0 && ...
         abs(value * 100 - round(value * 100)) <= 1e-10;
 end
+% === END EMBEDDED SOURCE: usable_resolution_for_plan.m ===
 
+% === BEGIN EMBEDDED SOURCE: validate_planner_components.m ===
 function setup = validate_planner_components(component_names,component_mm,maximum_counts)
 %VALIDATE_PLANNER_COMPONENTS Validate measured printed-spacer recipes.
 % Foil recipes are intentionally unavailable until measured stacks and a
@@ -5473,7 +6079,9 @@ setup = struct('mode','combinations', ...
     'component_mm',component_mm(:)', ...
     'maximum_counts',maximum_counts(:)');
 end
+% === END EMBEDDED SOURCE: validate_planner_components.m ===
 
+% === BEGIN EMBEDDED SOURCE: validate_study_plan_safety.m ===
 function [is_valid, message] = validate_study_plan_safety(plan)
 %VALIDATE_STUDY_PLAN_SAFETY Check the fixed v1.10 reliability safeguards.
 % A missing or edited safeguard must never turn into permission to issue an
@@ -5541,7 +6149,9 @@ function [is_valid, message] = validate_study_plan_safety(plan)
 
     is_valid = true;
 end
+% === END EMBEDDED SOURCE: validate_study_plan_safety.m ===
 
+% === BEGIN EMBEDDED SOURCE: validate_plan_inputs.m ===
 function [clean, messages] = validate_plan_inputs(input)
 %VALIDATE_PLAN_INPUTS Check and normalize the pre-test planner answers.
 % Percentages may be entered as 95 or 0.95. Returned percentages are
@@ -5686,3 +6296,4 @@ function label = readable_field_name(field_name)
     label = regexprep(label, ' mm$', '');
     label(1) = upper(label(1));
 end
+% === END EMBEDDED SOURCE: validate_plan_inputs.m ===

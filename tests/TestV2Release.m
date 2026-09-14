@@ -40,7 +40,111 @@ classdef TestV2Release < matlab.unittest.TestCase
                 normalise(builtFunctions));
             testCase.verifySubstring(exportedText, 'Neyer Gap Test V2');
         end
+
+        function v2LiveScriptContainsEveryReviewedFunctionExactlyOnce(testCase)
+            root = fileparts(fileparts(mfilename('fullpath')));
+            sourceRoot = fullfile(root, 'application', 'source');
+            liveScript = fullfile(root, 'delivery', 'Neyer_Gap_Test_v2.mlx');
+            temporaryFolder = testCase.createTemporaryFolder();
+            exportedSource = fullfile(temporaryFolder, 'exported_v2.m');
+            matlab.internal.liveeditor.openAndConvert(liveScript, exportedSource);
+            exportedNames = localFunctionNames(fileread(exportedSource));
+
+            sourceFiles = dir(fullfile(sourceRoot, '*.m'));
+            sourceNames = strings(0, 1);
+            for fileNumber = 1:numel(sourceFiles)
+                fileNames = localFunctionNames(fileread( ...
+                    fullfile(sourceFiles(fileNumber).folder, ...
+                    sourceFiles(fileNumber).name)));
+                if strcmp(sourceFiles(fileNumber).name, ...
+                        'parse_confirmed_gap_list.m')
+                    fileNames(fileNames == "validate_bounds") = ...
+                        "validate_confirmed_gap_bounds";
+                end
+                sourceNames = [sourceNames; fileNames]; %#ok<AGROW>
+            end
+
+            testCase.assertEqual(numel(unique(sourceNames)), ...
+                numel(sourceNames), ...
+                'Standalone-local function names must be unique.');
+            testCase.verifyEqual(sort(exportedNames), sort(sourceNames), ...
+                ['The V2 Live Script must contain every reviewed source ' ...
+                 'function exactly once, with no extra functions.']);
+        end
+
+        function v2LiveScriptHasNoSourcePathAndKeepsOperatingSections(testCase)
+            root = fileparts(fileparts(mfilename('fullpath')));
+            liveScript = fullfile(root, 'delivery', 'Neyer_Gap_Test_v2.mlx');
+            temporaryFolder = testCase.createTemporaryFolder();
+            exportedSource = fullfile(temporaryFolder, 'exported_v2.m');
+            matlab.internal.liveeditor.openAndConvert(liveScript, exportedSource);
+            exportedText = fileread(exportedSource);
+
+            testCase.verifyEmpty(regexp(exportedText, ...
+                'application[\\/]+source', 'once', 'ignorecase'), ...
+                'The standalone must not refer to application/source.');
+            requiredSections = { ...
+                '%% Start a direct test without the planner', ...
+                '%% Physical gap settings', ...
+                '%% Procedure for every destructive article', ...
+                '%% Saving and reopening', ...
+                '%% Important limits', ...
+                '%% Start the application'};
+            for sectionNumber = 1:numel(requiredSections)
+                testCase.verifySubstring(exportedText, ...
+                    requiredSections{sectionNumber});
+            end
+        end
+
+        function v2AssemblyPreservesUtf8SourceComments(testCase)
+            root = fileparts(fileparts(mfilename('fullpath')));
+            sourceRoot = fullfile(root, 'application', 'source');
+            builtText = localNormaliseNewlines(fileread(fullfile(root, ...
+                'delivery', 'Neyer_Gap_Test_v2.m')));
+            sourceFiles = dir(fullfile(sourceRoot, '*.m'));
+
+            for fileNumber = 1:numel(sourceFiles)
+                sourceText = localNormaliseNewlines(fileread(fullfile( ...
+                    sourceFiles(fileNumber).folder, ...
+                    sourceFiles(fileNumber).name)));
+                comments = regexp(sourceText, '(?m)^\s*%[^\n]*', 'match');
+                for commentNumber = 1:numel(comments)
+                    testCase.verifySubstring(builtText, ...
+                        comments{commentNumber}, sprintf( ...
+                        'The generated source changed UTF-8 text from %s.', ...
+                        sourceFiles(fileNumber).name));
+                end
+            end
+        end
+
+        function v2CleanStartBeginsWithOnlyTheLiveScript(testCase)
+            root = fileparts(fileparts(mfilename('fullpath')));
+            liveScript = fullfile(root, 'delivery', 'Neyer_Gap_Test_v2.mlx');
+            temporaryFolder = testCase.createTemporaryFolder();
+            isolatedLiveScript = fullfile(temporaryFolder, ...
+                'Neyer_Gap_Test_v2.mlx');
+
+            copyfile(liveScript, isolatedLiveScript);
+            contents = dir(temporaryFolder);
+            contents = contents(~[contents.isdir]);
+
+            testCase.verifyEqual({contents.name}, {'Neyer_Gap_Test_v2.mlx'});
+            testCase.verifyTrue(isfile(isolatedLiveScript));
+        end
     end
+end
+
+function names = localFunctionNames(text)
+tokens = regexp(text, ['(?m)^\s*function\s+' ...
+    '(?:(?:\[[^\]]+\]|[A-Za-z]\w*)\s*=\s*)?' ...
+    '([A-Za-z]\w*)'], 'tokens');
+names = string(cellfun(@(token) token{1}, tokens, 'UniformOutput', false));
+names = names(:);
+end
+
+function text = localNormaliseNewlines(text)
+text = strrep(text, sprintf('\r\n'), sprintf('\n'));
+text = strrep(text, sprintf('\r'), sprintf('\n'));
 end
 
 function sha256 = localSha256(filePath)
