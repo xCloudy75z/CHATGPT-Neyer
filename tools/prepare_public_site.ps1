@@ -26,8 +26,8 @@ New-Item -ItemType Directory -Path $siteRoot -Force | Out-Null
 
 $copies = @(
     [PSCustomObject]@{
-        Source = "delivery/Neyer_Gap_Test_v1_12.mlx"
-        Destination = "site/downloads/Neyer_Gap_Test_v1_12.mlx"
+        Source = "delivery/Neyer_Gap_Test_v1_13.mlx"
+        Destination = "site/downloads/Neyer_Gap_Test_v1_13.mlx"
     },
     [PSCustomObject]@{
         Source = "delivery/General_Measurement_Recorder.m"
@@ -68,6 +68,26 @@ $copies = @(
     [PSCustomObject]@{
         Source = "assets/screenshots/v112-07-help.png"
         Destination = "site/assets/screens/v112-07-help.png"
+    },
+    [PSCustomObject]@{
+        Source = "audit/v113/full-suite-results.txt"
+        Destination = "site/evidence-files/v113-full-suite-results.txt"
+    },
+    [PSCustomObject]@{
+        Source = "audit/v113/correction-summary.md"
+        Destination = "site/evidence-files/v113-correction-summary.md"
+    },
+    [PSCustomObject]@{
+        Source = "audit/v113/direct-62-trials/five-trial-audit.txt"
+        Destination = "site/evidence-files/v113-five-trial-audit.txt"
+    },
+    [PSCustomObject]@{
+        Source = "audit/v113/standalone-clean-start.txt"
+        Destination = "site/evidence-files/v113-standalone-clean-start.txt"
+    },
+    [PSCustomObject]@{
+        Source = "audit/v113/varied-physical-validation.csv"
+        Destination = "site/evidence-files/v113-varied-physical-validation.csv"
     },
     [PSCustomObject]@{
         Source = "audit/v112/full-suite-results.txt"
@@ -117,4 +137,4 @@ foreach ($copy in $copies) {
     Copy-Item -LiteralPath $source.FullName -Destination $destinationPath -Force
 }
 
-Write-Output "Prepared 18 verified public release files."
+Write-Output "Prepared 23 verified public release files."

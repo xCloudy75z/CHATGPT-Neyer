@@ -1,0 +1,20 @@
+V1.13 varied physical validation
+Executed: 2026-09-14 14:14:58 +0400
+MATLAB release: 2022b
+Runner: tools/run_v113_varied_physical_validation.m
+Scenarios: 16
+Repetitions per scenario: 100
+Total runs: 1600
+Budget: 62
+True overall variations: 0.25, 0.50, 1.00, 1.50 mm
+Usable steps: 0.05, 0.10, 0.15, 0.50 mm
+One reading per new build; reading SD 0.01 mm
+New-build SD: 0.20 times the usable step
+Stage-2 floor: 2 usable steps
+Seed: 202609146
+Recorded execution mode: serial
+V1.13 Live Script SHA-256: 2DE2D89EB6156E0C2F9C1F3B08C14B01E9B428993BC3B573BED53406015A222E
+choose_stage.m SHA-256: F51AFEE87E08C3ACF3E834055647781CA0D0C3E47AE476FBA4703575FE41739A
+select_reachable_request.m SHA-256: 6F5BF960B0FBA7F69B42BD2A62FF56D99DB673BD8825660E0588E75482F7FEA5
+run_loop.m SHA-256: F8ACAB3F5540DDDAEC54ABEAC90FD4E771D9ADA63DC142AC15B0411490D974F6
+Results CSV SHA-256: B53CC4860B7606AEACFDCC738547544F71F045AEA301AD8871AC79FC76C6BF1F

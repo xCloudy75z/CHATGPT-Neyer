@@ -66,6 +66,9 @@ tools/run_planner_validation_pilot.m
 # Generated working copies; keep only named final deliverables
 delivery/*.m
 !delivery/General_Measurement_Recorder.m
+!delivery/Neyer_Gap_Test_v1_9.m
+!delivery/Neyer_Gap_Test_v1_10.m
+!delivery/Neyer_Gap_Test_v1_13.m
 delivery/*_r*.pptx
 
 # Common credential files

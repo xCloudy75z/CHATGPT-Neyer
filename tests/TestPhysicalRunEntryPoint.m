@@ -133,5 +133,49 @@ classdef TestPhysicalRunEntryPoint < matlab.unittest.TestCase
             testCase.verifyEqual(result.measurement_count,ones(3,1));
             testCase.verifyFalse(isfield(result,'measurement_uncertainty'));
         end
+
+        function stageTwoKeepsTheNearestUsefulReachableRequest(testCase)
+            % Regression: the physical Stage-2 safeguard must not replace an
+            % already useful D-optimal request with the first grid point past
+            % the current bracket.
+            levels=[1.00;1.20;1.40;1.80;2.60;4.20;3.40;3.80;4.00;4.10];
+            outcomes=logical([1;1;1;1;1;0;1;1;1;1]);
+            params=struct('mu_min',0.6,'mu_max',1.4,'sigma_guess',0.10, ...
+                'working_sigma',0.10,'part2_started',false);
+
+            cfg=neyer_settings();
+            cfg.level_increment=0.01;
+            [nextAtOneHundredth,estimate]=choose_stage( ...
+                levels,outcomes,params,cfg,levels);
+            testCase.verifyEqual(estimate.stage,2);
+            testCase.verifyEqual(nextAtOneHundredth,4.28,'AbsTol',0.005);
+
+            cfg.level_increment=0.05;
+            nextAtFiveHundredths=choose_stage( ...
+                levels,outcomes,params,cfg,levels);
+            testCase.verifyEqual(nextAtFiveHundredths,4.30,'AbsTol',1e-12);
+        end
+
+        function physicalPaperReplayExercisesTheNormalRunPath(testCase)
+            % The reference values are a known-answer calculator check. The
+            % production route must calculate them; it must not contain a
+            % table lookup or a test-number exception.
+            expectedLevels=[ ...
+                1.00 1.20 1.40 1.80 2.60 4.20 3.40 3.80 4.00 4.10 ...
+                4.28 4.52 5.55 5.24 6.37 6.08 7.38 7.09 6.89 6.74]';
+            outcomes=logical([ ...
+                1 1 1 1 1 0 1 1 1 1 1 1 0 1 0 1 0 0 0 0]);
+            parsed=parse_run_inputs({ ...
+                '0.6','1.4','0.1','20','0','10','mm','0.01','0.015'});
+            response=@(gap,testNumber)struct( ...
+                'outcome',outcomes(testNumber),'measurements',gap);
+
+            [result,record]=run_physical_test(parsed.params,20,response,parsed.cfg);
+
+            testCase.verifyEqual(record.requested_levels,expectedLevels, ...
+                'AbsTol',0.005);
+            testCase.verifyEqual(result.mu,5.3922,'AbsTol',1e-3);
+            testCase.verifyEqual(result.sigma,1.0412,'AbsTol',1e-3);
+        end
     end
 end

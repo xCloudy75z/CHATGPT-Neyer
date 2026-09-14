@@ -1,0 +1,6 @@
+Neyer V1.13 and general measurement recorder test suite
+MATLAB release: 2022b
+Passed: 245
+Failed: 0
+Incomplete: 0
+Elapsed seconds: 46.088

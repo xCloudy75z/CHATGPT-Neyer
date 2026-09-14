@@ -19,7 +19,7 @@ It includes plain-language guides to the [method](https://xcloudy75z.github.io/C
 
 ## Start here
 
-1. Download [Neyer_Gap_Test_v1_12.mlx](delivery/Neyer_Gap_Test_v1_12.mlx).
+1. Download [Neyer_Gap_Test_v1_13.mlx](delivery/Neyer_Gap_Test_v1_13.mlx).
 2. Open it in MATLAB R2022b.
 3. Press **Run** once.
 4. Select **Run the published example**. The expected display is a middle gap of 5.39 mm and an overall variation of 1.04 mm.
@@ -80,9 +80,10 @@ The operator chooses the output folder and base name. The app shows the complete
 
 ## Verification record
 
-- 236 MATLAB checks passed; 0 failed and 0 remained incomplete.
+- 245 MATLAB checks passed; 0 failed and 0 remained incomplete.
 - Five fresh 62-article trials covered usable steps of 0.05, 0.10, 0.15, 0.25, and 0.50 mm; every hard logic and mathematics check passed.
-- The real V1.12 MATLAB screen asked for one measured gap and completed the minimum valid three-article route.
+- A separate 1,600-run study covered four true variation sizes and five physical step sizes. It exposed the expected limitation when a coarse physical step is larger than a narrow transition.
+- The real one-reading MATLAB screen asked for one measured gap and completed the minimum valid three-article route.
 - Seven complete mock-laboratory routes ran 191 tests; 191 passed.
 - The final 12-scenario planner simulation recorded 8 supported scenarios accepted, 0 rejected, and 4 deliberately withheld outside the supported confidence range.
 - The final `.mlx` ran alone in a newly created empty folder.
@@ -94,12 +95,13 @@ The operator chooses the output folder and base name. The app shows the complete
 Run the complete MATLAB test suite with:
 
 ```matlab
-run('tools/run_v112_full_suite.m')
+run('tools/run_v113_full_suite.m')
 ```
 
 ## Important limits
 
 - The provisional 0.05 mm usable resolution still needs repeated physical confirmation.
+- A 0.50 mm usable step can be too coarse when the true overall variation is about 0.25 mm. In that simulated case, only 27% of runs obtained the strict overlap needed to leave Stage 2 within 62 tests.
 - Foil-based build recipes remain disabled until foil-stack measurements and the practical maximum layer count are supplied.
 - Extremely separated artificial data deserve a deeper numerical study before using this tool for safety-critical qualification.
 - The supplied V1.8 `.mlx` remains preserved locally and is identified by its recorded SHA-256 fingerprint, but it is not redistributed in this public repository.

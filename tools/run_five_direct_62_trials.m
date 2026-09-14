@@ -6,11 +6,12 @@ function run_five_direct_62_trials()
 
 project_root = fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(project_root, 'application', 'source'));
-evidence_folder = fullfile(project_root, 'audit', 'direct-62-trials');
+evidence_folder = fullfile(project_root, 'audit', 'v113', ...
+    'direct-62-trials');
 if ~isfolder(evidence_folder), mkdir(evidence_folder); end
 
 usable_steps = [0.05 0.10 0.15 0.25 0.50];
-trial_seeds = 202609081:202609085;
+trial_seeds = 202609141:202609145;
 test_budget = 62;
 minimum_gap = 1.00;
 maximum_gap = 10.00;
@@ -19,11 +20,11 @@ true_overall_variation = 0.50;
 build_standard_deviation = 0.02;
 reading_standard_deviation = 0.01;
 readings_per_build = 1;
-release_name = 'V1.12';
-release_path = fullfile(project_root,'delivery','Neyer_Gap_Test_v1_12.mlx');
+release_name = 'V1.13';
+release_path = fullfile(project_root,'delivery','Neyer_Gap_Test_v1_13.mlx');
 if ~isfile(release_path)
     error('run_five_direct_62_trials:missingRelease', ...
-        'Build the V1.12 Live Script before running the five release trials.');
+        'Build the V1.13 Live Script before running the five release trials.');
 end
 release_sha256 = sha256_file(release_path);
 executed_at = char(datetime('now','TimeZone','Asia/Dubai', ...
@@ -248,7 +249,20 @@ for test_number = 1:record.N
         allowed = abs(candidates - requested(test_number - 1)) > ...
             cfg.reachable_model.comparison_tolerance_mm;
     end
+    if record.stage(test_number)==2
+        prior_requested=requested(1:test_number-1);
+        prior_outcomes=successes(1:test_number-1);
+        physical_hi_interaction=max(prior_requested(prior_outcomes));
+        physical_lo_no=min(prior_requested(~prior_outcomes));
+        model_tolerance=cfg.reachable_model.comparison_tolerance_mm;
+        allowed=allowed & (candidates < physical_hi_interaction-model_tolerance | ...
+            candidates > physical_lo_no+model_tolerance);
+    end
     rows = find(allowed);
+    if isempty(rows)
+        reachable_mapping_ok=false;
+        break;
+    end
     [~, nearest_position] = min(abs(candidates(rows) - ...
         record.raw_requested_levels(test_number)));
     expected_request = candidates(rows(nearest_position));
@@ -366,7 +380,7 @@ cleanup = onCleanup(@() fclose(file_id)); %#ok<NASGU>
 fprintf(file_id, 'Five direct Run-a-Test trials: logic and mathematics audit\n');
 fprintf(file_id, 'Release: %s\n',release_name);
 fprintf(file_id, 'Executed: %s\n',executed_at);
-fprintf(file_id, 'V1.12 Live Script SHA-256: %s\n',release_sha256);
+fprintf(file_id, '%s Live Script SHA-256: %s\n',release_name,release_sha256);
 fprintf(file_id, 'Seeds: %d through %d\n',trial_seeds(1),trial_seeds(end));
 fprintf(file_id, 'MATLAB release: %s\n', version('-release'));
 fprintf(file_id, 'Pre-Test Planner used: NO\n');
@@ -410,7 +424,7 @@ end
 
 function hash_text = sha256_file(path)
 file_id = fopen(path,'r');
-assert(file_id >= 0,'Could not read the V1.12 Live Script for fingerprinting.');
+assert(file_id >= 0,'Could not read the release Live Script for fingerprinting.');
 cleanup = onCleanup(@()fclose(file_id)); %#ok<NASGU>
 bytes = fread(file_id,Inf,'*uint8');
 digest = java.security.MessageDigest.getInstance('SHA-256');

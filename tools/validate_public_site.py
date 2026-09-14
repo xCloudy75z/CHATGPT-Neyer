@@ -32,7 +32,7 @@ REQUIRED_TEXT = (
     "middle gap",
     "overall variation",
     "reliable operating gap",
-    "236",
+    "245",
     "191",
     "63",
     "0.015 mm",
@@ -42,7 +42,7 @@ REQUIRED_TEXT = (
     "one measured gap",
     "foil recipes are unavailable",
 )
-EXACT_NUMERIC_EVIDENCE = ("236", "191", "63")
+EXACT_NUMERIC_EVIDENCE = ("245", "191", "63")
 FORBIDDEN_PATH_PATTERN = re.compile(r"(?:file:|[a-z]:[\\/]+users[\\/])", re.IGNORECASE)
 
 SCREENSHOT_NAMES = (
@@ -162,8 +162,8 @@ def _local_target(page: Path, site_root: Path, value: str) -> tuple[Path | None,
 def _fingerprint_pairs(site_root: Path, repository_root: Path) -> list[tuple[Path, Path]]:
     pairs = [
         (
-            site_root / "downloads" / "Neyer_Gap_Test_v1_12.mlx",
-            repository_root / "delivery" / "Neyer_Gap_Test_v1_12.mlx",
+            site_root / "downloads" / "Neyer_Gap_Test_v1_13.mlx",
+            repository_root / "delivery" / "Neyer_Gap_Test_v1_13.mlx",
         ),
         (
             site_root / "downloads" / "General_Measurement_Recorder.m",
@@ -178,6 +178,11 @@ def _fingerprint_pairs(site_root: Path, repository_root: Path) -> list[tuple[Pat
         for name in SCREENSHOT_NAMES
     )
     evidence_pairs = {
+        "v113-full-suite-results.txt": "audit/v113/full-suite-results.txt",
+        "v113-correction-summary.md": "audit/v113/correction-summary.md",
+        "v113-five-trial-audit.txt": "audit/v113/direct-62-trials/five-trial-audit.txt",
+        "v113-standalone-clean-start.txt": "audit/v113/standalone-clean-start.txt",
+        "v113-varied-physical-validation.csv": "audit/v113/varied-physical-validation.csv",
         "v112-full-suite-results.txt": "audit/v112/full-suite-results.txt",
         "v112-test-matrix.md": "audit/v112/test-matrix.md",
         "v112-five-trial-audit.txt": "audit/direct-62-trials/five-trial-audit.txt",

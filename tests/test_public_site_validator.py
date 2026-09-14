@@ -209,7 +209,7 @@ def evidence_page_problems(repository_root, markup):
     text = visible_text(markup)
     result_list_count, result_items = evidence_result_structure(markup)
     records = (
-        ("audit/v112/full-suite-results.txt", "complete MATLAB checks", ""),
+        ("audit/v113/full-suite-results.txt", "complete MATLAB checks", ""),
         ("audit/overnight/full-test-summary.txt", "mock-laboratory checks", " across {} routes"),
         ("audit/overnight/final-review-regressions.txt", "focused final-review safety regressions", ""),
     )
@@ -317,10 +317,10 @@ class PublicSiteValidatorTests(unittest.TestCase):
             root = Path(directory)
             audit = root / "audit" / "overnight"
             audit.mkdir(parents=True)
-            current_audit = root / "audit" / "v112"
+            current_audit = root / "audit" / "v113"
             current_audit.mkdir(parents=True)
             (current_audit / "full-suite-results.txt").write_text(
-                (REPOSITORY_ROOT / "audit" / "v112" / "full-suite-results.txt").read_text(
+                (REPOSITORY_ROOT / "audit" / "v113" / "full-suite-results.txt").read_text(
                     encoding="utf-8"
                 ),
                 encoding="utf-8",
@@ -476,7 +476,7 @@ class PublicSiteValidatorTests(unittest.TestCase):
             encoding="utf-8"
         )
         self.assertIn("MATLAB R2022b", home_page)
-        self.assertIn('href="downloads/Neyer_Gap_Test_v1_12.mlx"', home_page)
+        self.assertIn('href="downloads/Neyer_Gap_Test_v1_13.mlx"', home_page)
         self.assertIn('href="downloads/General_Measurement_Recorder.m"', home_page)
 
     def test_fingerprint_mismatch_names_both_relative_release_paths(self):
@@ -484,8 +484,8 @@ class PublicSiteValidatorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             site = root / "site"
-            public_copy = site / "downloads" / "Neyer_Gap_Test_v1_12.mlx"
-            reviewed_copy = root / "delivery" / "Neyer_Gap_Test_v1_12.mlx"
+            public_copy = site / "downloads" / "Neyer_Gap_Test_v1_13.mlx"
+            reviewed_copy = root / "delivery" / "Neyer_Gap_Test_v1_13.mlx"
             public_copy.parent.mkdir(parents=True)
             reviewed_copy.parent.mkdir(parents=True)
             public_copy.write_bytes(b"changed public release")
@@ -494,8 +494,8 @@ class PublicSiteValidatorTests(unittest.TestCase):
             problems = validate_site(site, root)
 
         self.assertIn(
-            "fingerprint mismatch: downloads/Neyer_Gap_Test_v1_12.mlx "
-            "!= delivery/Neyer_Gap_Test_v1_12.mlx",
+            "fingerprint mismatch: downloads/Neyer_Gap_Test_v1_13.mlx "
+            "!= delivery/Neyer_Gap_Test_v1_13.mlx",
             problems,
         )
 
@@ -525,7 +525,7 @@ class PublicSiteValidatorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             expected = {
-                "delivery/Neyer_Gap_Test_v1_12.mlx": b"standalone release",
+                "delivery/Neyer_Gap_Test_v1_13.mlx": b"standalone release",
                 "delivery/General_Measurement_Recorder.m": b"measurement recorder",
             }
             expected.update(
@@ -545,6 +545,11 @@ class PublicSiteValidatorTests(unittest.TestCase):
                 }
             )
             evidence_paths = {
+                "audit/v113/full-suite-results.txt": "site/evidence-files/v113-full-suite-results.txt",
+                "audit/v113/correction-summary.md": "site/evidence-files/v113-correction-summary.md",
+                "audit/v113/direct-62-trials/five-trial-audit.txt": "site/evidence-files/v113-five-trial-audit.txt",
+                "audit/v113/standalone-clean-start.txt": "site/evidence-files/v113-standalone-clean-start.txt",
+                "audit/v113/varied-physical-validation.csv": "site/evidence-files/v113-varied-physical-validation.csv",
                 "audit/v112/full-suite-results.txt": "site/evidence-files/v112-full-suite-results.txt",
                 "audit/v112/test-matrix.md": "site/evidence-files/v112-test-matrix.md",
                 "audit/direct-62-trials/five-trial-audit.txt": "site/evidence-files/v112-five-trial-audit.txt",
@@ -582,7 +587,7 @@ class PublicSiteValidatorTests(unittest.TestCase):
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertEqual(b"keep", preserved.read_bytes())
             public_paths = {
-                "delivery/Neyer_Gap_Test_v1_12.mlx": "site/downloads/Neyer_Gap_Test_v1_12.mlx",
+                "delivery/Neyer_Gap_Test_v1_13.mlx": "site/downloads/Neyer_Gap_Test_v1_13.mlx",
                 "delivery/General_Measurement_Recorder.m": "site/downloads/General_Measurement_Recorder.m",
             }
             public_paths.update(
@@ -636,7 +641,7 @@ class PublicSiteValidatorTests(unittest.TestCase):
 
             self.assertNotEqual(0, result.returncode)
             self.assertIn(
-                "Required reviewed source is missing: delivery/Neyer_Gap_Test_v1_12.mlx",
+                "Required reviewed source is missing: delivery/Neyer_Gap_Test_v1_13.mlx",
                 result.stderr,
             )
             self.assertEqual(b"keep", preserved.read_bytes())
@@ -647,7 +652,7 @@ class PublicSiteValidatorTests(unittest.TestCase):
         script = REPOSITORY_ROOT / "tools" / "prepare_public_site.ps1"
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / "delivery" / "Neyer_Gap_Test_v1_12.mlx").mkdir(parents=True)
+            (root / "delivery" / "Neyer_Gap_Test_v1_13.mlx").mkdir(parents=True)
             preserved = root / "site" / "keep-this-public-file.txt"
             preserved.parent.mkdir(parents=True)
             preserved.write_bytes(b"keep")
@@ -670,7 +675,7 @@ class PublicSiteValidatorTests(unittest.TestCase):
 
             self.assertNotEqual(0, result.returncode)
             self.assertIn(
-                "Required reviewed source is not a file: delivery/Neyer_Gap_Test_v1_12.mlx",
+                "Required reviewed source is not a file: delivery/Neyer_Gap_Test_v1_13.mlx",
                 result.stderr,
             )
             self.assertEqual(b"keep", preserved.read_bytes())
@@ -735,10 +740,10 @@ class PublicSiteValidatorTests(unittest.TestCase):
     def test_requires_exact_numeric_evidence_totals(self):
         root = self.make_site(
             "middle gap overall variation reliable operating gap "
-            "2360 1910 630 0.015 mm two decimal places"
+            "2450 1910 630 0.015 mm two decimal places"
         )
         problems = "\n".join(validate_site(root, root))
-        self.assertIn("missing required wording: 236", problems)
+        self.assertIn("missing required wording: 245", problems)
         self.assertIn("missing required wording: 191", problems)
         self.assertIn("missing required wording: 63", problems)
 

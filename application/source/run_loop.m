@@ -116,8 +116,33 @@ function record = run_loop(params, num_parts, outcome_fn, cfg)
         % the recorded history matches what was tested (no full-precision drift).
         if has_reachable_model
             allow_repeat = ~isempty(boundary_confirmation);
+            useful_interval=[];
+            if est.stage==2
+                physical_interactions=requested_levels(1:k-1);
+                physical_interactions=physical_interactions(successes(1:k-1));
+                physical_no_interactions=requested_levels(1:k-1);
+                physical_no_interactions=physical_no_interactions(~successes(1:k-1));
+                physical_hi_interaction=max(physical_interactions);
+                physical_lo_no=min(physical_no_interactions);
+                if physical_hi_interaction > physical_lo_no + tolerance
+                    status='paused';
+                    stop_reason='requested_outcome_order_conflict';
+                    last_k=k-1;
+                    fprintf([ ...
+                        '  PAUSED - REVIEW REQUIRED: requested gaps and measured gaps\n' ...
+                        '  give different outcome orderings. Completed data are kept.\n']);
+                    break;
+                end
+                if physical_hi_interaction > physical_lo_no
+                    shared_boundary=(physical_hi_interaction+physical_lo_no)/2;
+                    physical_hi_interaction=shared_boundary;
+                    physical_lo_no=shared_boundary;
+                end
+                useful_interval=[physical_hi_interaction,physical_lo_no];
+            end
             [x, reachable_status] = select_reachable_request(x, ...
-                cfg.reachable_model, requested_levels(1:k-1), allow_repeat);
+                cfg.reachable_model, requested_levels(1:k-1), allow_repeat, ...
+                useful_interval);
             if ~strcmp(reachable_status.code, 'ok')
                 status = 'paused';
                 stop_reason = 'no_different_reachable_gap';

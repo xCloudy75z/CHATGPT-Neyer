@@ -1,0 +1,26 @@
+NEYER GAP TEST V1.13 — START HERE
+
+Main tool
+---------
+Open Neyer_Gap_Test_v1_13.mlx in MATLAB R2022b and press Run once.
+The Live Script contains the complete tool and needs no outside functions.
+
+Stage-2 correction
+------------------
+V1.13 keeps the closest useful reachable setting to the gap calculated by
+the Neyer method. It no longer replaces an already useful request with the
+first setting beside the current Interaction/No-interaction interval.
+
+This is a general calculation rule, not a paper-table lookup. Different test
+results produce different calculated requests.
+
+Physical test rule
+------------------
+1. Prepare a new setup at the two-decimal gap requested by the app.
+2. Measure that completed setup once.
+3. Enter the actual measured gap.
+4. Perform the test and choose Interaction or No interaction.
+5. Do not reuse that setup after the destructive test.
+
+The actual measured gap, rather than the ideal requested gap, is used in the
+calculation. V1.12 remains preserved as the previous release.

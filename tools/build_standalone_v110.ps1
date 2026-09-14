@@ -1,6 +1,6 @@
 param(
     [string]$ProjectRoot = (Split-Path -Parent $PSScriptRoot),
-    [ValidateSet('1_10','1_11','1_12')]
+    [ValidateSet('1_10','1_11','1_12','1_13')]
     [string]$Version = '1_10'
 )
 

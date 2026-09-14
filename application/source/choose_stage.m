@@ -110,7 +110,10 @@ function [x_next, est] = choose_stage(levels, successes, params, cfg, reachable_
             % Part 2 is one-way until overlap; do not return to bisection as
             % working_sg shrinks after successive D-optimal specimens.
             x_next = pick_next_level(levels, midpoint, working_sg, cfg);
-            if isfield(cfg,'level_increment') && ~isempty(cfg.level_increment)
+            has_reachable_model=isfield(cfg,'reachable_model') && ...
+                ~isempty(cfg.reachable_model);
+            if isfield(cfg,'level_increment') && ~isempty(cfg.level_increment) && ...
+                    ~has_reachable_model
                 physical_hi_interaction=max(reachable_levels(successes));
                 physical_lo_no=min(reachable_levels(~successes));
                 x_next = nearest_useful_reachable(x_next,physical_hi_interaction, ...
@@ -133,8 +136,14 @@ end
 
 function x = nearest_useful_reachable(raw,hi_yes,lo_no,increment,min_level)
 % A No below hi_yes or an interaction above lo_no creates strict overlap.
-lower = (ceil(hi_yes/increment)-1)*increment;
-upper = (floor(lo_no/increment)+1)*increment;
+nearest = round(raw/increment)*increment;
+tolerance = 10 * eps(max([abs(raw),abs(hi_yes),abs(lo_no),increment,1]));
+if nearest < hi_yes-tolerance || nearest > lo_no+tolerance
+    x = nearest;
+    return;
+end
+lower = (ceil((hi_yes-tolerance)/increment)-1)*increment;
+upper = (floor((lo_no+tolerance)/increment)+1)*increment;
 if lower < min_level
     x = upper;
 elseif abs(raw-lower) <= abs(raw-upper)

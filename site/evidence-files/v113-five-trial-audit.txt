@@ -1,0 +1,44 @@
+Five direct Run-a-Test trials: logic and mathematics audit
+Release: V1.13
+Executed: 2026-09-14 14:14:31 +0400
+V1.13 Live Script SHA-256: 2DE2D89EB6156E0C2F9C1F3B08C14B01E9B428993BC3B573BED53406015A222E
+Seeds: 202609141 through 202609145
+MATLAB release: 2022b
+Pre-Test Planner used: NO
+Tests requested per trial: 62
+True middle gap: 2.50 mm
+True overall variation: 0.50 mm
+New-build variation used: 0.02 mm standard deviation
+Measurement variation used: 0.01 mm standard deviation
+Readings from each unchanged build: 1
+
+Trial 1 | step 0.05 mm | tests 62 | middle 2.4381 mm | variation 0.4969 mm | Stage 1/2/3 5/3/54 | hard audit PASS
+  PASS
+  Outcome balance: observed minus expected -1.74 (standardized -0.59); truth inside joint 95% region: PASS
+Trial 2 | step 0.10 mm | tests 62 | middle 2.4921 mm | variation 0.4262 mm | Stage 1/2/3 5/17/40 | hard audit PASS
+  PASS
+  Outcome balance: observed minus expected -0.24 (standardized -0.08); truth inside joint 95% region: PASS
+Trial 3 | step 0.15 mm | tests 62 | middle 2.4651 mm | variation 0.4574 mm | Stage 1/2/3 5/6/51 | hard audit PASS
+  PASS
+  Outcome balance: observed minus expected -0.98 (standardized -0.35); truth inside joint 95% region: PASS
+Trial 4 | step 0.25 mm | tests 62 | middle 2.5830 mm | variation 0.3442 mm | Stage 1/2/3 5/3/54 | hard audit PASS
+  PASS
+  Outcome balance: observed minus expected 2.77 (standardized 0.90); truth inside joint 95% region: PASS
+Trial 5 | step 0.50 mm | tests 62 | middle 2.4913 mm | variation 0.5274 mm | Stage 1/2/3 5/12/45 | hard audit PASS
+  PASS
+  Outcome balance: observed minus expected -0.45 (standardized -0.19); truth inside joint 95% region: PASS
+
+Hard checks covered:
+- no planner or planner checkpoints
+- bounds and reachable gaps
+- no accidental immediate duplicate request
+- one measured gap used directly
+- outcome generated from the actual built gap
+- Stage-2 1.0-sigma entry and 0.8 shrink
+- one-way stage movement
+- D-optimal raw selection
+- positive maximum-likelihood fit stable from two starting points
+- finite, ordered 95% ranges for middle and overall variation
+
+Confidence coverage is reported, not used as a hard pass rule. A correct 95% method can miss the true value in an occasional single run.
+Five runs audit the recorded logic and calculations; they do not by themselves prove long-run performance for every material or spacer system.
