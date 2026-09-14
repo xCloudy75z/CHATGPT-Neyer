@@ -17,7 +17,7 @@ function s = neyer_settings()
     % reproduce Neyer Table 1 (offsets 0.2,0.4,0.8,1.6,3.2 = 2*sigma_guess
     % doubling); for the paper's inputs 2*sigma_guess also equals
     % (mu_max-mu_min)/4. brief sec.3 Stage 1 / sec.7.
-    s.stage1_reach_sigmas = 2;             % PAPER (first reach = 2*sigma_guess)
+    s.stage1_reach_sigmas = 2;             % PAPER (Neyer 1994 Figure 2: first reach = 2*sigma_guess)
     s.stage1_growth       = 2;             % PAPER ("roughly doubling the stride each step")
 
     % --- Stage 2: shrink the assumed spread a little each gap-closing step ---

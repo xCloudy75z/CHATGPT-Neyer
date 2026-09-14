@@ -21,10 +21,16 @@ classdef TestV2MathFrozen < matlab.unittest.TestCase
             % Catches a return to the superseded wider Stage-2 threshold.
             parameters = struct('mu_min', 0, 'mu_max', 10, ...
                 'sigma_guess', 1);
-            [~, estimate] = choose_stage([1; 2], logical([1; 0]), ...
-                parameters, neyer_settings());
+            settings = neyer_settings();
+            [~, justOverOneSigma] = choose_stage([1; 2.01], ...
+                logical([1; 0]), parameters, settings);
+            [~, atOneSigma] = choose_stage([1; 2], logical([1; 0]), ...
+                parameters, settings);
 
-            testCase.verifyEqual(estimate.stage, 2);
+            testCase.verifyEqual(settings.stage2_bisect_width_sigmas, 1.0, ...
+                'AbsTol', 1e-12);
+            testCase.verifyEqual(justOverOneSigma.stage, 1);
+            testCase.verifyEqual(atOneSigma.stage, 2);
         end
 
         function separatedStageTwoResultsShrinkRepeatedly(testCase)
@@ -64,10 +70,10 @@ classdef TestV2MathFrozen < matlab.unittest.TestCase
             testCase.verifyGreaterThan(model.p(1), model.p(2));
         end
 
-        function regularRequestSequenceMatchesFrozenV113Evidence(testCase)
-            % Oracle: audit/v113-complete/stage-matrix.csv, captured from the
-            % frozen V1.13 paper replay. This deliberately does not execute
-            % the frozen MLX from a test.
+        function regularRequestSequenceMatchesPublishedTableOneReference(testCase)
+            % Oracle: Neyer's published Table 1 paper-replay reference
+            % sequence. These literals keep this clean-checkout test
+            % self-contained; it does not execute or claim to sample V1.13.
             expectedGaps = [1.00; 1.20; 1.40; 1.80; 2.60; 4.20; ...
                 3.40; 3.80; 4.00; 4.10; 4.28; 4.52; 5.55; 5.24; ...
                 6.37; 6.08; 7.38; 7.09; 6.89; 6.74];
@@ -92,7 +98,7 @@ classdef TestV2MathFrozen < matlab.unittest.TestCase
                 'neyer_app.m'));
 
             testCase.verifySubstring(settingsSource, ...
-                'PAPER (first reach = 2*sigma_guess)');
+                'PAPER (Neyer 1994 Figure 2: first reach = 2*sigma_guess)');
             testCase.verifySubstring(appSource, ...
                 'break = Interaction; survive = No interaction');
         end
