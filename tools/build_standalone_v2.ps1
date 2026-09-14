@@ -103,17 +103,27 @@ foreach ($fileName in $requiredFiles) {
     $sourceTexts[$fileName] = $fileText
 }
 
-$functionPattern = '(?m)^\s*function\s+(?:(?:\[[^\]]+\]|[A-Za-z]\w*)\s*=\s*)?([A-Za-z]\w*)'
+$functionPattern = '(?m)^([ \t]*)function[ \t]+(?:(?:\[[^\]]+\]|[A-Za-z]\w*)[ \t]*=[ \t]*(?:\.\.\.[^\r\n]*\r?\n[ \t]*)?)?([A-Za-z]\w*)'
 $declarations = foreach ($fileName in $requiredFiles) {
     $fileText = $sourceTexts[$fileName]
     foreach ($match in [regex]::Matches($fileText, $functionPattern)) {
-        [pscustomobject]@{ Name = $match.Groups[1].Value; File = $fileName }
+        [pscustomobject]@{
+            Name = $match.Groups[2].Value
+            File = $fileName
+            Indentation = $match.Groups[1].Value
+        }
     }
 }
 $duplicates = @($declarations | Group-Object Name | Where-Object Count -gt 1)
 if ($duplicates.Count -gt 0) {
     throw "Duplicate local MATLAB functions: $(($duplicates.Name | Sort-Object) -join ', ')"
 }
+$completedOutcomeCounts = @($declarations | Where-Object Name -eq 'completed_outcome_counts')
+if ($completedOutcomeCounts.Count -ne 1) {
+    throw 'The continued completed_outcome_counts declaration was not counted exactly once.'
+}
+$scriptLocalCount = @($declarations | Where-Object { $_.Indentation.Length -eq 0 }).Count
+$nestedCount = $declarations.Count - $scriptLocalCount
 
 $header = @"
 %% Neyer Gap Test V2
@@ -219,4 +229,6 @@ $output = ($parts -join "`r`n`r`n") + "`r`n"
 
 Write-Output "Built $destination"
 Write-Output "Embedded source files: $($requiredFiles.Count)"
-Write-Output "Unique local functions: $($declarations.Count)"
+Write-Output "Total function declarations: $($declarations.Count)"
+Write-Output "Script-local functions (unindented): $scriptLocalCount"
+Write-Output "Nested functions (indented): $nestedCount"

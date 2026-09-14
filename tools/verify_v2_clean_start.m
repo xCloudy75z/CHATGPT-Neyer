@@ -63,9 +63,14 @@ for functionNumber = 1:numel(primaryFunctions)
         'Embedded function %s resolved outside the clean folder: %s', ...
         primaryFunctions(functionNumber), resolved);
 end
-functionNames = embedded_function_names(sourceText);
+[functionNames, functionIndentation] = embedded_function_declarations(sourceText);
 assert(numel(functionNames) == numel(unique(functionNames)), ...
     'The standalone contains duplicate local function names.');
+assert(sum(functionNames == "completed_outcome_counts") == 1, ...
+    'The continued completed_outcome_counts declaration was not counted once.');
+totalFunctionCount = numel(functionNames);
+scriptLocalCount = sum(strlength(functionIndentation) == 0);
+nestedFunctionCount = totalFunctionCount - scriptLocalCount;
 
 % Run the normal physical route directly, with no planner or saved plan.
 answers = struct('low_guess', '0.6', 'high_guess', '1.4', ...
@@ -178,8 +183,11 @@ fprintf(fileId, 'Initial clean-folder files: 1 (Neyer_Gap_Test_v2.mlx only)\n');
 fprintf(fileId, 'Application menu opened from the isolated MLX: yes\n');
 fprintf(fileId, 'Embedded source files reconstructed from MLX: %d\n', ...
     numel(embeddedFiles));
-fprintf(fileId, 'Embedded local function declarations: %d\n', ...
-    numel(functionNames));
+fprintf(fileId, 'Total function declarations: %d\n', totalFunctionCount);
+fprintf(fileId, 'Script-local functions (unindented): %d\n', ...
+    scriptLocalCount);
+fprintf(fileId, 'Nested functions (indented): %d\n', ...
+    nestedFunctionCount);
 fprintf(fileId, 'Outside application/source or helper dependency used: no\n');
 fprintf(fileId, 'Direct physical workflow results: %d\n', directResult.n);
 fprintf(fileId, 'One measurement per new setup: yes\n');
@@ -201,8 +209,8 @@ fprintf(fileId, 'Incomplete-input message: %s\n', ...
     one_line(incompleteInput.message));
 fprintf(fileId, 'Invalid confirmed-list message: %s\n', ...
     one_line(invalidList.message));
-fprintf(fileId, 'Evidence CSV: %s\n', auditCsv);
-fprintf(fileId, 'Evidence HTML: %s\n', auditHtml);
+fprintf(fileId, 'Evidence CSV artifact: standalone-v2-results.csv\n');
+fprintf(fileId, 'Evidence HTML artifact: standalone-v2-results.html\n');
 fprintf('V2 STANDALONE CLEAN START: PASS.\n');
 
 function assert_only_v2_mlx(folder)
@@ -223,11 +231,17 @@ assert(numel(unique(fileNames)) == numel(fileNames), ...
     'An embedded source filename was duplicated.');
 end
 
-function names = embedded_function_names(sourceText)
-tokens = regexp(sourceText, ['(?m)^\s*function\s+' ...
-    '(?:(?:\[[^\]]+\]|[A-Za-z]\w*)\s*=\s*)?' ...
+function [names, indentation] = embedded_function_declarations(sourceText)
+tokens = regexp(sourceText, ['(?m)^([ \t]*)function[ \t]+' ...
+    '(?:(?:\[[^\]]+\]|[A-Za-z]\w*)[ \t]*=[ \t]*' ...
+    '(?:\.\.\.[^\r\n]*\r?\n[ \t]*)?)?' ...
     '([A-Za-z]\w*)'], 'tokens');
-names = string(cellfun(@(token) token{1}, tokens, 'UniformOutput', false));
+indentation = string(cellfun(@(token) token{1}, tokens, ...
+    'UniformOutput', false));
+names = string(cellfun(@(token) token{2}, tokens, ...
+    'UniformOutput', false));
+names = names(:);
+indentation = indentation(:);
 end
 
 function write_utf8(filePath, content)
