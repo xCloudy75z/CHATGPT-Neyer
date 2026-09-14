@@ -8,6 +8,7 @@ Thumbs.db
 
 # Logs and local review/build output
 *.log
+*.log.err
 __pycache__/
 *.pyc
 review-preview/
@@ -69,6 +70,7 @@ delivery/*.m
 !delivery/Neyer_Gap_Test_v1_9.m
 !delivery/Neyer_Gap_Test_v1_10.m
 !delivery/Neyer_Gap_Test_v1_13.m
+!delivery/Neyer_Gap_Test_v2.m
 delivery/*_r*.pptx
 
 # Common credential files

@@ -30,6 +30,7 @@ classdef TestV111Standalone < matlab.unittest.TestCase
                 'IgnoreCase',true));
 
             source_files = dir(fullfile(root,'application','source','*.m'));
+            source_files = source_files(~strcmp({source_files.name}, 'parse_confirmed_gap_list.m'));
             source_files = source_files(~strcmp({source_files.name}, ...
                 'validate_planner_components.m'));
             for file_number = 1:numel(source_files)

@@ -1,0 +1,25 @@
+Neyer V2 local OneDrive delivery: PASS
+Date: 2026-09-14
+Destination: C:\Users\games\OneDrive\CHATGPT-Neyer\V2\2026-09-14-candidate-01
+Earlier folders/files deleted or overwritten: none
+Delivered files: exactly the V2 MLX and its V2-specific audit report
+
+Neyer_Gap_Test_v2.mlx
+Bytes: 79490
+SHA-256: DD5C96C42FE18E4937E53FDF528022CAFBD16913895FE9549E5954B13F42B496
+Source/destination byte size and hash match: yes
+
+V2_GOLDEN_CANDIDATE_REPORT.md
+Bytes: 5932
+SHA-256: E27A228AADC0898CBA0B6BA00CCF35F771B3D9FD474B8883D7A4C07030A3F3AF
+Source/destination byte size and hash match: yes
+
+OneDrive.exe process: running and responding (PID 32088)
+Observed local attribute: Archive
+Cloud upload/synchronization independently proven: no
+Claim supported: local OneDrive placement and exact file hashes only
+
+The worker's two copy requests were rejected because its approval context did
+not contain the prior user messages. The controller, which had that trusted
+authorization, performed the same scoped copy successfully. The worker then
+read the destination files and independently verified the receipt above.

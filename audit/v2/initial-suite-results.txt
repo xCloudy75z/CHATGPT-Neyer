@@ -1,0 +1,264 @@
+Neyer direct-workflow full MATLAB test suite
+MATLAB release: 2022b
+Passed: 301
+Failed: 6
+Incomplete: 2
+Elapsed seconds: 114.791
+
+FAILED: TestReachableGapModel/finalBoundsCannotCreateAnUnreachableRequest
+Verification failed in TestReachableGapModel/finalBoundsCannotCreateAnUnreachableRequest.
+    ---------------------
+    Framework Diagnostic:
+    ---------------------
+    verifySubstring failed.
+    --> The value does not contain the substring.
+
+    Actual Value:
+        "This requested gap came from confirmed buildable gaps."
+    Expected Substring:
+        0.10
+    ------------------
+    Stack Information:
+    ------------------
+    In C:\Users\games\Documents\ChatGPT\Neyer\.worktrees\neyer-v110\tests\TestReachableGapModel.m (TestReachableGapModel.finalBoundsCannotCreateAnUnreachableRequest) at 180
+
+FAILED: TestV110Standalone/candidateIsOneSelfContainedLiveScript
+Verification failed in TestV110Standalone/candidateIsOneSelfContainedLiveScript.
+    ----------------
+    Test Diagnostic:
+    ----------------
+    Function parse_confirmed_gap_list must be embedded exactly once.
+    ---------------------
+    Framework Diagnostic:
+    ---------------------
+    verifyNumElements failed.
+    --> The value did not have the correct number of elements.
+
+        Actual Number of Elements:
+             0
+        Expected Number of Elements:
+             1
+
+    Actual Value:
+      0x0 empty cell array
+    ------------------
+    Stack Information:
+    ------------------
+    In C:\Users\games\Documents\ChatGPT\Neyer\.worktrees\neyer-v110\tests\TestV110Standalone.m (TestV110Standalone.candidateIsOneSelfContainedLiveScript) at 50
+
+FAILED: TestV111Standalone/candidateIsOneSelfContainedLiveScript
+Verification failed in TestV111Standalone/candidateIsOneSelfContainedLiveScript.
+    ----------------
+    Test Diagnostic:
+    ----------------
+    Function parse_confirmed_gap_list must be embedded exactly once.
+    ---------------------
+    Framework Diagnostic:
+    ---------------------
+    verifyNumElements failed.
+    --> The value did not have the correct number of elements.
+
+        Actual Number of Elements:
+             0
+        Expected Number of Elements:
+             1
+
+    Actual Value:
+      0x0 empty cell array
+    ------------------
+    Stack Information:
+    ------------------
+    In C:\Users\games\Documents\ChatGPT\Neyer\.worktrees\neyer-v110\tests\TestV111Standalone.m (TestV111Standalone.candidateIsOneSelfContainedLiveScript) at 45
+
+FAILED: TestV112Standalone/candidateIsOneSelfContainedLiveScript
+Verification failed in TestV112Standalone/candidateIsOneSelfContainedLiveScript.
+    ----------------
+    Test Diagnostic:
+    ----------------
+    Function parse_confirmed_gap_list must be embedded exactly once.
+    ---------------------
+    Framework Diagnostic:
+    ---------------------
+    verifyNumElements failed.
+    --> The value did not have the correct number of elements.
+
+        Actual Number of Elements:
+             0
+        Expected Number of Elements:
+             1
+
+    Actual Value:
+      0x0 empty cell array
+    ------------------
+    Stack Information:
+    ------------------
+    In C:\Users\games\Documents\ChatGPT\Neyer\.worktrees\neyer-v110\tests\TestV112Standalone.m (TestV112Standalone.candidateIsOneSelfContainedLiveScript) at 44
+
+FAILED: TestV113CompleteAudit/mainMenuClearlySeparatesDirectRunFromPlanner
+Assertion failed in TestV113CompleteAudit/mainMenuClearlySeparatesDirectRunFromPlanner and it did not run to completion.
+    ---------------------
+    Framework Diagnostic:
+    ---------------------
+    assertNumElements failed.
+    --> The value did not have the correct number of elements.
+
+        Actual Number of Elements:
+             0
+        Expected Number of Elements:
+             1
+
+    Actual Value:
+      0x0 empty GraphicsPlaceholder array.
+    ------------------
+    Stack Information:
+    ------------------
+    In C:\Users\games\Documents\ChatGPT\Neyer\.worktrees\neyer-v110\tests\TestV113CompleteAudit.m (TestV113CompleteAudit.mainMenuClearlySeparatesDirectRunFromPlanner) at 399
+
+FAILED: TestV113CompleteAudit/testComponentMapCoversAllSourceFiles
+Verification failed in TestV113CompleteAudit/testComponentMapCoversAllSourceFiles.
+    ---------------------
+    Framework Diagnostic:
+    ---------------------
+    verifyEqual failed.
+    --> Sizes do not match.
+
+        Actual size:
+            62     1
+        Expected size:
+            63     1
+
+    Actual Value:
+      62x1 string array
+
+        "apply_run_configuration_overrides.m"
+        "best_fit.m"
+        "check_inputs.m"
+        "check_study_checkpoint.m"
+        "choose_stage.m"
+        "draw_distribution.m"
+        "draw_interaction_curve.m"
+        "estimate_study_plan.m"
+        "estimate_supported_targets.m"
+        "find_root.m"
+        "fit_sigma0.m"
+        "format_confidence_range.m"
+        "format_requested_gap.m"
+        "format_result_text.m"
+        "has_overlap.m"
+        "height_for_reliability.m"
+        "info_terms.m"
+        "load_study_plan.m"
+        "loglik.m"
+        "lr_confidence.m"
+        "neyer_app.m"
+        "neyer_settings.m"
+        "one_sided_profile_threshold.m"
+        "operating_gap_coverage.m"
+        "parse_physical_response.m"
+        "parse_run_inputs.m"
+        "pick_next_level.m"
+        "pl_opts.m"
+        "plan_prep.m"
+        "plan_prep_message.m"
+        "plan_prep_numbers.m"
+        "plan_samples.m"
+        "plot_result.m"
+        "pretest_planner_ui.m"
+        "prof_quantile.m"
+        "reachable_gap_model.m"
+        "reliability_at_height.m"
+        "reliability_query.m"
+        "report.m"
+        "result_decision_summary.m"
+        "result_output_paths.m"
+        "result_save_available.m"
+        "results_to_csv_text.m"
+        "results_to_html.m"
+        "round_reachable_gap.m"
+        "run_demo.m"
+        "run_loop.m"
+        "run_physical_test.m"
+        "run_test.m"
+        "run_test_ui.m"
+        "sanity_clamp.m"
+        "save_results_files.m"
+        "save_study_plan.m"
+        "select_operating_gap.m"
+        "select_reachable_request.m"
+        "shape_model.m"
+        "show_manual.m"
+        "show_result.m"
+        "usable_resolution_for_plan.m"
+        "validate_plan_inputs.m"
+        "validate_planner_components.m"
+        "validate_study_plan_safety.m"
+    Expected Value:
+      63x1 string array
+
+        "apply_run_configuration_overrides.m"
+        "best_fit.m"
+        "check_inputs.m"
+        "check_study_checkpoint.m"
+        "choose_stage.m"
+        "draw_distribution.m"
+        "draw_interaction_curve.m"
+        "estimate_study_plan.m"
+        "estimate_supported_targets.m"
+        "find_root.m"
+        "fit_sigma0.m"
+        "format_confidence_range.m"
+        "format_requested_gap.m"
+        "format_result_text.m"
+        "has_overlap.m"
+        "height_for_reliability.m"
+        "info_terms.m"
+        "load_study_plan.m"
+        "loglik.m"
+        "lr_confidence.m"
+        "neyer_app.m"
+        "neyer_settings.m"
+        "one_sided_profile_threshold.m"
+        "operating_gap_coverage.m"
+        "parse_confirmed_gap_list.m"
+        "parse_physical_response.m"
+        "parse_run_inputs.m"
+        "pick_next_level.m"
+        "pl_opts.m"
+        "plan_prep.m"
+        "plan_prep_message.m"
+        "plan_prep_numbers.m"
+        "plan_samples.m"
+        "plot_result.m"
+        "pretest_planner_ui.m"
+        "prof_quantile.m"
+        "reachable_gap_model.m"
+        "reliability_at_height.m"
+        "reliability_query.m"
+        "report.m"
+        "result_decision_summary.m"
+        "result_output_paths.m"
+        "result_save_available.m"
+        "results_to_csv_text.m"
+        "results_to_html.m"
+        "round_reachable_gap.m"
+        "run_demo.m"
+        "run_loop.m"
+        "run_physical_test.m"
+        "run_test.m"
+        "run_test_ui.m"
+        "sanity_clamp.m"
+        "save_results_files.m"
+        "save_study_plan.m"
+        "select_operating_gap.m"
+        "select_reachable_request.m"
+        "shape_model.m"
+        "show_manual.m"
+        "show_result.m"
+        "usable_resolution_for_plan.m"
+        "validate_plan_inputs.m"
+        "validate_planner_components.m"
+        "validate_study_plan_safety.m"
+    ------------------
+    Stack Information:
+    ------------------
+    In C:\Users\games\Documents\ChatGPT\Neyer\.worktrees\neyer-v110\tests\TestV113CompleteAudit.m (TestV113CompleteAudit.testComponentMapCoversAllSourceFiles) at 42

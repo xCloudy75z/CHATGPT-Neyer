@@ -5,7 +5,7 @@ output_path = fullfile(output_folder, '02-direct-inputs.png');
 if ~isfolder(output_folder)
     mkdir(output_folder);
 end
-delete(findall(groot, 'Type', 'figure'));
+delete(findall(groot, 'Type', 'figure', 'Name', 'Neyer gap test - inputs'));
 setappdata(groot, 'NeyerV2CaptureDirectInputs', true);
 setappdata(groot, 'NeyerV2CaptureDirectInputsError', '');
 capture_timer = timer('ExecutionMode', 'fixedSpacing', 'Period', 0.20, ...
@@ -36,6 +36,14 @@ function capture_and_close(timer_object, ~, output_path)
     try
         drawnow;
         exportapp(figure_handle, output_path);
+        mode = findall(figure_handle, 'Tag', 'physical_mode');
+        mode.Value = 'Confirmed gap list';
+        feval(mode.ValueChangedFcn, mode, []);
+        list = findall(figure_handle, 'Tag', 'confirmed_gaps');
+        list.Value = '1.00, 1.10, 2.50';
+        pause(0.5); drawnow;
+        exportapp(figure_handle, fullfile(fileparts(output_path), ...
+            '02-direct-inputs-confirmed-list.png'));
     catch capture_error
         setappdata(groot, 'NeyerV2CaptureDirectInputsError', ...
             getReport(capture_error, 'basic', 'hyperlinks', 'off'));

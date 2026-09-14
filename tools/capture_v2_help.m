@@ -18,6 +18,19 @@ assert(numel(scrollLayout) == 1 && strcmp(scrollLayout.Scrollable, 'on'), ...
 scroll(scrollLayout, 'top');
 drawnow;
 exportapp(helpFigure, outputPath);
+% Capture each subsequent section at its real scroll position and size.
+panels = findall(helpFigure, 'Tag', 'help_section');
+for sectionNumber = 2:numel(panels)
+    selected = panels(arrayfun(@(p) p.Layout.Row == sectionNumber, panels));
+    scroll(scrollLayout, selected);
+    % Web-backed UI scrolling finishes asynchronously after drawnow returns.
+    pause(0.5); drawnow;
+    exportapp(helpFigure, fullfile(outputFolder, ...
+        sprintf('06-help-section-%02d.png', sectionNumber)));
+end
+scroll(scrollLayout, 'bottom');
+pause(0.5); drawnow;
+exportapp(helpFigure, fullfile(outputFolder, '06-help-bottom.png'));
 delete(helpFigure);
 assert(isfile(outputPath), 'The V2 Help audit image was not created.');
 fprintf('V2 HELP CAPTURE: %s\n', outputPath);

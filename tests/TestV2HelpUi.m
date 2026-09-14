@@ -15,6 +15,17 @@ classdef TestV2HelpUi < matlab.unittest.TestCase
     end
 
     methods (Test)
+        function limitsKeepWholeSentencesInThreeReadableParagraphs(testCase)
+            figureHandle = open_help_window();
+            panels = findall(figureHandle, 'Tag', 'help_section');
+            panel = panels(string({panels.Title}) == ...
+                "Limits and the separate fixed-gap qualification concept");
+            label = findall(panel, 'Tag', 'help_paragraph');
+            paragraphs = split(string(label.Text), string([newline newline]));
+            testCase.verifyNumElements(paragraphs, 3, ...
+                'Extra paragraph breaks can push required warnings outside the fixed-height panel.');
+            testCase.verifySubstring(paragraphs(1), 'software failure.');
+        end
         function helpUsesScrollableTitledSections(testCase)
             figureHandle = open_help_window();
             scrollLayout = findall(figureHandle, 'Tag', ...

@@ -33,6 +33,8 @@ classdef TestV110Standalone < matlab.unittest.TestCase
             end
 
             source_files = dir(fullfile(root, 'application', 'source', '*.m'));
+            % The V2 parser did not exist in this frozen release.
+            source_files = source_files(~strcmp({source_files.name}, 'parse_confirmed_gap_list.m'));
             source_files = source_files(~strcmp({source_files.name}, ...
                 'validate_planner_components.m'));
             for file_number = 1:numel(source_files)
