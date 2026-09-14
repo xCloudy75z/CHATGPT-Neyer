@@ -35,6 +35,15 @@ function gaps_mm = parse_confirmed_gap_list(answer, minimum_gap_mm, maximum_gap_
         values(entry_number) = value;
     end
 
+    % Confirmed means inside the stated bounds exactly. The reachable-model
+    % tolerance is useful for collapsing equivalent constructed gaps, but it
+    % must not admit a value that is strictly outside the operator's range.
+    values = values(values >= minimum_gap_mm & values <= maximum_gap_mm);
+    if numel(values) < 2
+        error('parse_confirmed_gap_list:notEnoughGaps', ...
+            ['Confirmed gap list: enter at least two different measured ' ...
+             'gaps inside the permitted range.']);
+    end
     try
         model = reachable_gap_model(struct('mode', 'list', 'gaps_mm', values), ...
             minimum_gap_mm, maximum_gap_mm);

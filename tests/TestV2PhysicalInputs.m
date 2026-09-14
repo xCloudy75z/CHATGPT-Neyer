@@ -24,6 +24,13 @@ classdef TestV2PhysicalInputs < matlab.unittest.TestCase
                 'parse_confirmed_gap_list:notEnoughGaps');
         end
 
+        function listFiltersValuesJustOutsideBoundsExactly(testCase)
+            actual = parse_confirmed_gap_list( ...
+                '0.99999999995, 1.10, 1.20', 1, 2);
+
+            testCase.verifyEqual(actual, [1.1; 1.2], 'AbsTol', 1e-12);
+        end
+
         function listRejectsBlankEntries(testCase)
             testCase.verifyError(@() parse_confirmed_gap_list('1,,2', 0, 3), ...
                 'parse_confirmed_gap_list:badEntry');
@@ -50,6 +57,22 @@ classdef TestV2PhysicalInputs < matlab.unittest.TestCase
             end
         end
 
+        function listErrorsNameVisibleQuestionAndCorrection(testCase)
+            invalid = {'1,,2', '1, two, 2', '1, NaN, 2', '1, Inf, 2', ...
+                '1, -0.1, 2', '1; 2', '1 2', '20, 30', '2.5, 20'};
+            for index = 1:numel(invalid)
+                try
+                    parse_confirmed_gap_list(invalid{index}, 1, 10);
+                    testCase.assertFail('Invalid confirmed list was accepted.');
+                catch input_error
+                    testCase.verifySubstring(input_error.message, ...
+                        'Confirmed gap list');
+                    testCase.verifyTrue(contains(lower(input_error.message), ...
+                        'enter') || contains(lower(input_error.message), 'separate'));
+                end
+            end
+        end
+
         function directListModeBuildsReachableModel(testCase)
             answers = confirmed_list_answers('1, 1.1, 2.5, 4.1, 5.5');
 
@@ -58,6 +81,17 @@ classdef TestV2PhysicalInputs < matlab.unittest.TestCase
             testCase.verifyEqual(parsed.cfg.reachable_model.mode, 'list');
             testCase.verifyEqual(parsed.cfg.reachable_model.gaps_mm, ...
                 [1;1.1;2.5;4.1;5.5], 'AbsTol', 1e-12);
+        end
+
+        function directListModeSupportsNarrowBoundsWithoutRegularGrid(testCase)
+            answers = confirmed_list_answers('1.002, 1.008');
+            answers.minimum_gap = '1.001';
+            answers.maximum_gap = '1.009';
+
+            parsed = parse_run_inputs(answers);
+
+            testCase.verifyEqual(parsed.cfg.reachable_model.gaps_mm, ...
+                [1.002; 1.008], 'AbsTol', 1e-12);
         end
 
         function directListModeSetsFloorAndRestrictsRequests(testCase)
@@ -88,6 +122,14 @@ classdef TestV2PhysicalInputs < matlab.unittest.TestCase
             testCase.verifyEqual(parsed.cfg.reachable_model.mode, 'regular');
             testCase.verifyEqual(parsed.cfg.usable_resolution, 0.10, ...
                 'AbsTol', 1e-12);
+        end
+
+        function namedPhysicalModeRejectsMalformedLabel(testCase)
+            answers = confirmed_list_answers('');
+            answers.physical_mode = 'not regular';
+
+            testCase.verifyError(@() parse_run_inputs(answers), ...
+                'parse_run_inputs:badPhysicalMode');
         end
     end
 end
