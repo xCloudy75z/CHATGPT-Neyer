@@ -1,0 +1,13 @@
+V1.13 complete standalone clean-start audit: PASS
+MATLAB release: 2022b
+Initial clean folder files: 1 (Neyer_Gap_Test_v1_13.mlx only)
+Embedded local functions: 124
+Outside project helper dependencies used during the clean-start run: 0
+Note: MATLAB dependency-library scan was unavailable because R2022b could not load libmwdepfun_analysis.dll.
+Direct workflow completed tests: 20
+Direct fitted result: middle 5.39 mm, variation 1.04 mm
+Fixed-gap chance calculation displayed: yes
+Save action present and enabled: yes
+Save action created matching HTML and CSV files: yes
+Second same-name save left both files unchanged: yes
+Published example displayed: middle 5.39 mm, variation 1.04 mm

@@ -1,6 +1,6 @@
 Neyer direct-workflow full MATLAB test suite
 MATLAB release: 2022b
-Passed: 223
+Passed: 267
 Failed: 0
 Incomplete: 0
-Elapsed seconds: 31.323
+Elapsed seconds: 51.043

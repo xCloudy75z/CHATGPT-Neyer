@@ -1,0 +1,6 @@
+screen,action,expected,observed,status
+Main menu,"Open the application",Direct Run a Test is visibly independent from the optional planner,Matched the expected behavior,Pass
+Direct-run inputs,"Enter valid and invalid values",Invalid entries are rejected using visible question names,Matched the expected behavior,Pass
+Unfinished result,"Review three completed tests before overlap",No fitted number or NaN is shown; completed data remain saveable,Matched the expected behavior,Pass
+Fitted result and chance calculator,"Calculate Interaction chance at the fitted middle gap",Best estimate is 50% and a separate cautious minimum is shown,Matched the expected behavior,Pass
+Saved CSV and HTML,"Save once, then try the same name again",Screen values agree with both files and earlier files are not replaced,Matched the expected behavior,Pass

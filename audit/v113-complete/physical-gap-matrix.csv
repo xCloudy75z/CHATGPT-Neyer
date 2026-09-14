@@ -1,0 +1,23 @@
+category,case_name,input,expected,observed,pass,notes
+Regular reachable step,0.05 mm step,raw request 2.45 mm,listed reachable gap shown to two decimals,2.45 mm,1,The nearest different reachable gap was selected.
+Regular reachable step,0.10 mm step,raw request 2.45 mm,listed reachable gap shown to two decimals,2.40 mm,1,The nearest different reachable gap was selected.
+Regular reachable step,0.15 mm step,raw request 2.45 mm,listed reachable gap shown to two decimals,2.40 mm,1,The nearest different reachable gap was selected.
+Regular reachable step,0.50 mm step,raw request 2.45 mm,listed reachable gap shown to two decimals,2.50 mm,1,The nearest different reachable gap was selected.
+Confirmed irregular list,raw 0.24 mm,0.24,one value from the confirmed list,0,1,The nearest different reachable gap was selected.
+Confirmed irregular list,raw 0.80 mm,0.8,one value from the confirmed list,0.5,1,The nearest different reachable gap was selected.
+Confirmed irregular list,raw 1.95 mm,1.95,one value from the confirmed list,2.07,1,The nearest different reachable gap was selected.
+Confirmed irregular list,raw 2.45 mm,2.45,one value from the confirmed list,2.57,1,The nearest different reachable gap was selected.
+Confirmed irregular list,raw 3.80 mm,3.8,one value from the confirmed list,4.14,1,The nearest different reachable gap was selected.
+Confirmed irregular list,raw 8.00 mm,8,one value from the confirmed list,10,1,The nearest different reachable gap was selected.
+Requested versus measured,single reading,request 2.45; measure 2.50,store request 2.45 and analyze 2.50,request 2.45; analysis 2.50,1,The measured physical gap drives the statistics.
+Measurement validation,invalid entry 1,,clear rejection,parse_physical_response:badMeasurements,1,No invalid value reached the statistical history.
+Measurement validation,invalid entry 2,word,clear rejection,parse_physical_response:badMeasurements,1,No invalid value reached the statistical history.
+Measurement validation,invalid entry 3,-0.01,clear rejection,parse_physical_response:badMeasurements,1,No invalid value reached the statistical history.
+Measurement validation,invalid entry 4,2.49 2.50,clear rejection,parse_physical_response:badMeasurements,1,No invalid value reached the statistical history.
+Measurement validation,invalid entry 5,NaN,clear rejection,parse_physical_response:badMeasurements,1,No invalid value reached the statistical history.
+Measurement validation,invalid entry 6,Inf,clear rejection,parse_physical_response:badMeasurements,1,No invalid value reached the statistical history.
+Stopping,no different useful setting,two reachable gaps exhausted,pause and preserve two tests,paused after 2 tests,1,A pause is not labelled as a failed physical article.
+Variation floor,0.05 mm usable step,0.05,0.10,0.10,1,Physical runs keep the approved two-step planning floor.
+Variation floor,0.10 mm usable step,0.10,0.20,0.20,1,Physical runs keep the approved two-step planning floor.
+Variation floor,0.15 mm usable step,0.15,0.30,0.30,1,Physical runs keep the approved two-step planning floor.
+Variation floor,0.50 mm usable step,0.50,1.00,1.00,1,Physical runs keep the approved two-step planning floor.

@@ -5,3 +5,10 @@
 *.m text eol=lf
 *.md text eol=lf
 *.html text eol=lf
+# Preserve sealed evidence and generated-source byte fingerprints on checkout.
+audit/v113-complete/** -text !eol whitespace=cr-at-eol
+audit/v113/full-suite-results.txt -text !eol whitespace=cr-at-eol
+audit/v2/** -text !eol whitespace=cr-at-eol
+delivery/Neyer_Gap_Test_v2.m -text !eol whitespace=cr-at-eol
+# These two Markdown hard line breaks are part of the frozen visual record.
+audit/v113-complete/ui-visual-review.md whitespace=-blank-at-eol,cr-at-eol

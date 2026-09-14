@@ -1,0 +1,6 @@
+V1.13 save-record audit
+MATLAB release: 2022b
+User-selected base name produced matching CSV: true
+User-selected base name produced matching HTML: true
+Second save using the same name was blocked: true
+Test files were isolated in a temporary folder and removed afterward.

@@ -1,0 +1,2 @@
+matlab_release,execution_mode,workers,scenario_count,repetitions_per_scenario,total_runs,elapsed_seconds,median_scenario_run_seconds,maximum_scenario_run_seconds,invariant_failures,replay_mismatches
+2022b,serial,0,90,5,450,79.9347413,0.1244178,0.6847877,0,0

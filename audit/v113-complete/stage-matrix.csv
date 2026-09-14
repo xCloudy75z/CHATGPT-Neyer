@@ -1,0 +1,21 @@
+test_number,requested_gap_mm,analysis_gap_mm,outcome,selection_phase,working_middle_mm,working_variation_mm
+1,1,1,Interaction,Binary search,1,0.1
+2,1.2,1.2,Interaction,Binary search,1,0.1
+3,1.4,1.4,Interaction,Binary search,1,0.1
+4,1.8,1.8,Interaction,Binary search,1,0.1
+5,2.6,2.6,Interaction,Binary search,1,0.1
+6,4.2,4.2,No interaction,Binary search,1,0.1
+7,3.4,3.4,Interaction,Binary search,3.4,0.1
+8,3.8,3.8,Interaction,Binary search,3.8,0.1
+9,4,4,Interaction,Binary search,4,0.1
+10,4.1,4.1,Interaction,Binary search,4.1,0.1
+11,4.28,4.28,Interaction,D-optimal search before overlap,4.15,0.1
+12,4.52,4.52,Interaction,D-optimal search using fitted curve,4.28,0.193202211354554
+13,5.55,5.55,No interaction,D-optimal search using fitted curve,4.52,0.790242454147839
+14,5.24,5.24,Interaction,D-optimal search using fitted curve,4.66316062826533,0.502228029293304
+15,6.37,6.37,No interaction,D-optimal search using fitted curve,5.21959312692088,0.963757033497497
+16,6.08,6.08,Interaction,D-optimal search using fitted curve,5.09723635334391,0.832892589900139
+17,7.38,7.38,No interaction,D-optimal search using fitted curve,5.69829308992451,1.38509001363556
+18,7.09,7.09,No interaction,D-optimal search using fitted curve,5.58084209167961,1.24875498279777
+19,6.89,6.89,No interaction,D-optimal search using fitted curve,5.50202638091904,1.15932049551341
+20,6.74,6.74,No interaction,D-optimal search using fitted curve,5.44165336238941,1.09321575312342
