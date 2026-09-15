@@ -43,20 +43,20 @@ function res = reliability_at_height(levels, successes, tail, x, C)
         % Legacy 'break' means Interaction in the gap application. Because
         % Interaction becomes less likely as the gap grows, a cautious lower
         % probability is found by searching toward a LARGER k.
-        res.reliability = phi_cdf(khat);
+        res.reliability = decreasing_gap_interaction_cdf(khat);
         cap = -kfl - khat;                            % floor occurs at k = -kfl
         kb  = find_root(Rk, khat, +1, c1, cap, +Inf);
         if isnan(kb), res.bound = 1e-6; res.bound_floored = true;
-        else          res.bound = phi_cdf(kb); end
+        else          res.bound = decreasing_gap_interaction_cdf(kb); end
     else
         % Legacy 'survive' means No interaction. No interaction becomes less
         % likely as the gap shrinks, so its cautious lower probability is
         % found by searching toward a SMALLER k.
-        res.reliability = phi_cdf(-khat);
+        res.reliability = decreasing_gap_interaction_cdf(-khat);
         cap = khat - kfl;                             % floor occurs at k = kfl
         kb  = find_root(Rk, khat, -1, c1, cap, -Inf);
         if isnan(kb), res.bound = 1e-6; res.bound_floored = true;
-        else          res.bound = phi_cdf(-kb); end
+        else          res.bound = decreasing_gap_interaction_cdf(-kb); end
     end
 
     res.percent        = 100 * res.reliability;
@@ -65,9 +65,11 @@ function res = reliability_at_height(levels, successes, tail, x, C)
     res.bound_one_in_n = one_in_n(res.bound);
 end
 
-function p = phi_cdf(z)
-%PHI_CDF  Standard-normal CDF via the shape swap-point (no toolbox).
-    p = shape_model(z, 0, 1).Phi;
+function p = decreasing_gap_interaction_cdf(gap_standard_distance)
+%DECREASING_GAP_INTERACTION_CDF Return Phi(-k) through the shared gap model.
+% A positive k is a gap above the fitted middle, so Interaction must become
+% less likely as k grows. This is deliberately not a conventional Phi(k).
+    p = shape_model(gap_standard_distance, 0, 1).Phi;
 end
 
 function m = one_in_n(r)
