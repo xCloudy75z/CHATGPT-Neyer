@@ -1,0 +1,11 @@
+Neyer Gap Test V1.14 simulation validation: PASS
+Published 20-test replay: PASS (5.3922 / 1.0412 mm)
+Five separate 62-test runs with fitted curves: 5 of 5
+Unknown-variation matrix cases: 54
+Matrix cases with fitted curves: 45 of 54
+All matrix requests reachable and in bounds: yes
+No unnecessary immediate duplicates: yes
+Fitted cases whose 95% middle range contained truth: 44 of 45
+Fitted cases whose 95% variation range contained truth: 42 of 45
+Median middle absolute error: 0.0943 mm
+Median variation absolute error: 0.1089 mm

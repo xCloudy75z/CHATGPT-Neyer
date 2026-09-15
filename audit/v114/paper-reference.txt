@@ -1,0 +1,4 @@
+Published 20-test replay: PASS
+Requested gaps matched within 0.005 mm: yes
+Middle gap: 5.3922 mm
+Overall variation: 1.0412 mm
