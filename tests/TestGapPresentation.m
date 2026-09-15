@@ -204,7 +204,7 @@ classdef TestGapPresentation < matlab.unittest.TestCase
 
             testCase.verifySubstring(source,'catch result_error');
             testCase.verifySubstring(source,'run_test_ui:resultDisplayFailed');
-            testCase.verifySubstring(source,'Review latest results');
+            testCase.verifySubstring(source,'printed in the MATLAB Command Window');
         end
 
         function operatorWordingUsesOverallVariation(testCase)
@@ -228,14 +228,13 @@ classdef TestGapPresentation < matlab.unittest.TestCase
                 '''transition width'));
             testCase.verifyFalse(contains(menuSource, ...
                 'average 5.3922, spread 1.0412'));
-            testCase.verifySubstring(testUi, 'overall variation');
+            testCase.verifySubstring(testUi, 'starting variation');
             testCase.verifySubstring(reportSource, 'OVERALL VARIATION:');
             testCase.verifySubstring(manualSource, 'overall variation');
-            testCase.verifySubstring(manualSource, '400 independent articles');
-            testCase.verifySubstring(manualSource, '50% or less');
-            testCase.verifySubstring(manualSource, 'above 95%');
+            testCase.verifySubstring(manualSource, ...
+                'fixed-gap reliability demonstration is a separate later study');
             testCase.verifySubstring(menuSource, ...
-                'middle gap 5.3922, overall variation 1.0412');
+                'Expected middle gap 5.3922 mm');
             oldCalculatorPhrases={'Safe height for a reliability', ...
                 'Reliability at a height','How many parts do I need?', ...
                 'Break or survive?','Height (mm):'};
@@ -252,7 +251,7 @@ classdef TestGapPresentation < matlab.unittest.TestCase
         function mainMenuNamesTheNeyerGapTest(testCase)
             root=fileparts(fileparts(mfilename('fullpath')));
             source=fileread(fullfile(root,'application','source','neyer_app.m'));
-            testCase.verifySubstring(source,'''Neyer Gap Test V2''');
+            testCase.verifySubstring(source,'''Neyer Gap Test V1.14''');
         end
 
         function resultHeadlineHasEnoughVerticalSpace(testCase)

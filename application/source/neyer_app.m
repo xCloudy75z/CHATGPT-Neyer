@@ -1,50 +1,33 @@
 function neyer_app()
-%NEYER_APP  Launch menu for the D-Optimal Sensitivity Tool (the compiled app's
-%   entry point). Five grouped buttons over the unchanged engine. Legacy
-%   internal compatibility names remain: break = Interaction; survive = No interaction.
-%   [compiled-app]
-    if ~isdeployed
-    end
+%NEYER_APP Launch the focused V1.14 Neyer gap-study tool.
+% Legacy internal names remain: break = Interaction; survive = No interaction.
+% [compiled-app]
 
-    state.result = [];      % most recent run, for the Reliability button
-    fig = uifigure('Name', 'Neyer Gap Test V2', 'Position', [300 160 480 500], ...
-        'Color', [247 249 250] / 255);
-    gl = uigridlayout(fig, [8 1]);
-    gl.RowHeight  = {44, 54, 58, 58, 48, 12, 48, 48};
-    gl.Padding    = [26 20 26 20];
-    gl.RowSpacing = 10;
+fig = uifigure('Name', 'Neyer Gap Test V1.14', ...
+    'Position', [300 190 500 390], 'Color', [247 249 250] / 255);
+layout = uigridlayout(fig, [5 1]);
+layout.RowHeight = {52, 62, 64, 56, 56};
+layout.Padding = [28 22 28 24];
+layout.RowSpacing = 12;
 
-    title = uilabel(gl, 'Text', 'Neyer Gap Test V2', 'FontSize', 20, ...
-                    'FontWeight', 'bold', 'HorizontalAlignment', 'left', ...
-                    'FontColor', [33 49 58] / 255);
-    title.Layout.Row = 1;
+uilabel(layout, 'Text', 'Neyer Gap Test V1.14', 'FontSize', 21, ...
+    'FontWeight', 'bold', 'HorizontalAlignment', 'left', ...
+    'FontColor', [33 49 58] / 255);
+uilabel(layout, 'Text', [ ...
+    'Build the response curve first. Fixed-gap reliability planning is a ' ...
+    'separate later study.'], 'FontSize', 13, 'FontWeight', 'bold', ...
+    'FontColor', [35 108 142] / 255, 'WordWrap', 'on');
+uibutton(layout, 'Text', 'Start a Gap Study', 'FontSize', 17, ...
+    'FontWeight', 'bold', 'BackgroundColor', [47 125 109] / 255, ...
+    'FontColor', [1 1 1], 'ButtonPushedFcn', @onRunTest);
+uibutton(layout, 'Text', 'Run the Published Example', 'FontSize', 15, ...
+    'ButtonPushedFcn', @onDemo);
+uibutton(layout, 'Text', 'Help and Definitions', 'FontSize', 15, ...
+    'ButtonPushedFcn', @onHelp);
 
-    guide = uilabel(gl, 'Text', ...
-        ['Run a test directly, or use the separate planner first. ' ...
-         'The planner is optional.'], ...
-        'FontSize', 13, 'FontWeight', 'bold', ...
-        'FontColor', [35 108 142] / 255, 'WordWrap', 'on');
-    guide.Layout.Row = 2;
-
-    uibutton(gl, 'Text', 'Pre-Test Planner (separate)', 'FontSize', 16, ...
-        'FontWeight', 'bold', 'BackgroundColor', [35 108 142] / 255, ...
-        'FontColor', [1 1 1], 'ButtonPushedFcn', @onPlanner);
-    uibutton(gl, 'Text', 'Run a Test', 'FontSize', 16, ...
-        'FontWeight', 'bold', 'BackgroundColor', [47 125 109] / 255, ...
-        'FontColor', [1 1 1], 'ButtonPushedFcn', @onRunTest);
-    uibutton(gl, 'Text', 'Review latest results', 'FontSize', 15, ...
-        'ButtonPushedFcn', @onReliability);
-    uilabel(gl,  'Text', '');
-    uibutton(gl, 'Text', 'Run the published example', 'FontSize', 15, ...
-        'ButtonPushedFcn', @onDemo);
-    uibutton(gl, 'Text', 'Help and definitions', 'FontSize', 15, ...
-        'ButtonPushedFcn', @onHelp);
-
-    % ---- callbacks (nested: share `state` and `fig`) ------------------------
     function onRunTest(~, ~)
         try
-            res = run_test_ui([], []);
-            if ~isempty(res), state.result = res; end
+            run_test_ui([], []);
         catch err
             uialert(fig, err.message, 'Something went wrong');
         end
@@ -52,49 +35,23 @@ function neyer_app()
 
     function onDemo(~, ~)
         try
-            d = run_demo();
-            state.result = d.result;
-            show_result(d.result);
-            if d.is_match
-                uialert(fig, sprintf(['Self-check PASSED.\n\nExpected middle gap 5.3922, overall variation 1.0412.\n' ...
-                    'Got %.4f / %.4f.  MATCH.'], d.got_mu, d.got_sigma), ...
-                    'Demo verified', 'Icon', 'success');
-            else
-                uialert(fig, sprintf(['Self-check MISMATCH.\n\nExpected middle gap 5.3922 and overall variation 1.0412; got %.4f / %.4f.\n' ...
-                    'Do not trust this build.'], d.got_mu, d.got_sigma), ...
-                    'Demo FAILED', 'Icon', 'error');
-            end
-        catch err
-            fig.UserData = struct('demo_error_identifier', err.identifier, ...
-                'demo_error_message', err.message);
-            uialert(fig, err.message, 'Demo could not run');
-        end
-    end
-
-    function onPlanner(~, ~)
-        try
-            plan = pretest_planner_ui();
-            if ~isempty(plan)
+            example = run_demo();
+            show_result(example.result);
+            if example.is_match
                 uialert(fig, sprintf([ ...
-                    'The separate plan contains %d main-study articles.\n\n' ...
-                    'Direct Run a Test does not use this plan.'], ...
-                    plan.main_articles), 'Plan ready', 'Icon', 'success');
+                    'Self-check passed.\n\nExpected middle gap 5.3922 mm ' ...
+                    'and overall variation 1.0412 mm.\nGot %.4f mm and %.4f mm.'], ...
+                    example.got_mu, example.got_sigma), ...
+                    'Published example matched', 'Icon', 'success');
+            else
+                uialert(fig, sprintf([ ...
+                    'Self-check did not match.\n\nExpected 5.3922 mm and ' ...
+                    '1.0412 mm; got %.4f mm and %.4f mm.\nDo not use this build.'], ...
+                    example.got_mu, example.got_sigma), ...
+                    'Published example failed', 'Icon', 'error');
             end
         catch err
-            uialert(fig, err.message, 'Please check your inputs');
-        end
-    end
-
-    function onReliability(~, ~)
-        if isempty(state.result)
-            uialert(fig, 'Run a test first, then this opens its results and reliability tool.', ...
-                    'No test yet', 'Icon', 'info');
-            return;
-        end
-        try
-            show_result(state.result);
-        catch err
-            uialert(fig, err.message, 'Could not open');
+            uialert(fig, err.message, 'Published example could not run');
         end
     end
 
