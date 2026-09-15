@@ -260,6 +260,19 @@ classdef TestGapPresentation < matlab.unittest.TestCase
             testCase.verifySubstring(source,'gA.RowHeight   = {54,');
         end
 
+        function firstStudyInstructionsUsePlainVariationWording(testCase)
+            root=fileparts(fileparts(mfilename('fullpath')));
+            inputSource=fileread(fullfile(root,'application','source','run_test_ui.m'));
+            helpSource=fileread(fullfile(root,'application','source','show_manual.m'));
+
+            testCase.verifySubstring(inputSource, ...
+                'It does not pretend that overall variation is already known.');
+            testCase.verifySubstring(helpSource, ...
+                'already know the overall variation.');
+            testCase.verifySubstring(inputSource, ...
+                'gl.RowHeight = {56, 62, 52, 52, 0, 62,');
+        end
+
         function chartEdgeCalloutsPointInward(testCase)
             root=fileparts(fileparts(mfilename('fullpath')));
             source=fileread(fullfile(root,'application','source','draw_distribution.m'));
@@ -323,6 +336,14 @@ classdef TestGapPresentation < matlab.unittest.TestCase
             lengths=arrayfun(@(line)numel(line.XData),curves);
             [~,longest]=max(lengths);
             testCase.verifyGreaterThan(curves(longest).YData(1),curves(longest).YData(end));
+        end
+
+        function calculatedResultUsesTheDefinedOutcomeCounter(testCase)
+            root=fileparts(fileparts(mfilename('fullpath')));
+            source=fileread(fullfile(root,'application','source','show_result.m'));
+
+            testCase.verifyFalse(contains(source,'observed_counts(result)'));
+            testCase.verifySubstring(source,'completed_outcome_counts(result)');
         end
     end
 end

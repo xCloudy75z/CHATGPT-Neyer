@@ -117,7 +117,7 @@ function h = show_calculated_result(result, unit, confidence)
     summaryPanel.Layout.Row = 1;
     summaryPanel.Layout.Column = [1 3];
     [completedCount, interactionCount, noInteractionCount] = ...
-        observed_counts(result);
+        completed_outcome_counts(result);
     summaryLayout = uigridlayout(summaryPanel, [2 1]);
     summaryLayout.RowHeight = {34, '1x'};
     summaryLayout.Padding = [12 4 12 8];

@@ -36,6 +36,8 @@ classdef TestV114FocusedUi < matlab.unittest.TestCase
                 'fixed-gap reliability demonstration is a separate later study');
             testCase.verifyFalse(contains(source, ...
                 'needs at least 400 independent articles'));
+            testCase.verifyFalse(contains(source, ...
+                'Review latest results'));
         end
     end
 end

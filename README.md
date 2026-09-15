@@ -19,14 +19,16 @@ It includes plain-language guides to the [method](https://xcloudy75z.github.io/C
 
 ## Start here
 
-1. Download [Neyer_Gap_Test_v1_13.mlx](delivery/Neyer_Gap_Test_v1_13.mlx).
+1. Download [Neyer_Gap_Test_v1_14.mlx](delivery/Neyer_Gap_Test_v1_14.mlx).
 2. Open it in MATLAB R2022b.
 3. Press **Run** once.
 4. Select **Run the published example**. The expected display is a middle gap of 5.39 mm and an overall variation of 1.04 mm.
-5. Select **Run a Test** when ready for the physical study.
+5. Select **Start a Gap Study** when ready for the physical study.
 
-**Run a Test works independently.** It does not load or use anything from the
-Pre-Test Planner. The number entered on the test-settings screen is the maximum
+**Start a Gap Study works independently.** The default **First study - variation
+unknown** route does not ask the operator to invent an overall variation. The
+program chooses an internal starting search scale and then learns from the
+recorded outcomes. The number entered on the test-settings screen is the maximum
 number of destructive tests allowed, not a confidence-based stopping promise.
 
 The `.mlx` is standalone. It contains the complete application and does not need the source folder, an executable, `addpath`, an internet connection, or an add-on package.
@@ -54,11 +56,10 @@ experimentally. The observed printed-spacer ranges do not by themselves prove
 that 0.05 mm is repeatedly buildable. With the retained two-step protection,
 0.05 mm gives a 0.10 mm minimum Stage-2 planning width.
 
-The separate, optional pre-test planner separates two jobs. The smaller main study can estimate the
-middle gap and overall variation. A safety-supported reliability instruction is
-only issued after at least 400 independent destructive tests and only for
-confidence above 50% and no higher than 95%. Reserved articles are never used
-automatically; the operator decides whether to use them at each checkpoint.
+The V1.14 menu is deliberately focused on the changing-gap Neyer study. The
+Pre-Test Planner and fixed-gap reliability calculator are not shown. Fixed-gap
+reliability planning is a separate later activity and is not used to choose the
+V1.14 test gaps.
 
 ## Saving results
 
@@ -80,9 +81,9 @@ The operator chooses the output folder and base name. The app shows the complete
 
 ## Verification record
 
-- 245 MATLAB checks passed; 0 failed and 0 remained incomplete.
-- Five fresh 62-article trials covered usable steps of 0.05, 0.10, 0.15, 0.25, and 0.50 mm; every hard logic and mathematics check passed.
-- A separate 1,600-run study covered four true variation sizes and five physical step sizes. It exposed the expected limitation when a coarse physical step is larger than a narrow transition.
+- 241 relevant MATLAB checks passed; 0 failed and 0 remained incomplete.
+- Five fresh 62-article trials covered usable steps of 0.05, 0.10, 0.15, 0.20, and 0.50 mm; all five produced fitted curves with reachable, bounded requests.
+- A separate 54-case first-study matrix covered three true middle gaps, three true overall variations, three physical step sizes, and two repeatable random outcomes. Forty-five cases produced fitted curves. The nine honest no-result cases occurred when the true change was very narrow and the physical step was 0.15 or 0.50 mm.
 - The real one-reading MATLAB screen asked for one measured gap and completed the minimum valid three-article route.
 - Seven complete mock-laboratory routes ran 191 tests; 191 passed.
 - The final 12-scenario planner simulation recorded 8 supported scenarios accepted, 0 rejected, and 4 deliberately withheld outside the supported confidence range.
@@ -95,13 +96,13 @@ The operator chooses the output folder and base name. The app shows the complete
 Run the complete MATLAB test suite with:
 
 ```matlab
-run('tools/run_v113_full_suite.m')
+run('tools/run_v114_full_suite.m')
 ```
 
 ## Important limits
 
 - The provisional 0.05 mm usable resolution still needs repeated physical confirmation.
-- A 0.50 mm usable step can be too coarse when the true overall variation is about 0.25 mm. In that simulated case, only 27% of runs obtained the strict overlap needed to leave Stage 2 within 62 tests.
+- When the true overall variation was only 0.15 mm, a 0.15 or 0.50 mm physical step sometimes could not show enough mixed outcomes to fit a curve within 62 tests. In those cases V1.14 returns an unfinished result instead of inventing an estimate.
 - Foil-based build recipes remain disabled until foil-stack measurements and the practical maximum layer count are supplied.
 - Extremely separated artificial data deserve a deeper numerical study before using this tool for safety-critical qualification.
 - The supplied V1.8 `.mlx` remains preserved locally and is identified by its recorded SHA-256 fingerprint, but it is not redistributed in this public repository.

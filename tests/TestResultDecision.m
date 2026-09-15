@@ -109,13 +109,15 @@ classdef TestResultDecision < matlab.unittest.TestCase
                 'middle gap is 99% reliable'));
         end
 
-        function resultWindowKeepsBothVisualExplanations(testCase)
+        function resultWindowKeepsBothVisualExplanationsWithoutPlannerDecision(testCase)
             projectRoot = fileparts(fileparts(mfilename('fullpath')));
             source = fileread(fullfile(projectRoot, 'application', 'source', ...
                 'show_result.m'));
             testCase.verifySubstring(source, 'draw_distribution');
             testCase.verifySubstring(source, 'draw_interaction_curve');
-            testCase.verifySubstring(source, 'Supported operating instruction');
+            testCase.verifySubstring(source, 'Gap-study summary');
+            testCase.verifyFalse(contains(source, ...
+                'Supported operating instruction'));
             testCase.verifySubstring(source, 'Overall variation');
         end
 
