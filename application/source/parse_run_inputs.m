@@ -49,9 +49,17 @@ function out = parse_named_answers(answers)
         error('parse_run_inputs:badNamedShape', ...
             'Complete all direct-test settings before starting the test.');
     end
+    study_mode = named_study_mode(answers);
     mode = normalize_physical_mode(named_text(answers.physical_mode));
+    variation_text = named_text(answers.variation_guess);
+    if strcmp(study_mode, 'first_study')
+        % A harmless temporary value lets the shared validation check every
+        % other entry. The real internal search scale is set after the
+        % physical spacing has been established below.
+        variation_text = '1';
+    end
     out = parse_common_direct_fields(named_text(answers.low_guess), ...
-        named_text(answers.high_guess), named_text(answers.variation_guess), ...
+        named_text(answers.high_guess), variation_text, ...
         named_text(answers.maximum_tests), named_text(answers.minimum_gap), ...
         named_text(answers.maximum_gap), named_text(answers.unit), true);
 
@@ -79,6 +87,36 @@ function out = parse_named_answers(answers)
                  'list.']);
     end
     out = apply_foil_thickness(out, named_text(answers.foil_thickness));
+    out.cfg.study_mode = study_mode;
+    if strcmp(study_mode, 'first_study')
+        permitted_width = out.cfg.max_level - out.cfg.min_level;
+        out.params.spread_guess = automatic_search_scale( ...
+            out.params.avg_low, out.params.avg_high, ...
+            out.cfg.level_increment, permitted_width);
+        out.cfg.search_scale_source = 'automatic';
+    else
+        out.cfg.search_scale_source = 'operator';
+    end
+end
+
+function mode = named_study_mode(answers)
+% Older scripted callers without this field retain the established route.
+if ~isfield(answers, 'study_mode')
+    mode = 'advanced';
+    return;
+end
+text = lower(strtrim(named_text(answers.study_mode)));
+text = regexprep(text, '\s+', ' ');
+switch text
+    case 'first study - variation unknown'
+        mode = 'first_study';
+    case 'advanced - starting variation known'
+        mode = 'advanced';
+    otherwise
+        error('parse_run_inputs:badStudyMode', ...
+            ['Choose First study - variation unknown or Advanced - ' ...
+             'starting variation known.']);
+end
 end
 
 function out = parse_common_direct_fields(low_text, high_text, ...
