@@ -3,73 +3,258 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Neyer Gap Test v1.13 | Project guide</title>
-  <link rel="stylesheet" href="assets/site.css">
+  <meta name="description" content="A phone-friendly guide for understanding, operating, and checking Neyer Gap Test V1.14 in MATLAB R2022b.">
+  <title>Neyer Gap Test V1.14 | Complete user guide</title>
+  <style>
+    :root {
+      --ink: #17313a; --muted: #52676e; --paper: #f3f7f6; --surface: #fff;
+      --line: #bfd0cf; --teal: #176f68; --teal-dark: #0e514d;
+      --teal-soft: #dcefeb; --copper: #a95020; --gold: #8a6812;
+      --gold-soft: #f6efcf; --blue: #2f647a; --blue-soft: #e1edf2;
+      --radius: 14px; --measure: 74ch;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; color: var(--ink); line-height: 1.58;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(90deg,rgba(23,49,58,.035) 1px,transparent 1px),
+        linear-gradient(rgba(23,49,58,.035) 1px,transparent 1px),var(--paper);
+      background-size: 28px 28px;
+    }
+    button, a { font: inherit; } a { color: var(--teal-dark); }
+    a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid #e1a92d; outline-offset: 3px; }
+    .skip-link { position: fixed; top: 1rem; left: 1rem; z-index: 100; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; color: white; background: var(--ink); }
+    .skip-link:focus { width: auto; height: auto; padding: .7rem 1rem; margin: 0; overflow: visible; clip-path: none; }
+    .page-shell { width: min(1180px,calc(100% - 2rem)); margin-inline: auto; }
+    .site-head { color: white; background: var(--ink); border-bottom: 5px solid var(--teal); }
+    .site-head .page-shell { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 66px; }
+    .brand { color: white; font-weight: 760; text-decoration: none; }
+    .version-mark { padding: .25rem .55rem; border: 1px solid #81aaa6; border-radius: 999px; color: #d9f2ee; font-size: .85rem; }
+    .hero { padding: clamp(2.2rem,7vw,5.5rem) 0 1.8rem; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(280px,.85fr); gap: clamp(2rem,5vw,5rem); align-items: center; }
+    .kicker { margin: 0 0 .5rem; color: var(--teal-dark); font-weight: 720; }
+    h1,h2,h3 { line-height: 1.16; }
+    h1 { max-width: 15ch; margin: 0; font-size: clamp(2.5rem,6vw,5.4rem); letter-spacing: -.045em; }
+    h2 { margin: 0 0 .8rem; font-size: clamp(1.65rem,3vw,2.5rem); letter-spacing: -.025em; }
+    h3 { margin: 0 0 .4rem; font-size: 1.12rem; }
+    .lede { max-width: 59ch; margin: 1rem 0 1.4rem; color: var(--muted); font-size: 1.15rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: .7rem; }
+    .button-link { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: .72rem 1rem; border: 2px solid var(--teal); border-radius: 8px; font-weight: 760; text-decoration: none; }
+    .button-link.primary { color: white; background: var(--teal); }
+    .button-link.secondary { color: var(--teal-dark); background: transparent; }
+    .gap-instrument { min-height: 330px; padding: 1.25rem; border: 1px solid #9db6b4; border-radius: 24px 24px 8px 8px; background: #fbfdfc; box-shadow: 0 14px 34px rgba(23,49,58,.11); overflow: hidden; }
+    .instrument-title { margin: 0; font-weight: 750; }
+    .instrument-note { margin: .25rem 0 1.7rem; color: var(--muted); font-size: .9rem; }
+    .material { height: 52px; border: 2px solid var(--ink); background: repeating-linear-gradient(135deg,#d8e3e1 0 7px,#edf3f2 7px 14px); }
+    .material.top { border-radius: 10px 10px 2px 2px; } .material.bottom { border-radius: 2px 2px 10px 10px; }
+    .physical-gap { position: relative; display: grid; place-items: center; height: 82px; color: var(--teal-dark); font-weight: 760; }
+    .physical-gap::before,.physical-gap::after { content: ""; position: absolute; left: 15%; right: 15%; border-top: 2px dashed var(--teal); }
+    .physical-gap::before { top: 12px; } .physical-gap::after { bottom: 12px; }
+    .arrow-line { display: flex; justify-content: space-between; gap: .5rem; margin-top: 1.3rem; font-size: .86rem; font-weight: 700; }
+    .arrow-track { position: relative; height: 6px; margin: .5rem .3rem; background: linear-gradient(90deg,var(--copper),var(--gold),var(--teal)); }
+    .arrow-track::after { content: ""; position: absolute; right: -2px; top: -5px; border: 8px solid transparent; border-left-color: var(--teal); }
+    .tab-wrap { position: sticky; top: 0; z-index: 20; border-block: 1px solid var(--line); background: rgba(243,247,246,.96); backdrop-filter: blur(9px); }
+    .tabs { display: flex; gap: .35rem; overflow-x: auto; padding: .65rem 0; scrollbar-width: thin; }
+    [role="tab"] { flex: 0 0 auto; min-height: 44px; padding: .55rem .8rem; border: 1px solid var(--line); border-radius: 7px; color: var(--ink); background: var(--surface); cursor: pointer; font-weight: 680; }
+    [role="tab"][aria-selected="true"] { color: white; border-color: var(--teal-dark); background: var(--teal-dark); }
+    main { min-height: 60vh; } [role="tabpanel"] { padding: clamp(2rem,5vw,4rem) 0 5rem; }
+    [role="tabpanel"][hidden] { display: none; }
+    .section-intro { max-width: var(--measure); margin-bottom: 2rem; } .section-intro p { color: var(--muted); font-size: 1.08rem; }
+    .plain-note,.warning,.success { max-width: var(--measure); margin: 1.25rem 0; padding: 1rem 1.1rem; border-left: 6px solid; background: var(--surface); }
+    .plain-note { border-color: var(--blue); background: var(--blue-soft); } .warning { border-color: var(--gold); background: var(--gold-soft); } .success { border-color: var(--teal); background: var(--teal-soft); }
+    .plain-note>:last-child,.warning>:last-child,.success>:last-child { margin-bottom: 0; }
+    .overview-grid,.concept-grid,.evidence-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; }
+    .fact,.concept,.evidence-item { padding: 1.1rem; border: 1px solid var(--line); border-top: 5px solid var(--teal); border-radius: 0 0 var(--radius) var(--radius); background: var(--surface); }
+    .fact strong,.evidence-item strong { display: block; margin-bottom: .2rem; font-size: 1.8rem; line-height: 1.1; }
+    .fact p,.concept p,.evidence-item p { margin: .35rem 0 0; color: var(--muted); }
+    .step-list { display: grid; gap: 1rem; margin: 1.5rem 0; padding: 0; list-style: none; counter-reset: steps; }
+    .step-list>li { position: relative; min-height: 80px; padding: 1rem 1rem 1rem 4.8rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); counter-increment: steps; }
+    .step-list>li::before { content: counter(steps); position: absolute; top: 1rem; left: 1rem; display: grid; place-items: center; width: 2.7rem; height: 2.7rem; border-radius: 50%; color: white; background: var(--teal-dark); font-size: 1.25rem; font-weight: 800; }
+    .step-list h3 { margin-top: .1rem; } .step-list p { margin: .25rem 0 0; }
+    .table-scroll { overflow-x: auto; margin: 1.2rem 0 2rem; border: 1px solid var(--line); border-radius: var(--radius); background: white; }
+    table { width: 100%; border-collapse: collapse; } th,td { padding: .68rem .75rem; border-bottom: 1px solid #dbe4e3; text-align: left; vertical-align: top; }
+    th { color: white; background: var(--ink); } tbody tr:nth-child(even) { background: #f6f9f8; }
+    .outcome { display: inline-flex; align-items: center; gap: .42rem; white-space: nowrap; font-weight: 720; }
+    .outcome::before { content: ""; width: .75rem; height: .75rem; border-radius: 50%; background: currentColor; }
+    .interaction { color: var(--copper); } .no-interaction { color: var(--teal); }
+    .settings-map { display: grid; grid-template-columns: minmax(14rem,.65fr) minmax(0,1.35fr); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+    .settings-map dt,.settings-map dd { margin: 0; padding: .85rem 1rem; border-bottom: 1px solid var(--line); }
+    .settings-map dt { background: #e9f1f0; font-weight: 760; } .settings-map dd { background: white; }
+    .curve-wrap { display: grid; grid-template-columns: minmax(0,1.35fr) minmax(260px,.65fr); gap: 1.5rem; align-items: center; margin: 1.5rem 0 2.5rem; }
+    .curve-figure { margin: 0; padding: 1rem; border: 1px solid var(--line); border-radius: var(--radius); background: white; }
+    .curve-figure svg { display: block; width: 100%; height: auto; } .curve-figure figcaption { color: var(--muted); font-size: .9rem; }
+    .term-stack { display: grid; gap: .7rem; } .term { padding: .9rem 1rem; border-left: 5px solid var(--blue); background: white; }
+    .term p { margin: .2rem 0 0; color: var(--muted); }
+    .gap-words { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; margin: 1.4rem 0; border: 1px solid var(--line); background: var(--line); }
+    .gap-words>div { padding: 1rem; background: white; } .gap-words strong { display: block; color: var(--teal-dark); }
+    details { max-width: var(--measure); margin: .7rem 0; border: 1px solid var(--line); border-radius: 9px; background: white; }
+    summary { padding: .85rem 1rem; cursor: pointer; font-weight: 760; } details>div { padding: 0 1rem 1rem; }
+    .result-strip { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; margin: 1rem 0 2rem; border: 1px solid var(--line); background: var(--line); }
+    .result-strip>div { padding: 1rem; background: white; } .result-strip strong { display: block; font-size: 1.3rem; }
+    .site-foot { padding: 1.5rem 0 3rem; color: #dbe8e6; background: var(--ink); } .site-foot p { max-width: var(--measure); margin: 0; }
+    .print-only { display: none; }
+    @media (max-width: 860px) { .hero-grid,.curve-wrap { grid-template-columns: 1fr; } .gap-instrument { max-width: 580px; } .overview-grid,.concept-grid,.evidence-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 700px) {
+      .page-shell { width: min(100% - 1rem,1180px); } .site-head .page-shell { min-height: 56px; } .version-mark { font-size: .72rem; }
+      .hero { padding-top: 2rem; } h1 { font-size: clamp(2.35rem,13vw,3.8rem); } .lede { font-size: 1rem; }
+      .actions { display: grid; } .button-link { width: 100%; } .gap-instrument { min-height: 300px; border-radius: 14px 14px 6px 6px; }
+      .tab-wrap .page-shell { width: 100%; } .tabs { padding-inline: .5rem; } [role="tab"] { min-height: 48px; }
+      [role="tabpanel"] { padding-inline: .25rem; } .overview-grid,.concept-grid,.evidence-grid,.result-strip,.gap-words { grid-template-columns: 1fr; }
+      .settings-map { grid-template-columns: 1fr; } .settings-map dt { border-bottom: 0; } .step-list>li { padding-left: 4.15rem; }
+      th,td { padding: .58rem .62rem; } .table-scroll { font-size: .9rem; }
+    }
+    @media print {
+      body { color: #000; background: #fff; font-size: 10pt; } .site-head,.tab-wrap,.actions,.skip-link { display: none !important; }
+      .page-shell { width: 100%; } .hero { padding: 0 0 1rem; } .hero-grid,.curve-wrap { grid-template-columns: 1fr 1fr; }
+      .gap-instrument { min-height: 240px; box-shadow: none; } [role="tabpanel"] { display: block !important; padding: 1.2rem 0; page-break-before: always; }
+      [role="tabpanel"]:first-of-type { page-break-before: auto; } .print-only { display: block; } details>div { display: block; }
+      .fact,.concept,.evidence-item,.step-list>li,.table-scroll { break-inside: avoid; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
 </head>
 <body>
-  <a class="skip-link" href="#main-content">Skip to main content</a>
-  <header class="site-header">
-    <div>
-      <a class="site-name" href="index.html">Neyer Gap Test v1.13</a>
-      <nav aria-label="Main navigation">
-        <ul>
-          <li><a aria-current="page" href="index.html">Home</a></li>
-          <li><a href="method.html">Method</a></li>
-          <li><a href="test-workflow.html">Run a test</a></li>
-          <li><a href="evidence.html">Evidence</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
-  <main id="main-content">
-    <section class="hero" aria-labelledby="page-title">
-      <p class="eyebrow">A visual review guide</p>
-      <h1 id="page-title">Run each test. Record what happened. Understand the answer.</h1>
-      <p class="lede">Neyer Gap Test can run directly without the Pre-Test Planner. It chooses useful reachable gaps, records Interaction or No interaction, and estimates where the result changes.</p>
-      <a class="primary-action" href="test-workflow.html">Start the guided walkthrough</a>
-    </section>
-
-    <ol class="workflow" aria-label="Five-step direct test path">
-      <li><strong>1. Set up</strong>Enter the gap range, usable step, and maximum test count.</li>
-      <li><strong>2. Prepare</strong>Build the requested physical gap and measure it.</li>
-      <li><strong>3. Test</strong>Record whether Interaction or No interaction occurred.</li>
-      <li><strong>4. Check</strong>Read the result and its evidence limits.</li>
-      <li><strong>5. Finish</strong>Save the record. The planner is not required.</li>
-    </ol>
-
-    <section class="two-column" aria-labelledby="status-title">
-      <div class="reading-width">
-        <h2 id="status-title">What this review site covers</h2>
-        <p>This site explains the reviewed MATLAB tool. It does not run or change the calculation. It keeps the middle gap, the reliable operating gap, and overall variation separate because they answer different questions.</p>
-        <p>Requested gaps are written with two decimal places. One measured gap is entered for each new setup and is used in the calculation. Its entered precision is kept.</p>
+  <a class="skip-link" href="#guide-content">Skip to the guide</a>
+  <header class="site-head"><div class="page-shell"><a class="brand" href="#start">Neyer Gap Test</a><span class="version-mark">V1.14 · MATLAB R2022b</span></div></header>
+  <section class="hero"><div class="page-shell hero-grid">
+    <div><p class="kicker">One guide. One tested Live Script.</p><h1>Neyer Gap Test V1.14</h1><p class="lede">Use changing physical gaps to learn where Interaction changes to No interaction. This guide shows the idea, every operating step, and a complete twenty-test check you can repeat in MATLAB.</p>
+      <div class="actions"><a class="button-link primary" href="downloads/Neyer_Gap_Test_v1_14.mlx" download>Download the V1.14 Live Script</a><a class="button-link secondary" href="#repeat" data-open-tab="repeat">Repeat the published test</a></div></div>
+    <div class="gap-instrument" aria-label="Diagram showing that interaction becomes less likely as the physical gap increases"><p class="instrument-title">The physical question</p><p class="instrument-note">What changes when these two surfaces move farther apart?</p><div class="material top" aria-hidden="true"></div><div class="physical-gap">physical gap</div><div class="material bottom" aria-hidden="true"></div><div class="arrow-line"><span>smaller gap<br>Interaction more likely</span><span>larger gap<br>No interaction more likely</span></div><div class="arrow-track" aria-hidden="true"></div></div>
+  </div></section>
+  <nav class="tab-wrap" aria-label="Guide sections"><div class="page-shell"><div class="tabs" role="tablist" aria-label="Neyer V1.14 guide tabs">
+    <button id="tab-start" role="tab" aria-selected="true" aria-controls="start">Start here</button>
+    <button id="tab-repeat" role="tab" aria-selected="false" aria-controls="repeat" tabindex="-1">Repeat Neyer’s test</button>
+    <button id="tab-concepts" role="tab" aria-selected="false" aria-controls="concepts" tabindex="-1">Understand the method</button>
+    <button id="tab-operate" role="tab" aria-selected="false" aria-controls="operate" tabindex="-1">Operate V1.14</button>
+    <button id="tab-results" role="tab" aria-selected="false" aria-controls="results" tabindex="-1">Read your results</button>
+    <button id="tab-evidence" role="tab" aria-selected="false" aria-controls="evidence" tabindex="-1">Evidence and problems</button>
+  </div></div></nav>
+  <main id="guide-content" class="page-shell">
+    <section id="start" role="tabpanel" aria-labelledby="tab-start">
+      <div class="section-intro"><h2>Start here</h2><p>The tool runs a sequence of separate tests. It chooses each next gap from what has already happened. At the end, it tries to draw one probability curve showing where the outcome changes.</p></div>
+      <div class="overview-grid">
+        <article class="fact"><strong>1 setup</strong><h3>for each test</h3><p>Build a new spacer setup because the previous one is consumed by the test.</p></article>
+        <article class="fact"><strong>1 reading</strong><h3>of the completed gap</h3><p>Enter that one measured gap reading. Do not average several readings of the same setup.</p></article>
+        <article class="fact"><strong>1 outcome</strong><h3>Interaction or No interaction</h3><p>Record only what physically happened. Never choose an answer to guide the program.</p></article>
       </div>
-      <aside class="verified">
-        <h2>v1.13 review status</h2>
-        <p>245 checks passed in MATLAB R2022b. Five fresh 62-article trials and a separate 1,600-run physical-resolution study also completed.</p>
-        <p>The reviewed standalone tool requires MATLAB R2022b.</p>
-        <p>Approximately 0.015 mm foil is construction information. It does not prove a 0.015 mm usable test step.</p>
-      </aside>
+      <ol class="step-list">
+        <li><h3>Download and open</h3><p>Open <strong>Neyer_Gap_Test_v1_14.mlx</strong> in MATLAB R2022b. The file stands alone; it does not need the project folders.</p></li>
+        <li><h3>Press Run once</h3><p>The menu opens with three choices: Start a Gap Study, Run the Published Example, and Help and Definitions.</p></li>
+        <li><h3>Check the code first</h3><p>Choose <strong>Run the Published Example</strong>. The expected middle gap is 5.3922 mm and the expected overall variation is 1.0412 mm.</p></li>
+        <li><h3>Start your physical study</h3><p>Choose <strong>Start a Gap Study</strong>. Use the default first-study route when the overall variation is not already known.</p></li>
+      </ol>
+      <div class="success"><strong>Current release check</strong><p>V1.14 passed 241 relevant MATLAB checks with no failures or incomplete checks.</p></div>
+      <div class="warning"><strong>Keep two studies separate</strong><p>This changing-gap study estimates a middle gap and overall variation. A later fixed-gap reliability demonstration is a different activity.</p></div>
     </section>
 
-    <section aria-labelledby="routes-title">
-      <h2 id="routes-title">Choose a focused guide</h2>
-      <div class="route-grid">
-        <a href="method.html"><h2>Understand the method</h2><p>See response direction, the middle gap, overall variation, and the operating instruction.</p></a>
-        <a href="test-workflow.html"><h2>Run a test directly</h2><p>Follow the checked MATLAB path without using the planner.</p></a>
-        <a href="planner.html"><h2>Optional separate planner</h2><p>Review the planner only if you decide to use it later.</p></a>
-        <a href="results.html"><h2>Understand results</h2><p>Keep the study decision, limits, and saved record clear.</p></a>
-        <a href="physical-setup.html"><h2>Check physical setup</h2><p>Review spacers, measurements, and remaining physical confirmation.</p></a>
-        <a href="audit.html"><h2>See audit findings</h2><p>Compare earlier problems with the corrected v1.13 workflow.</p></a>
-        <a href="evidence.html"><h2>Inspect testing evidence</h2><p>Read the recorded checks and demonstration scenarios.</p></a>
-        <a href="downloads/Neyer_Gap_Test_v1_13.mlx" download><h2>Download the standalone Live Script</h2><p>Open the reviewed file with MATLAB R2022b.</p></a>
-        <a href="downloads/General_Measurement_Recorder.m" download><h2>Download the separate measurement recorder</h2><p>Record one general physical measurement per sample without changing the Neyer test.</p></a>
+    <section id="repeat" role="tabpanel" aria-labelledby="tab-repeat" hidden>
+      <div class="section-intro"><h2>Repeat the published Neyer test</h2><p>This is a known-answer check. It confirms that the program follows the expected gap sequence and reaches the published final values. It is not a substitute for your real physical study.</p></div>
+      <h3>Fast check: one button</h3>
+      <ol class="step-list"><li><h3>Open and run V1.14</h3><p>Open the standalone Live Script in MATLAB R2022b and press Run.</p></li><li><h3>Select Run the Published Example</h3><p>The program supplies the recorded twenty outcomes itself. You do not enter any physical result.</p></li><li><h3>Compare the result</h3><p>The middle gap must be 5.3922 mm and the overall variation must be 1.0412 mm.</p></li></ol>
+      <h3>Full manual check: enter all twenty results</h3><p>Use this route when you want to watch every request. Enter the following starting information:</p>
+      <dl class="settings-map">
+        <dt>Study route</dt><dd>Advanced - starting variation known</dd><dt>Low middle-gap guess</dt><dd>0.60 mm</dd><dt>High middle-gap guess</dt><dd>1.40 mm</dd><dt>Starting overall variation</dt><dd>0.10 mm</dd><dt>Maximum tests</dt><dd>20</dd><dt>Minimum permitted gap</dt><dd>0.00 mm</dd><dt>Maximum permitted gap</dt><dd>10.00 mm</dd><dt>Build method</dt><dd>Regular gap step</dd><dt>Regular gap step</dt><dd>0.01 mm</dd><dt>Foil thickness</dt><dd>0.015 mm. This entry is information only.</dd>
+      </dl>
+      <div class="plain-note"><strong>For this software check only:</strong> enter the requested gap again as the measured gap. In a real study, always enter the actual measured gap instead.</div>
+      <div class="table-scroll" tabindex="0" aria-label="Twenty-test published example table"><table><thead><tr><th>Test</th><th>Expected request</th><th>Measured entry</th><th>Outcome to select</th></tr></thead><tbody>
+        <tr data-test-number="1"><td>1</td><td>1.00 mm</td><td>1.00</td><td><span class="outcome interaction">Interaction</span></td></tr>
+        <tr data-test-number="2"><td>2</td><td>1.20 mm</td><td>1.20</td><td><span class="outcome interaction">Interaction</span></td></tr>
+        <tr data-test-number="3"><td>3</td><td>1.40 mm</td><td>1.40</td><td><span class="outcome interaction">Interaction</span></td></tr>
+        <tr data-test-number="4"><td>4</td><td>1.80 mm</td><td>1.80</td><td><span class="outcome interaction">Interaction</span></td></tr>
+        <tr data-test-number="5"><td>5</td><td>2.60 mm</td><td>2.60</td><td><span class="outcome interaction">Interaction</span></td></tr>
+        <tr data-test-number="6"><td>6</td><td>4.20 mm</td><td>4.20</td><td><span class="outcome no-interaction">No interaction</span></td></tr>
+        <tr data-test-number="7"><td>7</td><td>3.40 mm</td><td>3.40</td><td><span class="outcome interaction">Interaction</span></td></tr>
+        <tr data-test-number="8"><td>8</td><td>3.80 mm</td><td>3.80</td><td><span class="outcome interaction">Interaction</span></td></tr>
+        <tr data-test-number="9"><td>9</td><td>4.00 mm</td><td>4.00</td><td><span class="outcome interaction">Interaction</span></td></tr>
+        <tr data-test-number="10"><td>10</td><td>4.10 mm</td><td>4.10</td><td><span class="outcome interaction">Interaction</span></td></tr>
+        <tr data-test-number="11"><td>11</td><td>4.28 mm</td><td>4.28</td><td><span class="outcome interaction">Interaction</span></td></tr>
+        <tr data-test-number="12"><td>12</td><td>4.52 mm</td><td>4.52</td><td><span class="outcome interaction">Interaction</span></td></tr>
+        <tr data-test-number="13"><td>13</td><td>5.55 mm</td><td>5.55</td><td><span class="outcome no-interaction">No interaction</span></td></tr>
+        <tr data-test-number="14"><td>14</td><td>5.24 mm</td><td>5.24</td><td><span class="outcome interaction">Interaction</span></td></tr>
+        <tr data-test-number="15"><td>15</td><td>6.37 mm</td><td>6.37</td><td><span class="outcome no-interaction">No interaction</span></td></tr>
+        <tr data-test-number="16"><td>16</td><td>6.08 mm</td><td>6.08</td><td><span class="outcome interaction">Interaction</span></td></tr>
+        <tr data-test-number="17"><td>17</td><td>7.38 mm</td><td>7.38</td><td><span class="outcome no-interaction">No interaction</span></td></tr>
+        <tr data-test-number="18"><td>18</td><td>7.09 mm</td><td>7.09</td><td><span class="outcome no-interaction">No interaction</span></td></tr>
+        <tr data-test-number="19"><td>19</td><td>6.89 mm</td><td>6.89</td><td><span class="outcome no-interaction">No interaction</span></td></tr>
+        <tr data-test-number="20"><td>20</td><td>6.74 mm</td><td>6.74</td><td><span class="outcome no-interaction">No interaction</span></td></tr>
+      </tbody></table></div>
+      <div class="result-strip" aria-label="Expected final result"><div><span>Expected middle gap</span><strong>5.3922 mm</strong></div><div><span>Expected overall variation</span><strong>1.0412 mm</strong></div><div><span>Accepted gap difference</span><strong>within 0.005 mm</strong></div></div>
+      <div class="warning"><strong>Stop if a requested gap differs.</strong><p>Do not alter your outcome to force the next number. Record the test number, the requested gap, and what you entered. A mismatch is evidence to investigate.</p></div>
+    </section>
+
+    <section id="concepts" role="tabpanel" aria-labelledby="tab-concepts" hidden>
+      <div class="section-intro"><h2>Understand the method</h2><p>The method builds a picture from simple yes-or-no results. Difficult internal names appear only at the end of this section for traceability.</p></div>
+      <div class="curve-wrap">
+        <figure class="curve-figure"><svg viewBox="0 0 720 390" role="img" aria-labelledby="curve-title curve-desc"><title id="curve-title">Chance of interaction as the gap increases</title><desc id="curve-desc">A falling curve begins near one hundred percent interaction at small gaps, crosses fifty percent at the middle gap, and approaches zero at large gaps.</desc><rect x="72" y="28" width="600" height="292" fill="#f8fbfa" stroke="#bfd0cf"/><g stroke="#d7e2e0"><line x1="72" y1="101" x2="672" y2="101"/><line x1="72" y1="174" x2="672" y2="174"/><line x1="72" y1="247" x2="672" y2="247"/><line x1="222" y1="28" x2="222" y2="320"/><line x1="372" y1="28" x2="372" y2="320"/><line x1="522" y1="28" x2="522" y2="320"/></g><g fill="#52676e" font-family="Segoe UI,Arial" font-size="16"><text x="18" y="36">100%</text><text x="29" y="180">50%</text><text x="43" y="325">0%</text><text x="72" y="355">smaller gap</text><text x="565" y="355">larger gap</text></g><line x1="372" y1="28" x2="372" y2="320" stroke="#8a6812" stroke-width="3" stroke-dasharray="8 8"/><path d="M72 40 C210 40 250 60 305 112 C350 155 365 168 372 174 C390 192 422 240 470 282 C520 318 595 320 672 320" fill="none" stroke="#176f68" stroke-width="8" stroke-linecap="round"/><circle cx="372" cy="174" r="9" fill="#a95020"/><text x="390" y="163" fill="#8a6812" font-family="Segoe UI,Arial" font-size="17" font-weight="700">middle gap: about 50%</text><text x="90" y="78" fill="#a95020" font-family="Segoe UI,Arial" font-size="17" font-weight="700">Interaction more likely</text><text x="478" y="296" fill="#176f68" font-family="Segoe UI,Arial" font-size="17" font-weight="700">No interaction more likely</text></svg><figcaption>The curve falls because smaller gaps are more likely to produce Interaction in this project.</figcaption></figure>
+        <div class="term-stack"><div class="term"><strong>Middle gap</strong><p>The estimated gap where Interaction and No interaction are each about equally likely.</p></div><div class="term"><strong>Overall variation</strong><p>How quickly or gradually the outcome changes around the middle.</p></div><div class="term"><strong>Probability</strong><p>The fitted curve’s estimated chance of an outcome at one chosen gap.</p></div><div class="term"><strong>Confidence</strong><p>How strongly the completed evidence supports an estimated value.</p></div></div>
       </div>
+      <div class="warning"><strong>Probability is not confidence.</strong><p>“99% chance of Interaction” describes the predicted outcome at a gap. “95% confidence range” describes uncertainty in an estimated answer. They are different statements.</p></div>
+      <h3>How the next gap is chosen</h3><div class="concept-grid"><article class="concept"><h3>Early search</h3><p>The first requests move outward until both outcomes have been seen.</p></article><article class="concept"><h3>Narrow the change</h3><p>The next requests concentrate between the two kinds of outcome. The physical gap step prevents meaningless tiny changes.</p></article><article class="concept"><h3>Improve the curve</h3><p>The program chooses useful gaps that improve the middle and variation estimates.</p></article></div>
+      <details><summary>What do Stage 1, Stage 2, MLE, and D-optimal mean?</summary><div><p><strong>Stage 1</strong> is the early outward search. <strong>Stage 2</strong> narrows the area where the outcome changes. <strong>MLE</strong> is the calculation that finds the middle and overall variation most consistent with all results. <strong>D-optimal</strong> is the internal rule for choosing a useful next gap after both outcomes are available.</p></div></details>
+      <details><summary>Why can the same gap be requested again?</summary><div><p>A repeat may be useful when a fresh independent article at that gap adds information. The app first looks for the nearest different reachable and useful setting.</p></div></details>
     </section>
 
-    <nav class="page-nav" aria-label="Next page">
-      <ul><li><a href="method.html">Next: How the method works →</a></li></ul>
-    </nav>
+    <section id="operate" role="tabpanel" aria-labelledby="tab-operate" hidden>
+      <div class="section-intro"><h2>Operate V1.14</h2><p>Use this as the step-by-step operating manual. The default route is designed for a first study where the overall variation is not known.</p></div>
+      <h3>Every starting entry, in plain language</h3><dl class="settings-map">
+        <dt>First study - variation unknown</dt><dd>Use this default when you have no trustworthy earlier estimate. The program selects an internal starting search size; it does not report that starting value as a result.</dd>
+        <dt>Advanced - starting variation known</dt><dd>Use only when earlier evidence provides a reasonable starting value. This affects early requests but does not force the final answer.</dd>
+        <dt>Low middle-gap guess</dt><dd>Your smallest reasonable starting location for the 50/50 change. It is not the minimum gap limit.</dd>
+        <dt>High middle-gap guess</dt><dd>Your largest reasonable starting location for the 50/50 change. It is not the maximum gap limit.</dd>
+        <dt>Maximum tests</dt><dd>The most new articles this run may consume. It is a limit, not a promise that a curve or chosen confidence will be achieved.</dd>
+        <dt>Minimum permitted gap</dt><dd>The smallest physical gap the app is allowed to request.</dd><dt>Maximum permitted gap</dt><dd>The largest useful physical gap the app is allowed to request.</dd>
+        <dt>Regular gap step</dt><dd>Choose only if every multiple of the step can genuinely be built throughout the permitted range.</dd><dt>Confirmed gap list</dt><dd>Use a specific list of measured, buildable gaps. The app requests only values from that list.</dd>
+        <dt>Foil thickness</dt><dd>Construction information only. It does not decide the usable gap step and does not change the calculation.</dd>
+      </dl>
+      <h3>What to do for every requested gap</h3><ol class="step-list">
+        <li><h3>Read the build request</h3><p>The requested gap is shown with two decimal places, such as 2.50 mm.</p></li><li><h3>Build a new setup</h3><p>Use a fresh article and fresh spacer arrangement. Do not reuse a consumed setup.</p></li><li><h3>Take one measurement</h3><p>Measure the completed setup once. This one measured gap reading is used by the calculation.</p></li><li><h3>Enter the measured gap</h3><p>If the request was 2.45 mm but the setup measures 2.50 mm, enter 2.50.</p></li><li><h3>Perform the test</h3><p>Select Interaction only if the defined interaction occurred. Otherwise select No interaction.</p></li><li><h3>Continue or review</h3><p>If the app pauses at a boundary, save the data and review the setup instead of forcing the run onward.</p></li>
+      </ol>
+      <h3>Three gap terms that must not be mixed</h3><div class="gap-words"><div><strong>Internal target</strong>The ideal next location before physical restrictions.</div><div><strong>Requested gap</strong>The reachable two-decimal setting to build.</div><div><strong>Measured gap</strong>The actual one-time reading used in the fit.</div></div>
+      <div class="plain-note"><strong>Example:</strong><p>Internal target 2.47 mm → app requests 2.50 mm → completed setup measures 2.52 mm. The outcome is associated with 2.52 mm.</p></div>
+      <h3>Saving</h3><p>Choose <strong>Save results...</strong>. Select a folder and base name. The app shows the destinations before writing a CSV file and a self-contained HTML result. Existing files are not silently replaced.</p>
+    </section>
+
+    <section id="results" role="tabpanel" aria-labelledby="tab-results" hidden>
+      <div class="section-intro"><h2>Read your results</h2><p>A result may be calculated, unfinished, or paused for review. None of these screens changes a physical outcome that you entered.</p></div>
+      <div class="result-strip"><div><span>Main location</span><strong>Middle gap</strong><p>About 50% estimated Interaction.</p></div><div><span>Shape of the change</span><strong>Overall variation</strong><p>Sharp or gradual change across similar articles.</p></div><div><span>Evidence strength</span><strong>95% range</strong><p>Uncertainty in the fitted estimate, not a reliability request.</p></div></div>
+      <details open><summary>Calculated result</summary><div><p>Both outcomes were observed closely enough for the program to fit a curve. Read the middle gap, overall variation, and then their confidence ranges. The probability chart must fall as the gap increases.</p></div></details>
+      <details><summary>Unfinished result</summary><div><p>The completed tests did not show both outcomes closely enough to fit the curve. The data can still be saved. No substitute number is invented.</p></div></details>
+      <details><summary>Paused for review</summary><div><p>The outcomes conflict with the expected direction at a boundary, or no different useful reachable gap remains. A pause is not a failed article and not automatically a software failure.</p></div></details>
+      <h3>Chance at one gap</h3><p>The result window can estimate the chance of Interaction or No interaction at a selected gap. It shows the best fitted chance and a more cautious minimum supported by the data.</p>
+      <div class="warning"><strong>Do not rename this as qualification.</strong><p>A chance calculated from a changing-gap model is not the same as completing a separate zero-failure demonstration at one fixed gap.</p></div>
+      <h3>How to read a confidence range</h3><p>“Middle gap 5.39 mm; 95% range 4.49 to 6.53 mm” means the data support a middle somewhere in that range under the model. It does not mean an article has a 95% chance of Interaction at 5.39 mm.</p>
+    </section>
+
+    <section id="evidence" role="tabpanel" aria-labelledby="tab-evidence" hidden>
+      <div class="section-intro"><h2>Evidence and problems</h2><p>These are recorded checks from the V1.14 build, not invented performance claims.</p></div>
+      <div class="evidence-grid"><article class="evidence-item"><strong>241 / 241</strong><h3>relevant MATLAB checks passed</h3><p>No failed or incomplete checks.</p></article><article class="evidence-item"><strong>5 / 5</strong><h3>separate 62-test runs fitted curves</h3><p>Steps covered 0.05, 0.10, 0.15, 0.20, and 0.50 mm.</p></article><article class="evidence-item"><strong>45 of 54</strong><h3>unknown-variation cases fitted curves</h3><p>The remaining nine honestly returned no fitted answer.</p></article></div>
+      <h3>Why nine simulation cases had no fitted curve</h3><p>The true change was only 0.15 mm wide while the physical step was 0.15 or 0.50 mm. Available settings were sometimes too coarse to show enough mixed outcomes within 62 tests. V1.14 returned an unfinished result instead of inventing confidence.</p>
+      <h3>Problem guide</h3>
+      <details><summary>The app asks for the same gap again</summary><div><p>A useful repeat uses a new independent article and newly built setup. If every request remains stuck, save the record and note the test number and gap.</p></div></details>
+      <details><summary>The requested gap cannot be built</summary><div><p>Do not silently substitute another setting. Cancel before recording an outcome, then restart using the correct regular step or a confirmed gap list.</p></div></details>
+      <details><summary>The measured gap differs from the request</summary><div><p>Enter the actual measured value. The request guides construction; the measurement describes what was physically tested.</p></div></details>
+      <details><summary>A confidence boundary is missing</summary><div><p>The evidence did not establish that edge inside the permitted range. The screen says the boundary was not established instead of showing an impossible physical setting.</p></div></details>
+      <details><summary>Nothing opens after the last test</summary><div><p>Keep MATLAB open and read the Command Window message. Record the complete message and preserve the test data. V1.14 includes a check for the result-window naming problem found during release review.</p></div></details>
+      <div class="plain-note"><strong>Known physical limitation</strong><p>The approximate 0.015 mm foil thickness does not prove that every 0.015 mm change—or even every 0.05 mm change—can be built consistently. Select a usable step only after confirming the setup.</p></div><p class="print-only">End of printable Neyer Gap Test V1.14 guide.</p>
+    </section>
   </main>
-  <footer class="site-footer"><div>Documentation for the reviewed Neyer Gap Test v1.13 MATLAB implementation.</div></footer>
+  <footer class="site-foot"><div class="page-shell"><p>Public guide for the verified Neyer Gap Test V1.14 standalone MATLAB Live Script. The page uses no external web assets.</p></div></footer>
+  <script>
+    (()=>{
+      const tabs=[...document.querySelectorAll('[role="tab"]')];
+      const panels=[...document.querySelectorAll('[role="tabpanel"]')];
+      function activate(panelId,moveFocus=false){
+        const next=tabs.find(tab=>tab.getAttribute('aria-controls')===panelId)||tabs[0];
+        tabs.forEach(tab=>{const selected=tab===next;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});
+        panels.forEach(panel=>{panel.hidden=panel.id!==next.getAttribute('aria-controls');});
+        if(moveFocus)next.focus(); history.replaceState(null,'',`#${next.getAttribute('aria-controls')}`);
+        window.scrollTo({top:document.querySelector('.tab-wrap').offsetTop,behavior:'smooth'});
+      }
+      tabs.forEach((tab,index)=>{tab.addEventListener('click',()=>activate(tab.getAttribute('aria-controls')));tab.addEventListener('keydown',event=>{let next=null;if(event.key==='ArrowRight')next=(index+1)%tabs.length;if(event.key==='ArrowLeft')next=(index-1+tabs.length)%tabs.length;if(event.key==='Home')next=0;if(event.key==='End')next=tabs.length-1;if(next!==null){event.preventDefault();activate(tabs[next].getAttribute('aria-controls'),true);}});});
+      document.querySelectorAll('[data-open-tab]').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();activate(link.getAttribute('data-open-tab'));}));
+      const requested=location.hash.slice(1); if(panels.some(panel=>panel.id===requested))activate(requested);
+    })();
+  </script>
 </body>
 </html>

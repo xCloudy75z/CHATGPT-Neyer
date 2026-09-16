@@ -2,7 +2,7 @@ name: Publish Neyer review site
 
 on:
   push:
-    branches: [codex/neyer-v110, main]
+    branches: [codex/neyer-v110, codex/neyer-v114, main]
     paths: ["site/**", "tools/validate_public_site.py", ".github/workflows/pages.yml"]
   workflow_dispatch:
 

@@ -9,13 +9,10 @@ The application models a destructive gap test in which smaller gaps make interac
 The verified public review site is available at
 [https://xcloudy75z.github.io/CHATGPT-Neyer/](https://xcloudy75z.github.io/CHATGPT-Neyer/).
 
-It includes plain-language guides to the [method](https://xcloudy75z.github.io/CHATGPT-Neyer/method.html),
-[direct test workflow](https://xcloudy75z.github.io/CHATGPT-Neyer/test-workflow.html),
-[optional separate planning questions](https://xcloudy75z.github.io/CHATGPT-Neyer/planner.html),
-[results](https://xcloudy75z.github.io/CHATGPT-Neyer/results.html),
-[physical setup](https://xcloudy75z.github.io/CHATGPT-Neyer/physical-setup.html),
-[audit](https://xcloudy75z.github.io/CHATGPT-Neyer/audit.html), and
-[evidence](https://xcloudy75z.github.io/CHATGPT-Neyer/evidence.html).
+The homepage is one phone-friendly guide with six tabs: **Start here**,
+**Repeat Neyer's test**, **Understand the method**, **Operate V1.14**,
+**Read your results**, and **Evidence and problems**. It also provides the
+verified standalone V1.14 Live Script download.
 
 ## Start here
 

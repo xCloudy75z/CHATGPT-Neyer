@@ -57,6 +57,20 @@ SCREENSHOT_NAMES = (
     "v112-07-help.png",
 )
 
+V114_HOME_REQUIRED_TEXT = (
+    "Neyer Gap Test V1.14",
+    "Repeat the published Neyer test",
+    "First study - variation unknown",
+    "Middle gap",
+    "Overall variation",
+    "Probability is not confidence",
+    "one measured gap reading",
+    "5.3922 mm",
+    "1.0412 mm",
+    "241",
+    "45 of 54",
+)
+
 CSS_RESOURCE_PATTERN = re.compile(
     r"""(?:url\(\s*(?:\"([^\"]*)\"|'([^']*)'|([^\s)'\"]+))\s*\)|
     @import\s+(?:\"([^\"]*)\"|'([^']*)'))""",
@@ -161,6 +175,10 @@ def _local_target(page: Path, site_root: Path, value: str) -> tuple[Path | None,
 
 def _fingerprint_pairs(site_root: Path, repository_root: Path) -> list[tuple[Path, Path]]:
     pairs = [
+        (
+            site_root / "downloads" / "Neyer_Gap_Test_v1_14.mlx",
+            repository_root / "delivery" / "Neyer_Gap_Test_v1_14.mlx",
+        ),
         (
             site_root / "downloads" / "Neyer_Gap_Test_v1_13.mlx",
             repository_root / "delivery" / "Neyer_Gap_Test_v1_13.mlx",
@@ -287,13 +305,75 @@ def validate_page_shell(site_root: Path) -> list[str]:
             for tag, attributes in parser.elements
         ):
             problems.append(f"{label}: missing labelled navigation")
-        if not any(
+        if page_name != "index.html" and not any(
             tag == "link"
             and "stylesheet" in attributes.get("rel", "").lower().split()
             and attributes.get("href", "").split("?", 1)[0] == "assets/site.css"
             for tag, attributes in parser.elements
         ):
             problems.append(f"{label}: missing local stylesheet")
+    return problems
+
+
+def validate_v114_home(site_root: Path) -> list[str]:
+    """Return problems in the single-page, phone-friendly V1.14 guide."""
+    page = site_root / "index.html"
+    parser, error = _parse_html(page)
+    if error:
+        return [error]
+    assert parser is not None
+    problems: list[str] = []
+    page_text = " ".join("".join(parser.text).split())
+    for required in V114_HOME_REQUIRED_TEXT:
+        if required.lower() not in page_text.lower():
+            problems.append(f"index.html: missing V1.14 guide wording: {required}")
+
+    tabs = [
+        attributes for tag, attributes in parser.elements
+        if tag == "button" and attributes.get("role") == "tab"
+    ]
+    panels = {
+        attributes.get("id", ""): attributes
+        for tag, attributes in parser.elements
+        if tag == "section" and attributes.get("role") == "tabpanel"
+    }
+    if len(tabs) != 6:
+        problems.append(f"index.html: expected 6 guide tabs, found {len(tabs)}")
+    if len(panels) != 6:
+        problems.append(f"index.html: expected 6 tab panels, found {len(panels)}")
+    for tab in tabs:
+        controlled = tab.get("aria-controls", "")
+        if not tab.get("id") or controlled not in panels:
+            problems.append("index.html: tab does not control a matching panel")
+        if tab.get("aria-selected") not in {"true", "false"}:
+            problems.append("index.html: tab is missing aria-selected")
+
+    test_rows = [
+        attributes for tag, attributes in parser.elements
+        if tag == "tr" and attributes.get("data-test-number", "").isdigit()
+    ]
+    if len(test_rows) != 20:
+        problems.append(
+            f"index.html: expected 20 published-example rows, found {len(test_rows)}"
+        )
+    if not any(
+        tag == "a"
+        and attributes.get("href") == "downloads/Neyer_Gap_Test_v1_14.mlx"
+        and "download" in attributes
+        for tag, attributes in parser.elements
+    ):
+        problems.append("index.html: missing V1.14 Live Script download")
+
+    try:
+        source = page.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as read_error:
+        return [f"cannot read {page}: {read_error}"]
+    if "<style>" not in source or "<script>" not in source:
+        problems.append("index.html: guide must contain its own CSS and tab script")
+    if "@media (max-width: 700px)" not in source:
+        problems.append("index.html: missing phone layout")
+    if "@media print" not in source:
+        problems.append("index.html: missing print layout")
     return problems
 
 
@@ -349,6 +429,7 @@ def validate_site(site_root: Path, repository_root: Path) -> list[str]:
             problems.append(f"missing required wording: {required}")
 
     problems.extend(validate_page_shell(site_root))
+    problems.extend(validate_v114_home(site_root))
     for public_path, source_path in _fingerprint_pairs(site_root, repository_root):
         public_label = _relative(public_path, site_root)
         source_label = _relative(source_path, repository_root)

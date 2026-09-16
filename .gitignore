@@ -13,6 +13,7 @@ __pycache__/
 *.pyc
 review-preview/
 tmp/
+audit/v114/site/
 .codex-finalizer*/
 .pptx-build*/
 audit/v19-reaudit/v19-reaudit-shard-*.csv
