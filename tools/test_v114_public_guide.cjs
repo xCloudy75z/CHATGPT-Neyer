@@ -23,7 +23,7 @@ async function main() {
 
     const tabNames = [
       'Start here',
-      'Repeat Neyer’s test',
+      'Manual code check',
       'Understand the method',
       'Operate V1.14',
       'Read your results',
@@ -47,6 +47,16 @@ async function main() {
     if (phoneOverflow > 1) {
       throw new Error(`Phone layout overflows by ${phoneOverflow}px`);
     }
+    const pageText = await page.locator('body').innerText();
+    for (const unwantedText of [
+      'Run the Published Example',
+      'Keep two studies separate',
+      'zero-failure demonstration',
+    ]) {
+      if (pageText.includes(unwantedText)) {
+        throw new Error(`Mentor guide still contains extra wording: ${unwantedText}`);
+      }
+    }
     await page.getByRole('tab', { name: 'Start here' }).click();
     await page.waitForTimeout(500);
     await page.screenshot({ path: path.join(outputFolder, 'phone-start.png'), fullPage: true });
@@ -55,7 +65,7 @@ async function main() {
     await page.screenshot({ path: path.join(outputFolder, 'phone-operate.png'), fullPage: true });
 
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.getByRole('tab', { name: 'Repeat Neyer’s test' }).click();
+    await page.getByRole('tab', { name: 'Manual code check' }).click();
     await page.waitForTimeout(500);
     const desktopOverflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,

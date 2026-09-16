@@ -59,7 +59,8 @@ SCREENSHOT_NAMES = (
 
 V114_HOME_REQUIRED_TEXT = (
     "Neyer Gap Test V1.14",
-    "Repeat the published Neyer test",
+    "Manual code check",
+    "enter all twenty results",
     "First study - variation unknown",
     "Middle gap",
     "Overall variation",
@@ -69,6 +70,12 @@ V114_HOME_REQUIRED_TEXT = (
     "1.0412 mm",
     "241",
     "45 of 54",
+)
+
+V114_HOME_FORBIDDEN_TEXT = (
+    "Run the Published Example",
+    "Keep two studies separate",
+    "zero-failure demonstration",
 )
 
 CSS_RESOURCE_PATTERN = re.compile(
@@ -327,6 +334,9 @@ def validate_v114_home(site_root: Path) -> list[str]:
     for required in V114_HOME_REQUIRED_TEXT:
         if required.lower() not in page_text.lower():
             problems.append(f"index.html: missing V1.14 guide wording: {required}")
+    for forbidden in V114_HOME_FORBIDDEN_TEXT:
+        if forbidden.lower() in page_text.lower():
+            problems.append(f"index.html: mentor guide contains extra wording: {forbidden}")
 
     tabs = [
         attributes for tag, attributes in parser.elements

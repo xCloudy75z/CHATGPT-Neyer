@@ -118,13 +118,13 @@
   <a class="skip-link" href="#guide-content">Skip to the guide</a>
   <header class="site-head"><div class="page-shell"><a class="brand" href="#start">Neyer Gap Test</a><span class="version-mark">V1.14 · MATLAB R2022b</span></div></header>
   <section class="hero"><div class="page-shell hero-grid">
-    <div><p class="kicker">One guide. One tested Live Script.</p><h1>Neyer Gap Test V1.14</h1><p class="lede">Use changing physical gaps to learn where Interaction changes to No interaction. This guide shows the idea, every operating step, and a complete twenty-test check you can repeat in MATLAB.</p>
-      <div class="actions"><a class="button-link primary" href="downloads/Neyer_Gap_Test_v1_14.mlx" download>Download the V1.14 Live Script</a><a class="button-link secondary" href="#repeat" data-open-tab="repeat">Repeat the published test</a></div></div>
+    <div><p class="kicker">One guide. One tested Live Script.</p><h1>Neyer Gap Test V1.14</h1><p class="lede">Use changing physical gaps to learn where Interaction changes to No interaction. This guide shows the idea, every operating step, and a complete manual twenty-test check you can perform in MATLAB.</p>
+      <div class="actions"><a class="button-link primary" href="downloads/Neyer_Gap_Test_v1_14.mlx" download>Download the V1.14 Live Script</a><a class="button-link secondary" href="#repeat" data-open-tab="repeat">Open the manual code check</a></div></div>
     <div class="gap-instrument" aria-label="Diagram showing that interaction becomes less likely as the physical gap increases"><p class="instrument-title">The physical question</p><p class="instrument-note">What changes when these two surfaces move farther apart?</p><div class="material top" aria-hidden="true"></div><div class="physical-gap">physical gap</div><div class="material bottom" aria-hidden="true"></div><div class="arrow-line"><span>smaller gap<br>Interaction more likely</span><span>larger gap<br>No interaction more likely</span></div><div class="arrow-track" aria-hidden="true"></div></div>
   </div></section>
   <nav class="tab-wrap" aria-label="Guide sections"><div class="page-shell"><div class="tabs" role="tablist" aria-label="Neyer V1.14 guide tabs">
     <button id="tab-start" role="tab" aria-selected="true" aria-controls="start">Start here</button>
-    <button id="tab-repeat" role="tab" aria-selected="false" aria-controls="repeat" tabindex="-1">Repeat Neyer’s test</button>
+    <button id="tab-repeat" role="tab" aria-selected="false" aria-controls="repeat" tabindex="-1">Manual code check</button>
     <button id="tab-concepts" role="tab" aria-selected="false" aria-controls="concepts" tabindex="-1">Understand the method</button>
     <button id="tab-operate" role="tab" aria-selected="false" aria-controls="operate" tabindex="-1">Operate V1.14</button>
     <button id="tab-results" role="tab" aria-selected="false" aria-controls="results" tabindex="-1">Read your results</button>
@@ -140,19 +140,18 @@
       </div>
       <ol class="step-list">
         <li><h3>Download and open</h3><p>Open <strong>Neyer_Gap_Test_v1_14.mlx</strong> in MATLAB R2022b. The file stands alone; it does not need the project folders.</p></li>
-        <li><h3>Press Run once</h3><p>The menu opens with three choices: Start a Gap Study, Run the Published Example, and Help and Definitions.</p></li>
-        <li><h3>Check the code first</h3><p>Choose <strong>Run the Published Example</strong>. The expected middle gap is 5.3922 mm and the expected overall variation is 1.0412 mm.</p></li>
+        <li><h3>Press Run once</h3><p>The opening menu appears. Choose <strong>Start a Gap Study</strong> when you are ready to enter test settings and outcomes.</p></li>
+        <li><h3>Check the code manually</h3><p>Open <strong>Manual code check</strong> in this guide. Enter all twenty results yourself and confirm every requested gap before accepting the final answer.</p></li>
         <li><h3>Start your physical study</h3><p>Choose <strong>Start a Gap Study</strong>. Use the default first-study route when the overall variation is not already known.</p></li>
       </ol>
       <div class="success"><strong>Current release check</strong><p>V1.14 passed 241 relevant MATLAB checks with no failures or incomplete checks.</p></div>
-      <div class="warning"><strong>Keep two studies separate</strong><p>This changing-gap study estimates a middle gap and overall variation. A later fixed-gap reliability demonstration is a different activity.</p></div>
     </section>
 
     <section id="repeat" role="tabpanel" aria-labelledby="tab-repeat" hidden>
-      <div class="section-intro"><h2>Repeat the published Neyer test</h2><p>This is a known-answer check. It confirms that the program follows the expected gap sequence and reaches the published final values. It is not a substitute for your real physical study.</p></div>
-      <h3>Fast check: one button</h3>
-      <ol class="step-list"><li><h3>Open and run V1.14</h3><p>Open the standalone Live Script in MATLAB R2022b and press Run.</p></li><li><h3>Select Run the Published Example</h3><p>The program supplies the recorded twenty outcomes itself. You do not enter any physical result.</p></li><li><h3>Compare the result</h3><p>The middle gap must be 5.3922 mm and the overall variation must be 1.0412 mm.</p></li></ol>
-      <h3>Full manual check: enter all twenty results</h3><p>Use this route when you want to watch every request. Enter the following starting information:</p>
+      <div class="section-intro"><h2>Manual code check</h2><p>This check makes the program choose every gap from the outcomes you enter. You can therefore examine the full sequence before accepting the final values.</p></div>
+      <h3>Enter all twenty results yourself</h3>
+      <ol class="step-list"><li><h3>Open and run V1.14</h3><p>Open the standalone Live Script in MATLAB R2022b and press Run.</p></li><li><h3>Start a Gap Study</h3><p>Choose <strong>Start a Gap Study</strong>, then enter the settings shown below.</p></li><li><h3>Check every request</h3><p>For each test, confirm that MATLAB requests the listed gap. Enter the measured value and outcome exactly as shown.</p></li><li><h3>Compare the final result</h3><p>After test 20, the middle gap must be 5.3922 mm and the overall variation must be 1.0412 mm.</p></li></ol>
+      <p>Enter the following starting information:</p>
       <dl class="settings-map">
         <dt>Study route</dt><dd>Advanced - starting variation known</dd><dt>Low middle-gap guess</dt><dd>0.60 mm</dd><dt>High middle-gap guess</dt><dd>1.40 mm</dd><dt>Starting overall variation</dt><dd>0.10 mm</dd><dt>Maximum tests</dt><dd>20</dd><dt>Minimum permitted gap</dt><dd>0.00 mm</dd><dt>Maximum permitted gap</dt><dd>10.00 mm</dd><dt>Build method</dt><dd>Regular gap step</dd><dt>Regular gap step</dt><dd>0.01 mm</dd><dt>Foil thickness</dt><dd>0.015 mm. This entry is information only.</dd>
       </dl>
@@ -222,7 +221,6 @@
       <details><summary>Unfinished result</summary><div><p>The completed tests did not show both outcomes closely enough to fit the curve. The data can still be saved. No substitute number is invented.</p></div></details>
       <details><summary>Paused for review</summary><div><p>The outcomes conflict with the expected direction at a boundary, or no different useful reachable gap remains. A pause is not a failed article and not automatically a software failure.</p></div></details>
       <h3>Chance at one gap</h3><p>The result window can estimate the chance of Interaction or No interaction at a selected gap. It shows the best fitted chance and a more cautious minimum supported by the data.</p>
-      <div class="warning"><strong>Do not rename this as qualification.</strong><p>A chance calculated from a changing-gap model is not the same as completing a separate zero-failure demonstration at one fixed gap.</p></div>
       <h3>How to read a confidence range</h3><p>“Middle gap 5.39 mm; 95% range 4.49 to 6.53 mm” means the data support a middle somewhere in that range under the model. It does not mean an article has a 95% chance of Interaction at 5.39 mm.</p>
     </section>
 

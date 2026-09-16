@@ -10,7 +10,7 @@ The verified public review site is available at
 [https://xcloudy75z.github.io/CHATGPT-Neyer/](https://xcloudy75z.github.io/CHATGPT-Neyer/).
 
 The homepage is one phone-friendly guide with six tabs: **Start here**,
-**Repeat Neyer's test**, **Understand the method**, **Operate V1.14**,
+**Manual code check**, **Understand the method**, **Operate V1.14**,
 **Read your results**, and **Evidence and problems**. It also provides the
 verified standalone V1.14 Live Script download.
 
@@ -19,7 +19,7 @@ verified standalone V1.14 Live Script download.
 1. Download [Neyer_Gap_Test_v1_14.mlx](delivery/Neyer_Gap_Test_v1_14.mlx).
 2. Open it in MATLAB R2022b.
 3. Press **Run** once.
-4. Select **Run the published example**. The expected display is a middle gap of 5.39 mm and an overall variation of 1.04 mm.
+4. Use the website's **Manual code check**. Enter all twenty listed results and confirm each requested gap. The expected display is a middle gap of 5.39 mm and an overall variation of 1.04 mm.
 5. Select **Start a Gap Study** when ready for the physical study.
 
 **Start a Gap Study works independently.** The default **First study - variation
