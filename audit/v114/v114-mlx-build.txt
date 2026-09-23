@@ -1,4 +1,4 @@
 Neyer_Gap_Test_v1_14.mlx build: PASS
 MATLAB release: 2022b
-Bytes: 79360
+Bytes: 79153
 Embedded function round trip matched: yes

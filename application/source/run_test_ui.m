@@ -79,8 +79,10 @@ function parsed = ask_settings_ui(loaded_plan)
     end
 
     fig = uifigure('Name', 'Neyer gap test - inputs', ...
-        'Position', [220 25 860 860], 'Color', [0.97 0.98 0.98]);
+        'Position', [220 30 860 680], 'Color', [0.97 0.98 0.98]);
     gl = uigridlayout(fig, [13 1]);
+    gl.Tag = 'direct_input_scroll_layout';
+    gl.Scrollable = 'on';
     gl.RowHeight = {56, 62, 52, 52, 0, 62, 52, 52, 48, 68, 76, 52, 48};
     gl.ColumnWidth = {'1x'};
     gl.Padding = [28 18 28 18];

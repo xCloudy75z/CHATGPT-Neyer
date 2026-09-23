@@ -4,12 +4,22 @@ classdef TestV114FocusedUi < matlab.unittest.TestCase
             source = applicationSource('neyer_app.m');
             testCase.verifySubstring(source, 'Neyer Gap Test V1.14');
             testCase.verifySubstring(source, 'Start a Gap Study');
-            testCase.verifySubstring(source, 'Run the Published Example');
             testCase.verifySubstring(source, 'Help and Definitions');
+            testCase.verifyFalse(contains(source, 'Run the Published Example'));
+            testCase.verifyFalse(contains(source, '@onDemo'));
             testCase.verifyFalse(contains(source, 'Pre-Test Planner (separate)'));
             testCase.verifyFalse(contains(source, 'Review latest results'));
             testCase.verifyFalse(contains(source, '@onPlanner'));
             testCase.verifyFalse(contains(source, '@onReliability'));
+        end
+
+        function directSettingsUseScrollableScreenSizedLayout(testCase)
+            source = applicationSource('run_test_ui.m');
+            testCase.verifySubstring(source, ...
+                "gl.Tag = 'direct_input_scroll_layout'");
+            testCase.verifySubstring(source, "gl.Scrollable = 'on'");
+            testCase.verifySubstring(source, ...
+                "'Position', [220 30 860 680]");
         end
 
         function resultScreenDoesNotIssuePlannerDecision(testCase)

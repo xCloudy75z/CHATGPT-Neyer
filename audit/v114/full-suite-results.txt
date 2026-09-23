@@ -1,9 +1,9 @@
 Neyer Gap Test V1.14 full relevant suite
 MATLAB release: 2022b
-Passed: 241
+Passed: 243
 Failed: 0
 Incomplete: 0
-Elapsed seconds: 43.981
+Elapsed seconds: 79.203
 Archived version-specific gates excluded: V1.9, V1.10, V1.11, V1.12, V1.13 audit snapshots, and abandoned V2.
 V1.13 preservation is covered by TestV114ReleaseIsolation.
 TestBaselineCharacterization/locksCurrentStageSequenceAndStageTwoSigma | Passed=1 Failed=0 Incomplete=0
@@ -234,9 +234,11 @@ TestV114FirstStudyInputs/advancedStudyKeepsEnteredStartingVariation | Passed=1 F
 TestV114FirstStudyInputs/confirmedListUsesItsSmallestSpacing | Passed=1 Failed=0 Incomplete=0
 TestV114FirstStudyInputs/invalidStudyModeIsRejectedClearly | Passed=1 Failed=0 Incomplete=0
 TestV114FocusedUi/mainMenuIsOnlyForTheGapStudy | Passed=1 Failed=0 Incomplete=0
+TestV114FocusedUi/directSettingsUseScrollableScreenSizedLayout | Passed=1 Failed=0 Incomplete=0
 TestV114FocusedUi/resultScreenDoesNotIssuePlannerDecision | Passed=1 Failed=0 Incomplete=0
 TestV114FocusedUi/helpExplainsFirstStudyAndExcludesQualificationPlanner | Passed=1 Failed=0 Incomplete=0
 TestV114ReleaseIsolation/v113LiveScriptRemainsByteForByteFrozen | Passed=1 Failed=0 Incomplete=0
+TestV114SettingsScroll/lowerSettingsAndButtonsAreReachableByScrolling | Passed=1 Failed=0 Incomplete=0
 TestV114Standalone/standaloneFilesExistAndV113IsStillFrozen | Passed=1 Failed=0 Incomplete=0
 TestV114Standalone/liveScriptMatchesAssembledFunctions | Passed=1 Failed=0 Incomplete=0
 TestV114Standalone/liveScriptContainsReviewedSourceAndFocusedMenu | Passed=1 Failed=0 Incomplete=0

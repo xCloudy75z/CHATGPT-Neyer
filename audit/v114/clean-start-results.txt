@@ -2,6 +2,7 @@ Neyer Gap Test V1.14 clean-start: PASS
 MATLAB release: 2022b
 Initial files: one MLX only
 Menu opened from isolated MLX: yes
+Published-example menu button absent: yes
 Embedded source files: 64
 First-study unknown-variation route: yes
 Published example: 5.3922 / 1.0412 mm

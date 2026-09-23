@@ -30,6 +30,14 @@ menuFigure = findall(groot, 'Type', 'figure', ...
     'Name', 'Neyer Gap Test V1.14');
 assert(numel(menuFigure) == 1, ...
     'The isolated Live Script did not open the V1.14 menu.');
+menuButtons = findall(menuFigure, 'Type', 'uibutton');
+menuButtonText = string({menuButtons.Text});
+assert(any(menuButtonText == "Start a Gap Study"), ...
+    'The isolated menu is missing Start a Gap Study.');
+assert(any(menuButtonText == "Help and Definitions"), ...
+    'The isolated menu is missing Help and Definitions.');
+assert(~any(menuButtonText == "Run the Published Example"), ...
+    'The isolated menu still exposes the published-example shortcut.');
 exportapp(menuFigure, fullfile(uiFolder, '01-menu.png'));
 delete(menuFigure);
 
@@ -91,6 +99,7 @@ fprintf(fileId, 'Neyer Gap Test V1.14 clean-start: PASS\n');
 fprintf(fileId, 'MATLAB release: %s\n', version('-release'));
 fprintf(fileId, 'Initial files: one MLX only\n');
 fprintf(fileId, 'Menu opened from isolated MLX: yes\n');
+fprintf(fileId, 'Published-example menu button absent: yes\n');
 fprintf(fileId, 'Embedded source files: %d\n', numel(embeddedFiles));
 fprintf(fileId, 'First-study unknown-variation route: yes\n');
 fprintf(fileId, 'Published example: %.4f / %.4f mm\n', ...
