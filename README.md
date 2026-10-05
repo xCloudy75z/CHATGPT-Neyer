@@ -78,7 +78,7 @@ The operator chooses the output folder and base name. The app shows the complete
 
 ## Verification record
 
-- 229 relevant MATLAB checks passed; 0 failed and 0 remained incomplete.
+- 230 relevant MATLAB checks passed; 0 failed and 0 remained incomplete.
 - Five fresh 62-article trials covered usable steps of 0.05, 0.10, 0.15, 0.20, and 0.50 mm; all five produced fitted curves with reachable, bounded requests.
 - A separate 54-case first-study matrix covered three true middle gaps, three true overall variations, three physical step sizes, and two repeatable random outcomes. Forty-five cases produced fitted curves. The nine honest no-result cases occurred when the true change was very narrow and the physical step was 0.15 or 0.50 mm.
 - The real one-reading MATLAB screen asked for one measured gap and completed the minimum valid three-article route.
@@ -92,9 +92,14 @@ The operator chooses the output folder and base name. The app shows the complete
 
 Run the complete MATLAB test suite with:
 
-```matlab
-run('tools/run_v115_full_suite.m')
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/verify_v115_release.ps1
 ```
+
+This launcher gives command-line MATLAB a full, writable preferences folder
+inside the project. Do not call `matlab -batch` directly for automated project
+checks; direct startup can fail before the Neyer code runs when MATLAB cannot
+use its normal Windows preferences folder.
 
 ## Important limits
 

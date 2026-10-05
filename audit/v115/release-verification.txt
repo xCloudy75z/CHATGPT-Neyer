@@ -1,3 +1,6 @@
+Built C:\Users\games\documents\ChatGPT\Neyer\.worktrees\neyer-v110\delivery\Neyer_Gap_Test_v1_15.m
+Embedded source files: 64
+Function declarations: 164
 Running TestBaselineCharacterization
 
 === Neyer sensitivity test: RESULT (20 tests) ===
@@ -57,12 +60,12 @@ Running TestCombinedPhysicalStudy
   Saved 1/2 scenarios.
 Scenario 2/2 (100.0%): N=3, sigma=0.2, increment=0.1, floor=2, readings=4, reading SD=0.015, build SD=0
   Saved 2/2 scenarios.
-COMPLETE: C:\Users\games\AppData\Local\Temp\tpf75caaac_517d_48f8_af71_869ba4120989\checkpoint.csv (2 scenarios x 2 repetitions)
+COMPLETE: C:\Users\games\appdata\Local\Temp\tp2f25d3e6_17b9_4d0b_babe_3c99d8071009\checkpoint.csv (2 scenarios x 2 repetitions)
 .Scenario 1/2 (50.0%): N=3, sigma=0.2, increment=0.1, floor=2, readings=4, reading SD=0.015, build SD=0
   Saved 1/2 scenarios.
 Scenario 2/2 (100.0%): N=3, sigma=0.2, increment=0.1, floor=2, readings=4, reading SD=0.015, build SD=0.05
   Saved 2/2 scenarios.
-COMPLETE: C:\Users\games\AppData\Local\Temp\tp3e7261e4_de45_4f55_9190_c9dd164476dc\build-variation.csv (2 scenarios x 20 repetitions)
+COMPLETE: C:\Users\games\appdata\Local\Temp\tp1e1904a3_22e9_462f_8a04_1a702539d7e9\build-variation.csv (2 scenarios x 20 repetitions)
 .
 Done TestCombinedPhysicalStudy
 __________
@@ -542,7 +545,7 @@ Done TestUiCaptureScript
 __________
 
 Running TestV115Standalone
-...
+....
 Done TestV115Standalone
 __________
 
@@ -557,6 +560,6 @@ Done TestMeasurementRecord
 __________
 
 
-V1.15 FULL SUITE: 229 passed, 0 failed, 0 incomplete.
+V1.15 FULL SUITE: 230 passed, 0 failed, 0 incomplete.
 V1.15 CLEAN START: PASS.
 V1.15 RELEASE VERIFICATION: PASS

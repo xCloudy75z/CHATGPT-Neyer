@@ -68,7 +68,7 @@ V115_HOME_REQUIRED_TEXT = (
     "one measured gap reading",
     "5.3922 mm",
     "1.0412 mm",
-    "229",
+    "230",
     "45 of 54",
 )
 

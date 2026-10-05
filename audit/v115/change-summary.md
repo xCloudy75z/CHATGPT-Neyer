@@ -20,7 +20,7 @@ MATLAB R2022b completed the V1.15 release verification:
 |---|---:|
 | Standalone Live Script build | Pass |
 | Embedded-function round trip | Pass |
-| Full relevant MATLAB suite | 229 passed |
+| Full relevant MATLAB suite | 230 passed |
 | Failed checks | 0 |
 | Incomplete checks | 0 |
 | Clean start with only the V1.15 `.mlx` | Pass |

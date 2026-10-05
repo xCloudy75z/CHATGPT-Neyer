@@ -1,9 +1,9 @@
 Neyer Gap Test V1.15 full relevant suite
 MATLAB release: 2022b
-Passed: 229
+Passed: 230
 Failed: 0
 Incomplete: 0
-Elapsed seconds: 50.305
+Elapsed seconds: 22.526
 Archived version-specific gates excluded: V1.9 through V1.14 audit snapshots and abandoned V2, except the current shared result-window UI checks.
 TestBaselineCharacterization/locksCurrentStageSequenceAndStageTwoSigma | Passed=1 Failed=0 Incomplete=0
 TestBaselineCharacterization/roundsEveryFeedbackLevelToTwoDecimals | Passed=1 Failed=0 Incomplete=0
@@ -224,6 +224,7 @@ TestTransitionOnly/treatsNumericalEqualityAsTransition | Passed=1 Failed=0 Incom
 TestTransitionOnly/preservesPublishedTableOne | Passed=1 Failed=0 Incomplete=0
 TestUiCaptureScript/captureScriptCoversEveryOperatorScreen | Passed=1 Failed=0 Incomplete=0
 TestV115Standalone/standaloneFilesExistAndV114RemainsAvailable | Passed=1 Failed=0 Incomplete=0
+TestV115Standalone/mlxBuilderCreatesItsGeneratedInput | Passed=1 Failed=0 Incomplete=0
 TestV115Standalone/liveScriptMatchesAssembledFunctions | Passed=1 Failed=0 Incomplete=0
 TestV115Standalone/userFacingResultTextOmitsRemovedClaims | Passed=1 Failed=0 Incomplete=0
 TestV2ResultUi/unfinishedResultShowsOneHonestSaveableStatus | Passed=1 Failed=0 Incomplete=0
