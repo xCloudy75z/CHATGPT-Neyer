@@ -253,7 +253,7 @@ classdef TestGapPresentation < matlab.unittest.TestCase
         function mainMenuNamesTheNeyerGapTest(testCase)
             root=fileparts(fileparts(mfilename('fullpath')));
             source=fileread(fullfile(root,'application','source','neyer_app.m'));
-            testCase.verifySubstring(source,'''Neyer Gap Test V1.14''');
+            testCase.verifySubstring(source,'''Neyer Gap Test V1.15''');
         end
 
         function resultHeadlineHasEnoughVerticalSpace(testCase)

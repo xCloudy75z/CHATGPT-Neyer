@@ -10,13 +10,13 @@ The verified public review site is available at
 [https://xcloudy75z.github.io/CHATGPT-Neyer/](https://xcloudy75z.github.io/CHATGPT-Neyer/).
 
 The homepage is one phone-friendly guide with six tabs: **Start here**,
-**Manual code check**, **Understand the method**, **Operate V1.14**,
+**Manual code check**, **Understand the method**, **Operate V1.15**,
 **Read your results**, and **Evidence and problems**. It also provides the
-verified standalone V1.14 Live Script download.
+verified standalone V1.15 Live Script download.
 
 ## Start here
 
-1. Download [Neyer_Gap_Test_v1_14.mlx](delivery/Neyer_Gap_Test_v1_14.mlx).
+1. Download [Neyer_Gap_Test_v1_15.mlx](delivery/Neyer_Gap_Test_v1_15.mlx).
 2. Open it in MATLAB R2022b.
 3. Press **Run** once.
 4. Use the website's **Manual code check**. Enter all twenty listed results and confirm each requested gap. The expected display is a middle gap of 5.39 mm and an overall variation of 1.04 mm.
@@ -53,10 +53,10 @@ experimentally. The observed printed-spacer ranges do not by themselves prove
 that 0.05 mm is repeatedly buildable. With the retained two-step protection,
 0.05 mm gives a 0.10 mm minimum Stage-2 planning width.
 
-The V1.14 menu is deliberately focused on the changing-gap Neyer study. The
+The V1.15 menu is deliberately focused on the changing-gap Neyer study. The
 Pre-Test Planner and fixed-gap reliability calculator are not shown. Fixed-gap
 reliability planning is a separate later activity and is not used to choose the
-V1.14 test gaps.
+V1.15 test gaps.
 
 ## Saving results
 
@@ -78,7 +78,7 @@ The operator chooses the output folder and base name. The app shows the complete
 
 ## Verification record
 
-- 241 relevant MATLAB checks passed; 0 failed and 0 remained incomplete.
+- 229 relevant MATLAB checks passed; 0 failed and 0 remained incomplete.
 - Five fresh 62-article trials covered usable steps of 0.05, 0.10, 0.15, 0.20, and 0.50 mm; all five produced fitted curves with reachable, bounded requests.
 - A separate 54-case first-study matrix covered three true middle gaps, three true overall variations, three physical step sizes, and two repeatable random outcomes. Forty-five cases produced fitted curves. The nine honest no-result cases occurred when the true change was very narrow and the physical step was 0.15 or 0.50 mm.
 - The real one-reading MATLAB screen asked for one measured gap and completed the minimum valid three-article route.
@@ -93,13 +93,13 @@ The operator chooses the output folder and base name. The app shows the complete
 Run the complete MATLAB test suite with:
 
 ```matlab
-run('tools/run_v114_full_suite.m')
+run('tools/run_v115_full_suite.m')
 ```
 
 ## Important limits
 
 - The provisional 0.05 mm usable resolution still needs repeated physical confirmation.
-- When the true overall variation was only 0.15 mm, a 0.15 or 0.50 mm physical step sometimes could not show enough mixed outcomes to fit a curve within 62 tests. In those cases V1.14 returns an unfinished result instead of inventing an estimate.
+- When the true overall variation was only 0.15 mm, a 0.15 or 0.50 mm physical step sometimes could not show enough mixed outcomes to fit a curve within 62 tests. In those cases V1.15 returns an unfinished result instead of inventing an estimate.
 - Foil-based build recipes remain disabled until foil-stack measurements and the practical maximum layer count are supplied.
 - Extremely separated artificial data deserve a deeper numerical study before using this tool for safety-critical qualification.
 - The supplied V1.8 `.mlx` remains preserved locally and is identified by its recorded SHA-256 fingerprint, but it is not redistributed in this public repository.

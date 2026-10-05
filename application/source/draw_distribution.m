@@ -5,11 +5,6 @@ function draw_distribution(ax, result, cfg)
     if nargin<3 || isempty(cfg), cfg=neyer_settings(); end
     u = 'mm'; if isfield(result,'unit') && ~isempty(result.unit), u = result.unit; end
     mu = result.mu; sigma = result.sigma;
-    confidencePercent = 95;
-    if isfield(result, 'confidence_level') && ...
-            ~isempty(result.confidence_level) && isfinite(result.confidence_level)
-        confidencePercent = 100 * result.confidence_level;
-    end
     % percentage attached to the high/negligible interaction edge gaps
     if isfield(result,'tail_fraction') && ~isempty(result.tail_fraction) && isfinite(result.tail_fraction)
         pc = 100 * result.tail_fraction;
@@ -18,9 +13,13 @@ function draw_distribution(ax, result, cfg)
     end
     compact = isfield(cfg, 'compact') && logical(cfg.compact);
     if compact
-        draw_compact_distribution(ax, result, cfg, u, mu, sigma, ...
-            confidencePercent);
+        draw_compact_distribution(ax, result, cfg, u, mu, sigma);
         return;
+    end
+    confidencePercent = 95;
+    if isfield(result, 'confidence_level') && ...
+            ~isempty(result.confidence_level) && isfinite(result.confidence_level)
+        confidencePercent = 100 * result.confidence_level;
     end
     x   = linspace(mu - 4.5*sigma, mu + 4.5*sigma, 400);
     pdf = shape_model(x, mu, sigma).phi ./ sigma;
@@ -150,7 +149,7 @@ function draw_distribution(ax, result, cfg)
     hold(ax, 'off');
 end
 
-function draw_compact_distribution(ax, result, cfg, u, mu, sigma, confidencePercent)
+function draw_compact_distribution(ax, result, cfg, u, mu, sigma)
 % One clear purpose in the combined result screen: explain overall variation.
     x = linspace(mu - 4.5 * sigma, mu + 4.5 * sigma, 400);
     density = shape_model(x, mu, sigma).phi ./ sigma;
@@ -158,7 +157,6 @@ function draw_compact_distribution(ax, result, cfg, u, mu, sigma, confidencePerc
     bandDensity = shape_model(bandX, mu, sigma).phi ./ sigma;
     dark = [0.10 0.16 0.19];
     gold = [0.66 0.51 0.23];
-    teal = [0.18 0.44 0.42];
 
     curveHandle = plot(ax, x, density, '-', 'Color', dark, 'LineWidth', 2);
     hold(ax, 'on');
@@ -175,23 +173,6 @@ function draw_compact_distribution(ax, result, cfg, u, mu, sigma, confidencePerc
         {'middle ~68% of transition gaps', '(within 1 overall variation)'}, ...
         'HorizontalAlignment', 'center', 'FontSize', 10, ...
         'Color', [0.40 0.38 0.33]);
-
-    if isfield(result, 'mu_lo') && isfield(result, 'mu_hi') && ...
-            isfinite(result.mu_lo) && isfinite(result.mu_hi)
-        confidenceY = 0.12 * maximumDensity;
-        cap = 0.025 * maximumDensity;
-        line(ax, [result.mu_lo result.mu_hi], [confidenceY confidenceY], ...
-            'Color', teal, 'LineWidth', 1.5);
-        line(ax, [result.mu_lo result.mu_lo], ...
-            [confidenceY - cap confidenceY + cap], 'Color', teal, 'LineWidth', 1.5);
-        line(ax, [result.mu_hi result.mu_hi], ...
-            [confidenceY - cap confidenceY + cap], 'Color', teal, 'LineWidth', 1.5);
-        text(ax, mu, 0.18 * maximumDensity, sprintf( ...
-            '%.4g%% middle-gap range: %.2f to %.2f %s', ...
-            confidencePercent, result.mu_lo, result.mu_hi, u), ...
-            'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom', ...
-            'FontSize', 9, 'Color', teal);
-    end
 
     xlabel(ax, sprintf('gap (%s)', u));
     ylabel(ax, {'relative spread', 'of transition gaps'});

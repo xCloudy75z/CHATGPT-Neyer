@@ -55,20 +55,21 @@ classdef TestV2ResultUi < matlab.unittest.TestCase
             testCase.verifyFalse(contains(visibleText, 'nan'));
         end
 
-        function calculatedResultKeepsTwoChartsAndPlainMeanings(testCase)
+        function calculatedResultUsesEstimatesWithoutConfidenceClaims(testCase)
             if ~usejava('desktop')
                 source = lower(fileread(which('show_result')));
-                testCase.verifySubstring(source, 'what the calculated result means');
-                testCase.verifyFalse(contains(source, ...
-                    'what the fitted result means'));
-                testCase.verifySubstring(source, ...
-                    "'fitted result', 'calculated result'");
                 testCase.verifySubstring(source, ...
                     'middle gap (about 50%% interaction)');
-                testCase.verifySubstring(source, ...
-                    'cautious minimum supported by the data');
-                testCase.verifySubstring(source, ...
-                    'smaller gaps make interaction more likely');
+                testCase.verifyFalse(contains(source, ...
+                    'cautious minimum supported by the data'));
+                testCase.verifyFalse(contains(source, ...
+                    'direction: smaller gaps make interaction more likely'));
+                testCase.verifyFalse(contains(source, ...
+                    'this 95% view describes uncertainty'));
+                testCase.verifyFalse(contains(source, ...
+                    'format_confidence_range(confidence'));
+                testCase.verifyFalse(contains(source, ...
+                    'isnan(answer.bound_percent)'));
                 return;
             end
 
@@ -86,10 +87,10 @@ classdef TestV2ResultUi < matlab.unittest.TestCase
             testCase.verifyFalse(contains(visibleText, 'fitted result'));
             testCase.verifySubstring(visibleText, ...
                 'middle gap (about 50% interaction)');
-            testCase.verifySubstring(visibleText, ...
-                'cautious minimum supported by the data');
-            testCase.verifySubstring(visibleText, ...
-                'smaller gaps make interaction more likely');
+            testCase.verifyFalse(contains(visibleText, '95% confidence'));
+            testCase.verifyFalse(contains(visibleText, '95% view'));
+            testCase.verifyFalse(contains(visibleText, 'cautious minimum'));
+            testCase.verifyFalse(contains(visibleText, 'direction:'));
 
             gapEdit = findall(resultFigure, ...
                 'Type', 'uinumericeditfield');
@@ -105,8 +106,20 @@ classdef TestV2ResultUi < matlab.unittest.TestCase
             visibleText = lower(visibleResultText(resultFigure));
             testCase.verifySubstring(visibleText, ...
                 'best estimated chance 50%');
-            testCase.verifySubstring(visibleText, ...
-                'cautious minimum supported by the data');
+            testCase.verifyFalse(contains(visibleText, 'cautious minimum'));
+            testCase.verifyFalse(contains(visibleText, 'confidence'));
+        end
+
+        function compactResultChartOmitsConfidenceRange(testCase)
+            source = fileread(which('draw_distribution'));
+            compactFunction = regexp(source, ...
+                '(?ms)^function draw_compact_distribution.*?(?=^function strip_patch)', ...
+                'match', 'once');
+            testCase.assertNotEmpty(compactFunction);
+            compactFunction = lower(compactFunction);
+            testCase.verifyFalse(contains(compactFunction, 'confidence'));
+            testCase.verifyFalse(contains(compactFunction, ...
+                'middle-gap range'));
         end
     end
 end

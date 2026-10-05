@@ -57,8 +57,8 @@ SCREENSHOT_NAMES = (
     "v112-07-help.png",
 )
 
-V114_HOME_REQUIRED_TEXT = (
-    "Neyer Gap Test V1.14",
+V115_HOME_REQUIRED_TEXT = (
+    "Neyer Gap Test V1.15",
     "Manual code check",
     "enter all twenty results",
     "First study - variation unknown",
@@ -68,11 +68,11 @@ V114_HOME_REQUIRED_TEXT = (
     "one measured gap reading",
     "5.3922 mm",
     "1.0412 mm",
-    "243",
+    "229",
     "45 of 54",
 )
 
-V114_HOME_FORBIDDEN_TEXT = (
+V115_HOME_FORBIDDEN_TEXT = (
     "Run the Published Example",
     "Keep two studies separate",
     "zero-failure demonstration",
@@ -183,8 +183,8 @@ def _local_target(page: Path, site_root: Path, value: str) -> tuple[Path | None,
 def _fingerprint_pairs(site_root: Path, repository_root: Path) -> list[tuple[Path, Path]]:
     pairs = [
         (
-            site_root / "downloads" / "Neyer_Gap_Test_v1_14.mlx",
-            repository_root / "delivery" / "Neyer_Gap_Test_v1_14.mlx",
+            site_root / "downloads" / "Neyer_Gap_Test_v1_15.mlx",
+            repository_root / "delivery" / "Neyer_Gap_Test_v1_15.mlx",
         ),
         (
             site_root / "downloads" / "Neyer_Gap_Test_v1_13.mlx",
@@ -329,8 +329,8 @@ def validate_page_shell(site_root: Path) -> list[str]:
     return problems
 
 
-def validate_v114_home(site_root: Path) -> list[str]:
-    """Return problems in the single-page, phone-friendly V1.14 guide."""
+def validate_v115_home(site_root: Path) -> list[str]:
+    """Return problems in the single-page, phone-friendly V1.15 guide."""
     page = site_root / "index.html"
     parser, error = _parse_html(page)
     if error:
@@ -338,10 +338,10 @@ def validate_v114_home(site_root: Path) -> list[str]:
     assert parser is not None
     problems: list[str] = []
     page_text = " ".join("".join(parser.text).split())
-    for required in V114_HOME_REQUIRED_TEXT:
+    for required in V115_HOME_REQUIRED_TEXT:
         if required.lower() not in page_text.lower():
-            problems.append(f"index.html: missing V1.14 guide wording: {required}")
-    for forbidden in V114_HOME_FORBIDDEN_TEXT:
+            problems.append(f"index.html: missing V1.15 guide wording: {required}")
+    for forbidden in V115_HOME_FORBIDDEN_TEXT:
         if forbidden.lower() in page_text.lower():
             problems.append(f"index.html: mentor guide contains extra wording: {forbidden}")
 
@@ -375,11 +375,11 @@ def validate_v114_home(site_root: Path) -> list[str]:
         )
     if not any(
         tag == "a"
-        and attributes.get("href") == "downloads/Neyer_Gap_Test_v1_14.mlx"
+        and attributes.get("href") == "downloads/Neyer_Gap_Test_v1_15.mlx"
         and "download" in attributes
         for tag, attributes in parser.elements
     ):
-        problems.append("index.html: missing V1.14 Live Script download")
+        problems.append("index.html: missing V1.15 Live Script download")
 
     try:
         source = page.read_text(encoding="utf-8")
@@ -446,7 +446,7 @@ def validate_site(site_root: Path, repository_root: Path) -> list[str]:
             problems.append(f"missing required wording: {required}")
 
     problems.extend(validate_page_shell(site_root))
-    problems.extend(validate_v114_home(site_root))
+    problems.extend(validate_v115_home(site_root))
     for public_path, source_path in _fingerprint_pairs(site_root, repository_root):
         public_label = _relative(public_path, site_root)
         source_label = _relative(source_path, repository_root)

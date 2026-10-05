@@ -1,0 +1,562 @@
+Running TestBaselineCharacterization
+
+=== Neyer sensitivity test: RESULT (20 tests) ===
+
+AVERAGE breaking point: 5.3922 mm
+  The level where about half the items break.
+  95% confident the true average is between 4.4871 and 6.5297 mm.
+
+SPREAD (how much items vary): 1.0412 mm
+  95% confident the true spread is between 0.5373 and 2.7422 mm.
+
+ALL-FIRE level (99.9% of parts break): 8.6098 mm
+  95% confident that 99.9% of parts break at or above 12.7455 mm.
+
+NO-FIRE level (99.9% of parts survive): 2.1746 mm
+  A trustworthy safe (no-fire) height could not be pinned down with 20 tests
+  (the bound came out at or below zero) -- plan for about 73 parts in total.
+
+Note: the all-fire/no-fire edges are less certain than the average --
+  this test measures the whole picture, not just the far extremes.
+For other reliabilities, or the reliability at a specific height, run
+  reliability_query(result).  For the chart, run plot_result(result).
+
+.
+=== Neyer sensitivity test: RESULT (20 tests) ===
+
+AVERAGE breaking point: 5.3922 mm
+  The level where about half the items break.
+  95% confident the true average is between 4.4871 and 6.5297 mm.
+
+SPREAD (how much items vary): 1.0412 mm
+  95% confident the true spread is between 0.5373 and 2.7422 mm.
+
+ALL-FIRE level (99.9% of parts break): 8.6098 mm
+  95% confident that 99.9% of parts break at or above 12.7455 mm.
+
+NO-FIRE level (99.9% of parts survive): 2.1746 mm
+  A trustworthy safe (no-fire) height could not be pinned down with 20 tests
+  (the bound came out at or below zero) -- plan for about 73 parts in total.
+
+Note: the all-fire/no-fire edges are less certain than the average --
+  this test measures the whole picture, not just the far extremes.
+For other reliabilities, or the reliability at a specific height, run
+  reliability_query(result).  For the chart, run plot_result(result).
+
+..
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the average and spread
+cannot be estimated. Run more items.
+
+.
+Done TestBaselineCharacterization
+__________
+
+Running TestCombinedPhysicalStudy
+.Scenario 1/2 (50.0%): N=3, sigma=0.2, increment=0.05, floor=2, readings=4, reading SD=0.015, build SD=0
+  Saved 1/2 scenarios.
+Scenario 2/2 (100.0%): N=3, sigma=0.2, increment=0.1, floor=2, readings=4, reading SD=0.015, build SD=0
+  Saved 2/2 scenarios.
+COMPLETE: C:\Users\games\AppData\Local\Temp\tpf75caaac_517d_48f8_af71_869ba4120989\checkpoint.csv (2 scenarios x 2 repetitions)
+.Scenario 1/2 (50.0%): N=3, sigma=0.2, increment=0.1, floor=2, readings=4, reading SD=0.015, build SD=0
+  Saved 1/2 scenarios.
+Scenario 2/2 (100.0%): N=3, sigma=0.2, increment=0.1, floor=2, readings=4, reading SD=0.015, build SD=0.05
+  Saved 2/2 scenarios.
+COMPLETE: C:\Users\games\AppData\Local\Temp\tp3e7261e4_de45_4f55_9190_c9dd164476dc\build-variation.csv (2 scenarios x 20 repetitions)
+.
+Done TestCombinedPhysicalStudy
+__________
+
+Running TestDirectRunSafety
+.
+Done TestDirectRunSafety
+__________
+
+Running TestFixedGapConfidence
+....
+Done TestFixedGapConfidence
+__________
+
+Running TestGapBoundaryPause
+  Unexpected no-interaction result at the minimum gap (0 mm).
+  Confirm once at the same gap before deciding whether to pause.
+  PAUSED - REVIEW REQUIRED: two tests at the minimum gap (0 mm)
+  both gave no interaction. The study data are saved; the test has not failed.
+.  Unexpected interaction result at the maximum gap (10 mm).
+  Confirm once at the same gap before deciding whether to pause.
+  PAUSED - REVIEW REQUIRED: two tests at the maximum gap (10 mm)
+  both gave interaction. The study data are saved; the test has not failed.
+.  (The method requested a gap below the permitted minimum of 0 mm;
+   this test will use the minimum gap instead.)
+  (The method requested a gap below the permitted minimum of 0 mm;
+   this test will use the minimum gap instead.)
+...
+Done TestGapBoundaryPause
+__________
+
+Running TestGapDirection
+
+=== Neyer sensitivity test: RESULT (20 tests) ===
+
+MIDDLE GAP (about 50% interaction): 5.3922 mm
+  95% confident the true middle is between 4.4871 and 6.5297 mm.
+
+OVERALL VARIATION: 1.0412 mm
+  Smaller means a sharper change; larger means a more gradual change.
+  95% confident the true overall variation is between 0.5373 and 2.7422 mm.
+
+HIGH-INTERACTION gap (about 99.9% interaction): 2.1746 mm
+  Confidence boundary not established within the permitted 0.00-10.00 mm range.
+
+NEGLIGIBLE-INTERACTION gap (about 99.9% no interaction): 8.6098 mm
+  Confidence boundary not established within the permitted 0.00-10.00 mm range.
+
+Note: the edge gaps are less certain than the middle gap.
+
+.......
+=== Neyer sensitivity test: RESULT (20 tests) ===
+
+MIDDLE GAP (about 50% interaction): 4.6078 mm
+  95% confident the true middle is between 3.4703 and 5.5129 mm.
+
+OVERALL VARIATION: 1.0412 mm
+  Smaller means a sharper change; larger means a more gradual change.
+  95% confident the true overall variation is between 0.5373 and 2.7422 mm.
+
+HIGH-INTERACTION gap (about 99.9% interaction): 1.3902 mm
+  Confidence boundary not established within the permitted 0.00-10.00 mm range.
+
+NEGLIGIBLE-INTERACTION gap (about 99.9% no interaction): 7.8254 mm
+  Confidence boundary not established within the permitted 0.00-10.00 mm range.
+
+Note: the edge gaps are less certain than the middle gap.
+
+.
+=== Neyer sensitivity test: RESULT (20 tests) ===
+
+MIDDLE GAP (about 50% interaction): 4.6078 mm
+  95% confident the true middle is between 3.4703 and 5.5129 mm.
+
+OVERALL VARIATION: 1.0412 mm
+  Smaller means a sharper change; larger means a more gradual change.
+  95% confident the true overall variation is between 0.5373 and 2.7422 mm.
+
+HIGH-INTERACTION gap (about 99.9% interaction): 1.3902 mm
+  Confidence boundary not established within the permitted 0.00-10.00 mm range.
+
+NEGLIGIBLE-INTERACTION gap (about 99.9% no interaction): 7.8254 mm
+  Confidence boundary not established within the permitted 0.00-10.00 mm range.
+
+Note: the edge gaps are less certain than the middle gap.
+
+..   Unexpected no-interaction result at the minimum gap (0 mm).
+  Confirm once at the same gap before deciding whether to pause.
+  PAUSED - REVIEW REQUIRED: two tests at the minimum gap (0 mm)
+  both gave no interaction. The study data are saved; the test has not failed.
+  Unexpected interaction result at the maximum gap (10 mm).
+  Confirm once at the same gap before deciding whether to pause.
+  PAUSED - REVIEW REQUIRED: two tests at the maximum gap (10 mm)
+  both gave interaction. The study data are saved; the test has not failed.
+..
+Done TestGapDirection
+__________
+
+Running TestGapPresentation
+.......... .......... ...
+Done TestGapPresentation
+__________
+
+Running TestGapReliability
+........
+Done TestGapReliability
+__________
+
+Running TestPaperConformance
+..
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the middle gap and overall variation
+cannot be estimated yet. More test results are needed.
+
+.
+Done TestPaperConformance
+__________
+
+Running TestPhysicalGapWorkflow
+..  Unexpected no-interaction result at the minimum gap (0 mm).
+  Confirm once at the same gap before deciding whether to pause.
+  PAUSED - REVIEW REQUIRED: two tests at the minimum gap (0 mm)
+  both gave no interaction. The study data are saved; the test has not failed.
+...  Unexpected interaction result at the maximum gap (1 mm).
+  Confirm once at the same gap before deciding whether to pause.
+
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the middle gap and overall variation
+cannot be estimated yet. More test results are needed.
+
+...
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the middle gap and overall variation
+cannot be estimated yet. More test results are needed.
+
+.
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the middle gap and overall variation
+cannot be estimated yet. More test results are needed.
+
+.   PAUSED - REVIEW REQUIRED: no different reachable gap remains.
+  The completed study data are kept; this is not a failed physical test.
+
+=== Neyer gap study: PAUSED - REVIEW REQUIRED ===
+The completed test data are saved, but the boundary result conflicts
+with the expected gap behavior. Do not continue automatically.
+Reason: no different reachable gap.
+
+.  PAUSED - REVIEW REQUIRED: requested gaps and measured gaps
+  give different outcome orderings. Completed data are kept.
+
+=== Neyer gap study: PAUSED - REVIEW REQUIRED ===
+The completed test data are saved, but the boundary result conflicts
+with the expected gap behavior. Do not continue automatically.
+Reason: requested outcome order conflict.
+
+.
+Done TestPhysicalGapWorkflow
+__________
+
+Running TestPhysicalRunEntryPoint
+..
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the middle gap and overall variation
+cannot be estimated yet. More test results are needed.
+
+  Unexpected interaction result at the maximum gap (10 mm).
+  Confirm once at the same gap before deciding whether to pause.
+
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the middle gap and overall variation
+cannot be estimated yet. More test results are needed.
+
+..  Unexpected interaction result at the maximum gap (10 mm).
+  Confirm once at the same gap before deciding whether to pause.
+
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the middle gap and overall variation
+cannot be estimated yet. More test results are needed.
+
+.  Unexpected interaction result at the maximum gap (10 mm).
+  Confirm once at the same gap before deciding whether to pause.
+
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the middle gap and overall variation
+cannot be estimated yet. More test results are needed.
+
+.  Unexpected interaction result at the maximum gap (10 mm).
+  Confirm once at the same gap before deciding whether to pause.
+
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the middle gap and overall variation
+cannot be estimated yet. More test results are needed.
+
+.  Unexpected interaction result at the maximum gap (10 mm).
+  Confirm once at the same gap before deciding whether to pause.
+
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the middle gap and overall variation
+cannot be estimated yet. More test results are needed.
+
+.  Unexpected interaction result at the maximum gap (10 mm).
+  Confirm once at the same gap before deciding whether to pause.
+
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the middle gap and overall variation
+cannot be estimated yet. More test results are needed.
+
+..
+=== Neyer sensitivity test: RESULT (20 tests) ===
+
+MIDDLE GAP (about 50% interaction): 5.3922 mm
+  95% confident the true middle is between 4.4871 and 6.5297 mm.
+
+OVERALL VARIATION: 1.0412 mm
+  Smaller means a sharper change; larger means a more gradual change.
+  95% confident the true overall variation is between 0.5373 and 2.7422 mm.
+
+HIGH-INTERACTION gap (about 99.9% interaction): 2.1746 mm
+  Confidence boundary not established within the permitted 0.00-10.00 mm range.
+
+NEGLIGIBLE-INTERACTION gap (about 99.9% no interaction): 8.6098 mm
+  Confidence boundary not established within the permitted 0.00-10.00 mm range.
+
+Note: the edge gaps are less certain than the middle gap.
+
+.
+Done TestPhysicalRunEntryPoint
+__________
+
+Running TestPhysicalUiInputs
+.......... ....
+Done TestPhysicalUiInputs
+__________
+
+Running TestPlannerSimulation
+Shard 1/2: tiny-regular, repetition 1/4
+Shard 1/2: tiny-regular, repetition 3/4
+Shard 2/2: tiny-regular, repetition 2/4
+Shard 2/2: tiny-regular, repetition 4/4
+Shard 1/1: tiny-regular, repetition 1/4
+Shard 1/1: tiny-regular, repetition 2/4
+Shard 1/1: tiny-regular, repetition 3/4
+Shard 1/1: tiny-regular, repetition 4/4
+.Shard 1/2: tiny-regular, repetition 1/2
+.Shard 1/2: tiny-regular, repetition 1/4
+Shard 1/2: tiny-regular, repetition 3/4
+Shard 2/2: tiny-regular, repetition 2/4
+Shard 2/2: tiny-regular, repetition 4/4
+.Shard 1/2: tiny-regular, repetition 1/2
+Shard 2/2: tiny-regular, repetition 2/2
+.Shard 1/2: tiny-regular, repetition 1/4
+Shard 1/2: tiny-regular, repetition 3/4
+Shard 2/2: tiny-regular, repetition 2/4
+Shard 2/2: tiny-regular, repetition 4/4
+.Shard 1/1: tiny-regular, repetition 1/1
+..
+Done TestPlannerSimulation
+__________
+
+Running TestPlannerUiSource
+.....
+Done TestPlannerUiSource
+__________
+
+Running TestPreTestPlanner
+.......... .......... ..........
+Done TestPreTestPlanner
+__________
+
+Running TestProposedNeyer
+..  (Heads up: the method suggested a level below 0. If your rig has a
+   minimum height, set cfg.min_level to it, e.g. 0.)
+
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the average and spread
+cannot be estimated. Run more items.
+
+.  (Heads up: the method suggested a level below 0. If your rig has a
+   minimum height, set cfg.min_level to it, e.g. 0.)
+
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the average and spread
+cannot be estimated. Run more items.
+
+.
+=== Neyer sensitivity test: RESULT (20 tests) ===
+
+AVERAGE breaking point: 5.3922 mm
+  The level where about half the items break.
+  95% confident the true average is between 4.4871 and 6.5297 mm.
+
+SPREAD (how much items vary): 1.0412 mm
+  95% confident the true spread is between 0.5373 and 2.7422 mm.
+
+ALL-FIRE level (99.9% of parts break): 8.6098 mm
+  95% confident that 99.9% of parts break at or above 12.7455 mm.
+
+NO-FIRE level (99.9% of parts survive): 2.1746 mm
+  A trustworthy safe (no-fire) height could not be pinned down with 20 tests
+  (the bound came out at or below zero) -- plan for about 73 parts in total.
+
+Note: the all-fire/no-fire edges are less certain than the average --
+  this test measures the whole picture, not just the far extremes.
+For other reliabilities, or the reliability at a specific height, run
+  reliability_query(result).  For the chart, run plot_result(result).
+
+.
+Done TestProposedNeyer
+__________
+
+Running TestReachableGapModel
+.......... ....  Unexpected interaction result at the maximum gap (0.1 mm).
+  Confirm once at the same gap before deciding whether to pause.
+..
+Done TestReachableGapModel
+__________
+
+Running TestReferenceTable
+
+=== Neyer sensitivity test: RESULT (20 tests) ===
+
+AVERAGE breaking point: 5.3922 mm
+  The level where about half the items break.
+  95% confident the true average is between 4.4871 and 6.5297 mm.
+
+SPREAD (how much items vary): 1.0412 mm
+  95% confident the true spread is between 0.5373 and 2.7422 mm.
+
+ALL-FIRE level (99.9% of parts break): 8.6098 mm
+  95% confident that 99.9% of parts break at or above 12.7455 mm.
+
+NO-FIRE level (99.9% of parts survive): 2.1746 mm
+  A trustworthy safe (no-fire) height could not be pinned down with 20 tests
+  (the bound came out at or below zero) -- plan for about 73 parts in total.
+
+Note: the all-fire/no-fire edges are less certain than the average --
+  this test measures the whole picture, not just the far extremes.
+For other reliabilities, or the reliability at a specific height, run
+  reliability_query(result).  For the chart, run plot_result(result).
+
+.
+Done TestReferenceTable
+__________
+
+Running TestResolutionAwareStage2
+...
+Done TestResolutionAwareStage2
+__________
+
+Running TestResultDecision
+.......... ...
+Done TestResultDecision
+__________
+
+Running TestShrinkOnly
+
+=== Neyer sensitivity test: RESULT (20 tests) ===
+
+AVERAGE breaking point: 5.3922 mm
+  The level where about half the items break.
+  95% confident the true average is between 4.4871 and 6.5297 mm.
+
+SPREAD (how much items vary): 1.0412 mm
+  95% confident the true spread is between 0.5373 and 2.7422 mm.
+
+ALL-FIRE level (99.9% of parts break): 8.6098 mm
+  95% confident that 99.9% of parts break at or above 12.7455 mm.
+
+NO-FIRE level (99.9% of parts survive): 2.1746 mm
+  A trustworthy safe (no-fire) height could not be pinned down with 20 tests
+  (the bound came out at or below zero) -- plan for about 73 parts in total.
+
+Note: the all-fire/no-fire edges are less certain than the average --
+  this test measures the whole picture, not just the far extremes.
+For other reliabilities, or the reliability at a specific height, run
+  reliability_query(result).  For the chart, run plot_result(result).
+
+.  (Heads up: the method suggested a level below 0. If your rig has a
+   minimum height, set cfg.min_level to it, e.g. 0.)
+
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the average and spread
+cannot be estimated. Run more items.
+
+.
+Done TestShrinkOnly
+__________
+
+Running TestSpacerBatchSample
+...
+Done TestSpacerBatchSample
+__________
+
+Running TestStage1Only
+..
+=== Neyer sensitivity test: RESULT (20 tests) ===
+
+AVERAGE breaking point: 5.3922 mm
+  The level where about half the items break.
+  95% confident the true average is between 4.4871 and 6.5297 mm.
+
+SPREAD (how much items vary): 1.0412 mm
+  95% confident the true spread is between 0.5373 and 2.7422 mm.
+
+ALL-FIRE level (99.9% of parts break): 8.6098 mm
+  95% confident that 99.9% of parts break at or above 12.7455 mm.
+
+NO-FIRE level (99.9% of parts survive): 2.1746 mm
+  A trustworthy safe (no-fire) height could not be pinned down with 20 tests
+  (the bound came out at or below zero) -- plan for about 73 parts in total.
+
+Note: the all-fire/no-fire edges are less certain than the average --
+  this test measures the whole picture, not just the far extremes.
+For other reliabilities, or the reliability at a specific height, run
+  reliability_query(result).  For the chart, run plot_result(result).
+
+.
+Done TestStage1Only
+__________
+
+Running TestStudyCheckpoint
+.......... ....
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the middle gap and overall variation
+cannot be estimated yet. More test results are needed.
+
+.
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the middle gap and overall variation
+cannot be estimated yet. More test results are needed.
+
+
+=== Neyer sensitivity test: NO RESULT ===
+Results have not yet overlapped, so the middle gap and overall variation
+cannot be estimated yet. More test results are needed.
+
+.
+Done TestStudyCheckpoint
+__________
+
+Running TestStudyPlanStorage
+..........
+Done TestStudyPlanStorage
+__________
+
+Running TestTransitionOnly
+..
+=== Neyer sensitivity test: RESULT (20 tests) ===
+
+AVERAGE breaking point: 5.3922 mm
+  The level where about half the items break.
+  95% confident the true average is between 4.4871 and 6.5297 mm.
+
+SPREAD (how much items vary): 1.0412 mm
+  95% confident the true spread is between 0.5373 and 2.7422 mm.
+
+ALL-FIRE level (99.9% of parts break): 8.6098 mm
+  95% confident that 99.9% of parts break at or above 12.7455 mm.
+
+NO-FIRE level (99.9% of parts survive): 2.1746 mm
+  A trustworthy safe (no-fire) height could not be pinned down with 20 tests
+  (the bound came out at or below zero) -- plan for about 73 parts in total.
+
+Note: the all-fire/no-fire edges are less certain than the average --
+  this test measures the whole picture, not just the far extremes.
+For other reliabilities, or the reliability at a specific height, run
+  reliability_query(result).  For the chart, run plot_result(result).
+
+.
+Done TestTransitionOnly
+__________
+
+Running TestUiCaptureScript
+.
+Done TestUiCaptureScript
+__________
+
+Running TestV115Standalone
+...
+Done TestV115Standalone
+__________
+
+Running TestV2ResultUi
+...
+Done TestV2ResultUi
+__________
+
+Running TestMeasurementRecord
+.....
+Done TestMeasurementRecord
+__________
+
+
+V1.15 FULL SUITE: 229 passed, 0 failed, 0 incomplete.
+V1.15 CLEAN START: PASS.
+V1.15 RELEASE VERIFICATION: PASS

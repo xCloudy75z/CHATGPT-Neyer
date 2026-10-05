@@ -1,0 +1,7 @@
+Neyer Gap Test V1.15 clean-start: PASS
+MATLAB release: 2022b
+Initial files: one MLX only
+Menu opened from isolated MLX: yes
+Embedded source files: 64
+Confidence-only result wording absent: yes
+Direction sentence absent: yes
