@@ -119,7 +119,7 @@
   <header class="site-head"><div class="page-shell"><a class="brand" href="#start">Neyer Gap Test</a><span class="version-mark">V1.14 · MATLAB R2022b</span></div></header>
   <section class="hero"><div class="page-shell hero-grid">
     <div><p class="kicker">One guide. One tested Live Script.</p><h1>Neyer Gap Test V1.14</h1><p class="lede">Use changing physical gaps to learn where Interaction changes to No interaction. This guide shows the idea, every operating step, and a complete manual twenty-test check you can perform in MATLAB.</p>
-      <div class="actions"><a class="button-link primary" href="downloads/Neyer_Gap_Test_v1_14.mlx" download>Download the V1.14 Live Script</a><a class="button-link secondary" href="#repeat" data-open-tab="repeat">Open the manual code check</a></div></div>
+      <div class="actions"><a class="button-link primary" href="downloads/Neyer_Gap_Test_v1_14.mlx" download>Download the V1.14 Live Script</a><a class="button-link secondary" href="downloads/Neyer_Gap_Test_V1_14_Presentation.pptx" download>Download the presentation</a><a class="button-link secondary" href="#repeat" data-open-tab="repeat">Open the manual code check</a></div></div>
     <div class="gap-instrument" aria-label="Diagram showing that interaction becomes less likely as the physical gap increases"><p class="instrument-title">The physical question</p><p class="instrument-note">What changes when these two surfaces move farther apart?</p><div class="material top" aria-hidden="true"></div><div class="physical-gap">physical gap</div><div class="material bottom" aria-hidden="true"></div><div class="arrow-line"><span>smaller gap<br>Interaction more likely</span><span>larger gap<br>No interaction more likely</span></div><div class="arrow-track" aria-hidden="true"></div></div>
   </div></section>
   <nav class="tab-wrap" aria-label="Guide sections"><div class="page-shell"><div class="tabs" role="tablist" aria-label="Neyer V1.14 guide tabs">
@@ -144,7 +144,7 @@
         <li><h3>Check the code manually</h3><p>Open <strong>Manual code check</strong> in this guide. Enter all twenty results yourself and confirm every requested gap before accepting the final answer.</p></li>
         <li><h3>Start your physical study</h3><p>Choose <strong>Start a Gap Study</strong>. Use the default first-study route when the overall variation is not already known.</p></li>
       </ol>
-      <div class="success"><strong>Current release check</strong><p>V1.14 passed 241 relevant MATLAB checks with no failures or incomplete checks.</p></div>
+      <div class="success"><strong>Current release check</strong><p>V1.14 passed 243 relevant MATLAB checks with no failures or incomplete checks.</p></div>
     </section>
 
     <section id="repeat" role="tabpanel" aria-labelledby="tab-repeat" hidden>
@@ -226,7 +226,7 @@
 
     <section id="evidence" role="tabpanel" aria-labelledby="tab-evidence" hidden>
       <div class="section-intro"><h2>Evidence and problems</h2><p>These are recorded checks from the V1.14 build, not invented performance claims.</p></div>
-      <div class="evidence-grid"><article class="evidence-item"><strong>241 / 241</strong><h3>relevant MATLAB checks passed</h3><p>No failed or incomplete checks.</p></article><article class="evidence-item"><strong>5 / 5</strong><h3>separate 62-test runs fitted curves</h3><p>Steps covered 0.05, 0.10, 0.15, 0.20, and 0.50 mm.</p></article><article class="evidence-item"><strong>45 of 54</strong><h3>unknown-variation cases fitted curves</h3><p>The remaining nine honestly returned no fitted answer.</p></article></div>
+      <div class="evidence-grid"><article class="evidence-item"><strong>243 / 243</strong><h3>relevant MATLAB checks passed</h3><p>No failed or incomplete checks.</p></article><article class="evidence-item"><strong>5 / 5</strong><h3>separate 62-test runs fitted curves</h3><p>Steps covered 0.05, 0.10, 0.15, 0.20, and 0.50 mm.</p></article><article class="evidence-item"><strong>45 of 54</strong><h3>unknown-variation cases fitted curves</h3><p>The remaining nine honestly returned no fitted answer.</p></article></div>
       <h3>Why nine simulation cases had no fitted curve</h3><p>The true change was only 0.15 mm wide while the physical step was 0.15 or 0.50 mm. Available settings were sometimes too coarse to show enough mixed outcomes within 62 tests. V1.14 returned an unfinished result instead of inventing confidence.</p>
       <h3>Problem guide</h3>
       <details><summary>The app asks for the same gap again</summary><div><p>A useful repeat uses a new independent article and newly built setup. If every request remains stuck, save the record and note the test number and gap.</p></div></details>

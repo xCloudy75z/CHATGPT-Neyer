@@ -68,7 +68,7 @@ V114_HOME_REQUIRED_TEXT = (
     "one measured gap reading",
     "5.3922 mm",
     "1.0412 mm",
-    "241",
+    "243",
     "45 of 54",
 )
 
@@ -193,6 +193,13 @@ def _fingerprint_pairs(site_root: Path, repository_root: Path) -> list[tuple[Pat
         (
             site_root / "downloads" / "General_Measurement_Recorder.m",
             repository_root / "delivery" / "General_Measurement_Recorder.m",
+        ),
+        (
+            site_root / "downloads" / "Neyer_Gap_Test_V1_14_Presentation.pptx",
+            repository_root
+            / "delivery"
+            / "presentation-release"
+            / "Neyer_Gap_Test_V1_14_Presentation_Approved.pptx",
         ),
     ]
     pairs.extend(
